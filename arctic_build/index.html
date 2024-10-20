@@ -1,2 +1,39 @@
 <!doctype html>
-<html><body>hello from arctic!</body></html>
+<div><div id="arctic-app"><div>hello from arctic! <a href="/test">test</a></div></div><script>
+// algorithm stolen from Hayleigh Thompson's wonderful Modem library
+document.addEventListener('click', async function(e) {
+  const a = find_a(e.target);
+  if (!a) return;
+  try {
+    const url = new URL(a.href);
+
+    const is_external = url.host !== window.location.host;
+    if (is_external) return;
+
+    event.preventDefault();
+
+    window.history.pushState({}, '', a.href);
+    window.requestAnimationFrame(() => {
+      // scroll in #-link elements, as the browser would if we didn't preventDefault
+      if (url.hash) {
+        document.getElementById(url.hash.slice(1))?.scrollIntoView();
+      }
+    });
+
+    // handle new path
+    console.log(url.pathname);
+    const response = await fetch('/__pages/' + url.pathname + '/index.html');
+    if (!response.ok) response = await fetch('/__pages/404.html');
+    if (!response.ok) return;
+    const html = await response.text();
+    document.getElementById('arctic-app').innerHTML = html;
+  } catch {
+    return;
+  }
+}
+function find_a(target) {
+  if (!target || target.tagName === 'BODY') return null;
+  if (target.tagName === 'A') return target;
+  return find_a(target.parentElement);
+}
+  </script></div>

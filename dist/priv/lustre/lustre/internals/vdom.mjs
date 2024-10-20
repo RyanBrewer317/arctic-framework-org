@@ -14,6 +14,7 @@ import {
   CustomType as $CustomType,
   isEqual,
 } from "../../gleam.mjs";
+import { coerce as unsafe_coerce } from "../../lustre-escape.ffi.mjs";
 import * as $escape from "../../lustre/internals/escape.mjs";
 import { escape } from "../../lustre/internals/escape.mjs";
 
@@ -69,6 +70,17 @@ export class Event extends $CustomType {
   }
 }
 
+export function attribute_to_event_handler(attribute) {
+  if (attribute instanceof Attribute) {
+    return new Error(undefined);
+  } else {
+    let name = attribute[0];
+    let handler = attribute[1];
+    let name$1 = $string.drop_left(name, 2);
+    return new Ok([name$1, handler]);
+  }
+}
+
 export function attribute_to_json(attribute, key) {
   let true_atom = $dynamic.from(true);
   let false_atom = $dynamic.from(false);
@@ -83,7 +95,7 @@ export function attribute_to_json(attribute, key) {
         $json.object(
           toList([
             ["0", $json.string(name)],
-            ["1", $json.string($dynamic.unsafe_coerce(value))],
+            ["1", $json.string(unsafe_coerce(value))],
           ]),
         ),
       );
@@ -93,7 +105,7 @@ export function attribute_to_json(attribute, key) {
         $json.object(
           toList([
             ["0", $json.string(name)],
-            ["1", $json.bool($dynamic.unsafe_coerce(value))],
+            ["1", $json.bool(unsafe_coerce(value))],
           ]),
         ),
       );
@@ -102,7 +114,7 @@ export function attribute_to_json(attribute, key) {
         $json.object(
           toList([
             ["0", $json.string(name)],
-            ["1", $json.bool($dynamic.unsafe_coerce(value))],
+            ["1", $json.bool(unsafe_coerce(value))],
           ]),
         ),
       );
@@ -111,7 +123,7 @@ export function attribute_to_json(attribute, key) {
         $json.object(
           toList([
             ["0", $json.string(name)],
-            ["1", $json.bool($dynamic.unsafe_coerce(value))],
+            ["1", $json.bool(unsafe_coerce(value))],
           ]),
         ),
       );
@@ -120,7 +132,7 @@ export function attribute_to_json(attribute, key) {
         $json.object(
           toList([
             ["0", $json.string(name)],
-            ["1", $json.int($dynamic.unsafe_coerce(value))],
+            ["1", $json.int(unsafe_coerce(value))],
           ]),
         ),
       );
@@ -129,7 +141,7 @@ export function attribute_to_json(attribute, key) {
         $json.object(
           toList([
             ["0", $json.string(name)],
-            ["1", $json.float($dynamic.unsafe_coerce(value))],
+            ["1", $json.float(unsafe_coerce(value))],
           ]),
         ),
       );
@@ -160,7 +172,7 @@ function attribute_to_string_parts(attr) {
     let true_atom = $dynamic.from(true);
     let $ = $dynamic.classify(value);
     if ($ === "String") {
-      return new Ok([name, $dynamic.unsafe_coerce(value)]);
+      return new Ok([name, unsafe_coerce(value)]);
     } else if ($ === "Atom" && (isEqual(value, true_atom))) {
       return new Ok([name, ""]);
     } else if ($ === "Bool" && (isEqual(value, true_atom))) {
@@ -174,9 +186,9 @@ function attribute_to_string_parts(attr) {
     } else if ($ === "Boolean") {
       return new Error(undefined);
     } else if ($ === "Int") {
-      return new Ok([name, $int.to_string($dynamic.unsafe_coerce(value))]);
+      return new Ok([name, $int.to_string(unsafe_coerce(value))]);
     } else if ($ === "Float") {
-      return new Ok([name, $float.to_string($dynamic.unsafe_coerce(value))]);
+      return new Ok([name, $float.to_string(unsafe_coerce(value))]);
     } else if (as_property) {
       return new Error(undefined);
     } else {
@@ -261,17 +273,6 @@ function attributes_to_string_builder(attrs) {
     })(),
     inner_html,
   ];
-}
-
-export function attribute_to_event_handler(attribute) {
-  if (attribute instanceof Attribute) {
-    return new Error(undefined);
-  } else {
-    let name = attribute[0];
-    let handler = attribute[1];
-    let name$1 = $string.drop_left(name, 2);
-    return new Ok([name$1, handler]);
-  }
 }
 
 function children_to_string_builder(html, children, raw_text) {

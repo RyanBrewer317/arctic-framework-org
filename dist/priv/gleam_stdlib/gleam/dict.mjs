@@ -207,10 +207,6 @@ export function upsert(dict, key, fun) {
   return ((_capture) => { return insert(dict, key, _capture); })(_pipe$3);
 }
 
-export function update(dict, key, fun) {
-  return upsert(dict, key, fun);
-}
-
 function do_fold(loop$list, loop$initial, loop$fun) {
   while (true) {
     let list = loop$list;

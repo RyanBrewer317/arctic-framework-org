@@ -176,11 +176,11 @@ slice(String, Idx, Len) ->
                             <<""/utf8>>;
 
                         false ->
-                            string:slice(String, Translated_idx, Len)
+                            gleam_stdlib:slice(String, Translated_idx, Len)
                     end;
 
                 false ->
-                    string:slice(String, Idx, Len)
+                    gleam_stdlib:slice(String, Idx, Len)
             end
     end.
 

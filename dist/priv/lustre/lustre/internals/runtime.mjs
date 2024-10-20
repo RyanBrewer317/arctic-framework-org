@@ -16,9 +16,10 @@ import { Diff, Init } from "../../lustre/internals/patch.mjs";
 import * as $vdom from "../../lustre/internals/vdom.mjs";
 
 class State extends $CustomType {
-  constructor(self, model, update, view, html, renderers, handlers, on_attribute_change) {
+  constructor(self, selector, model, update, view, html, renderers, handlers, on_attribute_change) {
     super();
     this.self = self;
+    this.selector = selector;
     this.model = model;
     this.update = update;
     this.view = view;

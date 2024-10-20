@@ -1,32 +1,33 @@
 -module(lustre@internals@patch).
 -compile([no_auto_import, nowarn_unused_vars, nowarn_unused_function, nowarn_nomatch]).
 
--export([attribute_diff_to_json/2, attributes/2, is_empty_element_diff/1, element_diff_to_json/1, patch_to_json/1, elements/2]).
+-export([attribute_diff_to_json/2, is_empty_element_diff/1, element_diff_to_json/1, patch_to_json/1, attributes/2, elements/2]).
 -export_type([patch/1, element_diff/1, attribute_diff/1]).
 
--type patch(ODI) :: {diff, element_diff(ODI)} |
+-type patch(OST) :: {diff, element_diff(OST)} |
     {emit, binary(), gleam@json:json()} |
-    {init, list(binary()), lustre@internals@vdom:element(ODI)}.
+    {init, list(binary()), lustre@internals@vdom:element(OST)}.
 
--type element_diff(ODJ) :: {element_diff,
-        gleam@dict:dict(binary(), lustre@internals@vdom:element(ODJ)),
+-type element_diff(OSU) :: {element_diff,
+        gleam@dict:dict(binary(), lustre@internals@vdom:element(OSU)),
         gleam@set:set(binary()),
-        gleam@dict:dict(binary(), attribute_diff(ODJ)),
-        gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, ODJ} |
+        gleam@dict:dict(binary(), attribute_diff(OSU)),
+        gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, OSU} |
             {error, list(gleam@dynamic:decode_error())}))}.
 
--type attribute_diff(ODK) :: {attribute_diff,
-        gleam@set:set(lustre@internals@vdom:attribute(ODK)),
+-type attribute_diff(OSV) :: {attribute_diff,
+        gleam@set:set(lustre@internals@vdom:attribute(OSV)),
         gleam@set:set(binary()),
-        gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, ODK} |
+        gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, OSV} |
             {error, list(gleam@dynamic:decode_error())}))}.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 188).
 -spec do_attribute(
-    attribute_diff(OEJ),
+    attribute_diff(OTU),
     binary(),
-    {ok, lustre@internals@vdom:attribute(OEJ)} | {error, nil},
-    {ok, lustre@internals@vdom:attribute(OEJ)} | {error, nil}
-) -> attribute_diff(OEJ).
+    {ok, lustre@internals@vdom:attribute(OTU)} | {error, nil},
+    {ok, lustre@internals@vdom:attribute(OTU)} | {error, nil}
+) -> attribute_diff(OTU).
 do_attribute(Diff, Key, Old, New) ->
     case {Old, New} of
         {{error, _}, {error, _}} ->
@@ -68,6 +69,7 @@ do_attribute(Diff, Key, Old, New) ->
             )
     end.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 291).
 -spec do_key_sort(list(binary()), list(binary())) -> gleam@order:order().
 do_key_sort(Xs, Ys) ->
     case {Xs, Ys} of
@@ -89,7 +91,7 @@ do_key_sort(Xs, Ys) ->
                 {ok, _} -> _assert_subject;
                 _assert_fail ->
                     erlang:error(#{gleam_error => let_assert,
-                                message => <<"Assertion pattern match failed"/utf8>>,
+                                message => <<"Pattern match failed, no pattern matched the value."/utf8>>,
                                 value => _assert_fail,
                                 module => <<"lustre/internals/patch"/utf8>>,
                                 function => <<"do_key_sort"/utf8>>,
@@ -100,7 +102,7 @@ do_key_sort(Xs, Ys) ->
                 {ok, _} -> _assert_subject@1;
                 _assert_fail@1 ->
                     erlang:error(#{gleam_error => let_assert,
-                                message => <<"Assertion pattern match failed"/utf8>>,
+                                message => <<"Pattern match failed, no pattern matched the value."/utf8>>,
                                 value => _assert_fail@1,
                                 module => <<"lustre/internals/patch"/utf8>>,
                                 function => <<"do_key_sort"/utf8>>,
@@ -115,6 +117,7 @@ do_key_sort(Xs, Ys) ->
             end
     end.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 287).
 -spec key_sort(binary(), binary()) -> gleam@order:order().
 key_sort(X, Y) ->
     do_key_sort(
@@ -122,6 +125,7 @@ key_sort(X, Y) ->
         gleam@string:split(Y, <<"-"/utf8>>)
     ).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 309).
 -spec attribute_diff_to_json(attribute_diff(any()), binary()) -> gleam@json:json().
 attribute_diff_to_json(Diff, Key) ->
     gleam@json:preprocessed_array(
@@ -151,8 +155,9 @@ attribute_diff_to_json(Diff, Key) ->
             )]
     ).
 
--spec zip(list(OFA), list(OFA)) -> list({gleam@option:option(OFA),
-    gleam@option:option(OFA)}).
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 327).
+-spec zip(list(OUL), list(OUL)) -> list({gleam@option:option(OUL),
+    gleam@option:option(OUL)}).
 zip(Xs, Ys) ->
     case {Xs, Ys} of
         {[], []} ->
@@ -168,93 +173,10 @@ zip(Xs, Ys) ->
             [{none, {some, Y@1}} | zip([], Ys@2)]
     end.
 
--spec attribute_dict(list(lustre@internals@vdom:attribute(OFG))) -> gleam@dict:dict(binary(), lustre@internals@vdom:attribute(OFG)).
-attribute_dict(Attributes) ->
-    gleam@list:fold(
-        Attributes,
-        gleam@dict:new(),
-        fun(Dict, Attr) -> case Attr of
-                {attribute, <<"class"/utf8>>, Value, _} ->
-                    case gleam@dict:get(Dict, <<"class"/utf8>>) of
-                        {ok, {attribute, _, Classes, _}} ->
-                            Classes@1 = gleam@dynamic:from(
-                                <<<<(gleam@dynamic:unsafe_coerce(Classes))/binary,
-                                        " "/utf8>>/binary,
-                                    (gleam@dynamic:unsafe_coerce(Value))/binary>>
-                            ),
-                            gleam@dict:insert(
-                                Dict,
-                                <<"class"/utf8>>,
-                                {attribute, <<"class"/utf8>>, Classes@1, false}
-                            );
-
-                        {ok, _} ->
-                            gleam@dict:insert(Dict, <<"class"/utf8>>, Attr);
-
-                        {error, _} ->
-                            gleam@dict:insert(Dict, <<"class"/utf8>>, Attr)
-                    end;
-
-                {attribute, <<"style"/utf8>>, Value@1, _} ->
-                    case gleam@dict:get(Dict, <<"style"/utf8>>) of
-                        {ok, {attribute, _, Styles, _}} ->
-                            Styles@1 = gleam@dynamic:from(
-                                lists:append(
-                                    gleam@dynamic:unsafe_coerce(Styles),
-                                    gleam@dynamic:unsafe_coerce(Value@1)
-                                )
-                            ),
-                            gleam@dict:insert(
-                                Dict,
-                                <<"style"/utf8>>,
-                                {attribute, <<"style"/utf8>>, Styles@1, false}
-                            );
-
-                        {ok, _} ->
-                            gleam@dict:insert(Dict, <<"class"/utf8>>, Attr);
-
-                        {error, _} ->
-                            gleam@dict:insert(Dict, <<"class"/utf8>>, Attr)
-                    end;
-
-                {attribute, Key, _, _} ->
-                    gleam@dict:insert(Dict, Key, Attr);
-
-                {event, Key@1, _} ->
-                    gleam@dict:insert(Dict, Key@1, Attr)
-            end end
-    ).
-
--spec attributes(
-    list(lustre@internals@vdom:attribute(OED)),
-    list(lustre@internals@vdom:attribute(OED))
-) -> attribute_diff(OED).
-attributes(Old, New) ->
-    Old@1 = attribute_dict(Old),
-    New@1 = attribute_dict(New),
-    Init = {attribute_diff, gleam@set:new(), gleam@set:new(), gleam@dict:new()},
-    {Diff@2, New@4} = (gleam@dict:fold(
-        Old@1,
-        {Init, New@1},
-        fun(_use0, Key, Attr) ->
-            {Diff, New@2} = _use0,
-            New_attr = gleam@dict:get(New@2, Key),
-            Diff@1 = do_attribute(Diff, Key, {ok, Attr}, New_attr),
-            New@3 = gleam@dict:delete(New@2, Key),
-            {Diff@1, New@3}
-        end
-    )),
-    gleam@dict:fold(
-        New@4,
-        Diff@2,
-        fun(Diff@3, Key@1, Attr@1) ->
-            do_attribute(Diff@3, Key@1, {error, nil}, {ok, Attr@1})
-        end
-    ).
-
--spec event_handler(lustre@internals@vdom:attribute(OFM)) -> {ok,
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 378).
+-spec event_handler(lustre@internals@vdom:attribute(OUX)) -> {ok,
         {binary(),
-            fun((gleam@dynamic:dynamic_()) -> {ok, OFM} |
+            fun((gleam@dynamic:dynamic_()) -> {ok, OUX} |
                 {error, list(gleam@dynamic:decode_error())})}} |
     {error, nil}.
 event_handler(Attribute) ->
@@ -267,6 +189,7 @@ event_handler(Attribute) ->
             {ok, {Name@1, Handler}}
     end.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 427).
 -spec is_empty_element_diff(element_diff(any())) -> boolean().
 is_empty_element_diff(Diff) ->
     ((erlang:element(2, Diff) =:= gleam@dict:new()) andalso (erlang:element(
@@ -276,6 +199,7 @@ is_empty_element_diff(Diff) ->
     =:= gleam@set:new()))
     andalso (erlang:element(4, Diff) =:= gleam@dict:new()).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 433).
 -spec is_empty_attribute_diff(attribute_diff(any())) -> boolean().
 is_empty_attribute_diff(Diff) ->
     (erlang:element(2, Diff) =:= gleam@set:new()) andalso (erlang:element(
@@ -284,6 +208,7 @@ is_empty_attribute_diff(Diff) ->
     )
     =:= gleam@set:new()).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 240).
 -spec element_diff_to_json(element_diff(any())) -> gleam@json:json().
 element_diff_to_json(Diff) ->
     gleam@json:preprocessed_array(
@@ -360,6 +285,7 @@ element_diff_to_json(Diff) ->
             )]
     ).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 218).
 -spec patch_to_json(patch(any())) -> gleam@json:json().
 patch_to_json(Patch) ->
     case Patch of
@@ -381,12 +307,99 @@ patch_to_json(Patch) ->
             )
     end.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 343).
+-spec attribute_dict(list(lustre@internals@vdom:attribute(OUR))) -> gleam@dict:dict(binary(), lustre@internals@vdom:attribute(OUR)).
+attribute_dict(Attributes) ->
+    gleam@list:fold(
+        Attributes,
+        gleam@dict:new(),
+        fun(Dict, Attr) -> case Attr of
+                {attribute, <<"class"/utf8>>, Value, _} ->
+                    case gleam@dict:get(Dict, <<"class"/utf8>>) of
+                        {ok, {attribute, _, Classes, _}} ->
+                            Classes@1 = gleam_stdlib:identity(
+                                <<<<(lustre_escape_ffi:coerce(Classes))/binary,
+                                        " "/utf8>>/binary,
+                                    (lustre_escape_ffi:coerce(Value))/binary>>
+                            ),
+                            gleam@dict:insert(
+                                Dict,
+                                <<"class"/utf8>>,
+                                {attribute, <<"class"/utf8>>, Classes@1, false}
+                            );
+
+                        {ok, _} ->
+                            gleam@dict:insert(Dict, <<"class"/utf8>>, Attr);
+
+                        {error, _} ->
+                            gleam@dict:insert(Dict, <<"class"/utf8>>, Attr)
+                    end;
+
+                {attribute, <<"style"/utf8>>, Value@1, _} ->
+                    case gleam@dict:get(Dict, <<"style"/utf8>>) of
+                        {ok, {attribute, _, Styles, _}} ->
+                            Styles@1 = gleam_stdlib:identity(
+                                lists:append(
+                                    lustre_escape_ffi:coerce(Styles),
+                                    lustre_escape_ffi:coerce(Value@1)
+                                )
+                            ),
+                            gleam@dict:insert(
+                                Dict,
+                                <<"style"/utf8>>,
+                                {attribute, <<"style"/utf8>>, Styles@1, false}
+                            );
+
+                        {ok, _} ->
+                            gleam@dict:insert(Dict, <<"class"/utf8>>, Attr);
+
+                        {error, _} ->
+                            gleam@dict:insert(Dict, <<"class"/utf8>>, Attr)
+                    end;
+
+                {attribute, Key, _, _} ->
+                    gleam@dict:insert(Dict, Key, Attr);
+
+                {event, Key@1, _} ->
+                    gleam@dict:insert(Dict, Key@1, Attr)
+            end end
+    ).
+
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 165).
+-spec attributes(
+    list(lustre@internals@vdom:attribute(OTO)),
+    list(lustre@internals@vdom:attribute(OTO))
+) -> attribute_diff(OTO).
+attributes(Old, New) ->
+    Old@1 = attribute_dict(Old),
+    New@1 = attribute_dict(New),
+    Init = {attribute_diff, gleam@set:new(), gleam@set:new(), gleam@dict:new()},
+    {Diff@2, New@4} = (gleam@dict:fold(
+        Old@1,
+        {Init, New@1},
+        fun(_use0, Key, Attr) ->
+            {Diff, New@2} = _use0,
+            New_attr = gleam@dict:get(New@2, Key),
+            Diff@1 = do_attribute(Diff, Key, {ok, Attr}, New_attr),
+            New@3 = gleam@dict:delete(New@2, Key),
+            {Diff@1, New@3}
+        end
+    )),
+    gleam@dict:fold(
+        New@4,
+        Diff@2,
+        fun(Diff@3, Key@1, Attr@1) ->
+            do_attribute(Diff@3, Key@1, {error, nil}, {ok, Attr@1})
+        end
+    ).
+
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 150).
 -spec do_element_list(
-    element_diff(ODW),
-    list(lustre@internals@vdom:element(ODW)),
-    list(lustre@internals@vdom:element(ODW)),
+    element_diff(OTH),
+    list(lustre@internals@vdom:element(OTH)),
+    list(lustre@internals@vdom:element(OTH)),
     binary()
-) -> element_diff(ODW).
+) -> element_diff(OTH).
 do_element_list(Diff, Old_elements, New_elements, Key) ->
     Children = zip(Old_elements, New_elements),
     gleam@list:index_fold(
@@ -400,12 +413,13 @@ do_element_list(Diff, Old_elements, New_elements, Key) ->
         end
     ).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 54).
 -spec do_elements(
-    element_diff(ODP),
-    gleam@option:option(lustre@internals@vdom:element(ODP)),
-    gleam@option:option(lustre@internals@vdom:element(ODP)),
+    element_diff(OTA),
+    gleam@option:option(lustre@internals@vdom:element(OTA)),
+    gleam@option:option(lustre@internals@vdom:element(OTA)),
     binary()
-) -> element_diff(ODP).
+) -> element_diff(OTA).
 do_elements(Diff, Old, New, Key) ->
     case {Old, New} of
         {none, none} ->
@@ -564,10 +578,11 @@ do_elements(Diff, Old, New, Key) ->
             end
     end.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 45).
 -spec elements(
-    lustre@internals@vdom:element(ODL),
-    lustre@internals@vdom:element(ODL)
-) -> element_diff(ODL).
+    lustre@internals@vdom:element(OSW),
+    lustre@internals@vdom:element(OSW)
+) -> element_diff(OSW).
 elements(Old, New) ->
     do_elements(
         {element_diff,
@@ -580,12 +595,13 @@ elements(Old, New) ->
         <<"0"/utf8>>
     ).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 416).
 -spec fold_element_list_event_handlers(
-    gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, OFZ} |
+    gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, OVK} |
         {error, list(gleam@dynamic:decode_error())})),
-    list(lustre@internals@vdom:element(OFZ)),
+    list(lustre@internals@vdom:element(OVK)),
     binary()
-) -> gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, OFZ} |
+) -> gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, OVK} |
     {error, list(gleam@dynamic:decode_error())})).
 fold_element_list_event_handlers(Handlers, Elements, Key) ->
     gleam@list:index_fold(
@@ -598,12 +614,13 @@ fold_element_list_event_handlers(Handlers, Elements, Key) ->
         end
     ).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/patch.gleam", 391).
 -spec fold_event_handlers(
-    gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, OFR} |
+    gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, OVC} |
         {error, list(gleam@dynamic:decode_error())})),
-    lustre@internals@vdom:element(OFR),
+    lustre@internals@vdom:element(OVC),
     binary()
-) -> gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, OFR} |
+) -> gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, OVC} |
     {error, list(gleam@dynamic:decode_error())})).
 fold_event_handlers(Handlers, Element, Key) ->
     case Element of

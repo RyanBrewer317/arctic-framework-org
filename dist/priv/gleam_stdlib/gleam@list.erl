@@ -4,7 +4,7 @@
 -export([length/1, reverse/1, is_empty/1, contains/2, first/1, rest/1, filter/2, filter_map/2, map/2, map2/3, index_map/2, try_map/2, drop/2, take/2, new/0, wrap/1, append/2, prepend/2, concat/1, flatten/1, flat_map/2, fold/3, count/2, group/2, map_fold/3, fold_right/3, index_fold/3, try_fold/3, fold_until/3, find/2, find_map/2, all/2, any/2, zip/2, strict_zip/2, unzip/1, intersperse/2, unique/1, sort/2, range/2, repeat/2, split/2, split_while/2, key_find/2, key_filter/2, pop/2, pop_map/2, key_pop/2, key_set/3, each/2, try_each/2, partition/2, permutations/1, window/2, window_by_2/1, drop_while/2, take_while/2, chunk/2, sized_chunk/2, reduce/2, scan/3, last/1, combinations/2, combination_pairs/1, transpose/1, interleave/1, shuffle/1]).
 -export_type([continue_or_stop/1, sorting/0]).
 
--type continue_or_stop(AAS) :: {continue, AAS} | {stop, AAS}.
+-type continue_or_stop(AAO) :: {continue, AAO} | {stop, AAO}.
 
 -type sorting() :: ascending | descending.
 
@@ -22,7 +22,7 @@ count_length(List, Count) ->
 length(List) ->
     erlang:length(List).
 
--spec do_reverse(list(ASP), list(ASP)) -> list(ASP).
+-spec do_reverse(list(ASL), list(ASL)) -> list(ASL).
 do_reverse(Remaining, Accumulator) ->
     case Remaining of
         [] ->
@@ -32,7 +32,7 @@ do_reverse(Remaining, Accumulator) ->
             do_reverse(Rest, [Item | Accumulator])
     end.
 
--spec reverse(list(AAZ)) -> list(AAZ).
+-spec reverse(list(AAV)) -> list(AAV).
 reverse(Xs) ->
     lists:reverse(Xs).
 
@@ -40,7 +40,7 @@ reverse(Xs) ->
 is_empty(List) ->
     List =:= [].
 
--spec contains(list(ABH), ABH) -> boolean().
+-spec contains(list(ABD), ABD) -> boolean().
 contains(List, Elem) ->
     case List of
         [] ->
@@ -53,7 +53,7 @@ contains(List, Elem) ->
             contains(Rest, Elem)
     end.
 
--spec first(list(ABJ)) -> {ok, ABJ} | {error, nil}.
+-spec first(list(ABF)) -> {ok, ABF} | {error, nil}.
 first(List) ->
     case List of
         [] ->
@@ -63,7 +63,7 @@ first(List) ->
             {ok, X}
     end.
 
--spec rest(list(ABN)) -> {ok, list(ABN)} | {error, nil}.
+-spec rest(list(ABJ)) -> {ok, list(ABJ)} | {error, nil}.
 rest(List) ->
     case List of
         [] ->
@@ -73,7 +73,7 @@ rest(List) ->
             {ok, Xs}
     end.
 
--spec update_group(fun((ABS) -> ABT)) -> fun((gleam@dict:dict(ABT, list(ABS)), ABS) -> gleam@dict:dict(ABT, list(ABS))).
+-spec update_group(fun((ABO) -> ABP)) -> fun((gleam@dict:dict(ABP, list(ABO)), ABO) -> gleam@dict:dict(ABP, list(ABO))).
 update_group(F) ->
     fun(Groups, Elem) -> case gleam@dict:get(Groups, F(Elem)) of
             {ok, Existing} ->
@@ -83,7 +83,7 @@ update_group(F) ->
                 gleam@dict:insert(Groups, F(Elem), [Elem])
         end end.
 
--spec do_filter(list(ACG), fun((ACG) -> boolean()), list(ACG)) -> list(ACG).
+-spec do_filter(list(ACC), fun((ACC) -> boolean()), list(ACC)) -> list(ACC).
 do_filter(List, Fun, Acc) ->
     case List of
         [] ->
@@ -100,15 +100,15 @@ do_filter(List, Fun, Acc) ->
             do_filter(Xs, Fun, New_acc)
     end.
 
--spec filter(list(ACK), fun((ACK) -> boolean())) -> list(ACK).
+-spec filter(list(ACG), fun((ACG) -> boolean())) -> list(ACG).
 filter(List, Predicate) ->
     do_filter(List, Predicate, []).
 
 -spec do_filter_map(
-    list(ACN),
-    fun((ACN) -> {ok, ACP} | {error, any()}),
-    list(ACP)
-) -> list(ACP).
+    list(ACJ),
+    fun((ACJ) -> {ok, ACL} | {error, any()}),
+    list(ACL)
+) -> list(ACL).
 do_filter_map(List, Fun, Acc) ->
     case List of
         [] ->
@@ -125,11 +125,11 @@ do_filter_map(List, Fun, Acc) ->
             do_filter_map(Xs, Fun, New_acc)
     end.
 
--spec filter_map(list(ACV), fun((ACV) -> {ok, ACX} | {error, any()})) -> list(ACX).
+-spec filter_map(list(ACR), fun((ACR) -> {ok, ACT} | {error, any()})) -> list(ACT).
 filter_map(List, Fun) ->
     do_filter_map(List, Fun, []).
 
--spec do_map(list(ADC), fun((ADC) -> ADE), list(ADE)) -> list(ADE).
+-spec do_map(list(ACY), fun((ACY) -> ADA), list(ADA)) -> list(ADA).
 do_map(List, Fun, Acc) ->
     case List of
         [] ->
@@ -139,11 +139,11 @@ do_map(List, Fun, Acc) ->
             do_map(Xs, Fun, [Fun(X) | Acc])
     end.
 
--spec map(list(ADH), fun((ADH) -> ADJ)) -> list(ADJ).
+-spec map(list(ADD), fun((ADD) -> ADF)) -> list(ADF).
 map(List, Fun) ->
     do_map(List, Fun, []).
 
--spec do_map2(list(ADR), list(ADT), fun((ADR, ADT) -> ADV), list(ADV)) -> list(ADV).
+-spec do_map2(list(ADN), list(ADP), fun((ADN, ADP) -> ADR), list(ADR)) -> list(ADR).
 do_map2(List1, List2, Fun, Acc) ->
     case {List1, List2} of
         {[], _} ->
@@ -156,16 +156,16 @@ do_map2(List1, List2, Fun, Acc) ->
             do_map2(As_, Bs, Fun, [Fun(A, B) | Acc])
     end.
 
--spec map2(list(ADL), list(ADN), fun((ADL, ADN) -> ADP)) -> list(ADP).
+-spec map2(list(ADH), list(ADJ), fun((ADH, ADJ) -> ADL)) -> list(ADL).
 map2(List1, List2, Fun) ->
     do_map2(List1, List2, Fun, []).
 
 -spec do_index_map(
-    list(AED),
-    fun((AED, integer()) -> AEF),
+    list(ADZ),
+    fun((ADZ, integer()) -> AEB),
     integer(),
-    list(AEF)
-) -> list(AEF).
+    list(AEB)
+) -> list(AEB).
 do_index_map(List, Fun, Index, Acc) ->
     case List of
         [] ->
@@ -176,13 +176,13 @@ do_index_map(List, Fun, Index, Acc) ->
             do_index_map(Xs, Fun, Index + 1, Acc@1)
     end.
 
--spec index_map(list(AEI), fun((AEI, integer()) -> AEK)) -> list(AEK).
+-spec index_map(list(AEE), fun((AEE, integer()) -> AEG)) -> list(AEG).
 index_map(List, Fun) ->
     do_index_map(List, Fun, 0, []).
 
--spec do_try_map(list(AEM), fun((AEM) -> {ok, AEO} | {error, AEP}), list(AEO)) -> {ok,
-        list(AEO)} |
-    {error, AEP}.
+-spec do_try_map(list(AEI), fun((AEI) -> {ok, AEK} | {error, AEL}), list(AEK)) -> {ok,
+        list(AEK)} |
+    {error, AEL}.
 do_try_map(List, Fun, Acc) ->
     case List of
         [] ->
@@ -198,13 +198,13 @@ do_try_map(List, Fun, Acc) ->
             end
     end.
 
--spec try_map(list(AEW), fun((AEW) -> {ok, AEY} | {error, AEZ})) -> {ok,
-        list(AEY)} |
-    {error, AEZ}.
+-spec try_map(list(AES), fun((AES) -> {ok, AEU} | {error, AEV})) -> {ok,
+        list(AEU)} |
+    {error, AEV}.
 try_map(List, Fun) ->
     do_try_map(List, Fun, []).
 
--spec drop(list(AFF), integer()) -> list(AFF).
+-spec drop(list(AFB), integer()) -> list(AFB).
 drop(List, N) ->
     case N =< 0 of
         true ->
@@ -220,7 +220,7 @@ drop(List, N) ->
             end
     end.
 
--spec do_take(list(AFI), integer(), list(AFI)) -> list(AFI).
+-spec do_take(list(AFE), integer(), list(AFE)) -> list(AFE).
 do_take(List, N, Acc) ->
     case N =< 0 of
         true ->
@@ -236,7 +236,7 @@ do_take(List, N, Acc) ->
             end
     end.
 
--spec take(list(AFM), integer()) -> list(AFM).
+-spec take(list(AFI), integer()) -> list(AFI).
 take(List, N) ->
     do_take(List, N, []).
 
@@ -244,11 +244,11 @@ take(List, N) ->
 new() ->
     [].
 
--spec wrap(AFR) -> list(AFR).
+-spec wrap(AFN) -> list(AFN).
 wrap(Item) ->
     [Item].
 
--spec do_append(list(AFX), list(AFX)) -> list(AFX).
+-spec do_append(list(AFT), list(AFT)) -> list(AFT).
 do_append(First, Second) ->
     case First of
         [] ->
@@ -258,15 +258,15 @@ do_append(First, Second) ->
             do_append(Rest, [Item | Second])
     end.
 
--spec append(list(AFT), list(AFT)) -> list(AFT).
+-spec append(list(AFP), list(AFP)) -> list(AFP).
 append(First, Second) ->
     lists:append(First, Second).
 
--spec prepend(list(AGB), AGB) -> list(AGB).
+-spec prepend(list(AFX), AFX) -> list(AFX).
 prepend(List, Item) ->
     [Item | List].
 
--spec reverse_and_prepend(list(AGE), list(AGE)) -> list(AGE).
+-spec reverse_and_prepend(list(AGA), list(AGA)) -> list(AGA).
 reverse_and_prepend(Prefix, Suffix) ->
     case Prefix of
         [] ->
@@ -276,7 +276,7 @@ reverse_and_prepend(Prefix, Suffix) ->
             reverse_and_prepend(Rest, [First | Suffix])
     end.
 
--spec do_concat(list(list(AGI)), list(AGI)) -> list(AGI).
+-spec do_concat(list(list(AGE)), list(AGE)) -> list(AGE).
 do_concat(Lists, Acc) ->
     case Lists of
         [] ->
@@ -286,20 +286,20 @@ do_concat(Lists, Acc) ->
             do_concat(Further_lists, reverse_and_prepend(List, Acc))
     end.
 
--spec concat(list(list(AGN))) -> list(AGN).
+-spec concat(list(list(AGJ))) -> list(AGJ).
 concat(Lists) ->
     do_concat(Lists, []).
 
--spec flatten(list(list(AGR))) -> list(AGR).
+-spec flatten(list(list(AGN))) -> list(AGN).
 flatten(Lists) ->
     do_concat(Lists, []).
 
--spec flat_map(list(AGV), fun((AGV) -> list(AGX))) -> list(AGX).
+-spec flat_map(list(AGR), fun((AGR) -> list(AGT))) -> list(AGT).
 flat_map(List, Fun) ->
     _pipe = map(List, Fun),
     concat(_pipe).
 
--spec fold(list(AHA), AHC, fun((AHC, AHA) -> AHC)) -> AHC.
+-spec fold(list(AGW), AGY, fun((AGY, AGW) -> AGY)) -> AGY.
 fold(List, Initial, Fun) ->
     case List of
         [] ->
@@ -309,7 +309,7 @@ fold(List, Initial, Fun) ->
             fold(Rest, Fun(Initial, X), Fun)
     end.
 
--spec count(list(AAX), fun((AAX) -> boolean())) -> integer().
+-spec count(list(AAT), fun((AAT) -> boolean())) -> integer().
 count(List, Predicate) ->
     fold(List, 0, fun(Acc, Value) -> case Predicate(Value) of
                 true ->
@@ -319,12 +319,12 @@ count(List, Predicate) ->
                     Acc
             end end).
 
--spec group(list(ACA), fun((ACA) -> ACC)) -> gleam@dict:dict(ACC, list(ACA)).
+-spec group(list(ABW), fun((ABW) -> ABY)) -> gleam@dict:dict(ABY, list(ABW)).
 group(List, Key) ->
     fold(List, gleam@dict:new(), update_group(Key)).
 
--spec map_fold(list(ADY), AEA, fun((AEA, ADY) -> {AEA, AEB})) -> {AEA,
-    list(AEB)}.
+-spec map_fold(list(ADU), ADW, fun((ADW, ADU) -> {ADW, ADX})) -> {ADW,
+    list(ADX)}.
 map_fold(List, Acc, Fun) ->
     _pipe = fold(
         List,
@@ -337,7 +337,7 @@ map_fold(List, Acc, Fun) ->
     ),
     gleam@pair:map_second(_pipe, fun lists:reverse/1).
 
--spec fold_right(list(AHD), AHF, fun((AHF, AHD) -> AHF)) -> AHF.
+-spec fold_right(list(AGZ), AHB, fun((AHB, AGZ) -> AHB)) -> AHB.
 fold_right(List, Initial, Fun) ->
     case List of
         [] ->
@@ -348,11 +348,11 @@ fold_right(List, Initial, Fun) ->
     end.
 
 -spec do_index_fold(
-    list(AHG),
-    AHI,
-    fun((AHI, AHG, integer()) -> AHI),
+    list(AHC),
+    AHE,
+    fun((AHE, AHC, integer()) -> AHE),
     integer()
-) -> AHI.
+) -> AHE.
 do_index_fold(Over, Acc, With, Index) ->
     case Over of
         [] ->
@@ -362,13 +362,13 @@ do_index_fold(Over, Acc, With, Index) ->
             do_index_fold(Rest, With(Acc, First, Index), With, Index + 1)
     end.
 
--spec index_fold(list(AHJ), AHL, fun((AHL, AHJ, integer()) -> AHL)) -> AHL.
+-spec index_fold(list(AHF), AHH, fun((AHH, AHF, integer()) -> AHH)) -> AHH.
 index_fold(Over, Initial, Fun) ->
     do_index_fold(Over, Initial, Fun, 0).
 
--spec try_fold(list(AHM), AHO, fun((AHO, AHM) -> {ok, AHO} | {error, AHP})) -> {ok,
-        AHO} |
-    {error, AHP}.
+-spec try_fold(list(AHI), AHK, fun((AHK, AHI) -> {ok, AHK} | {error, AHL})) -> {ok,
+        AHK} |
+    {error, AHL}.
 try_fold(Collection, Accumulator, Fun) ->
     case Collection of
         [] ->
@@ -384,7 +384,7 @@ try_fold(Collection, Accumulator, Fun) ->
             end
     end.
 
--spec fold_until(list(AHU), AHW, fun((AHW, AHU) -> continue_or_stop(AHW))) -> AHW.
+-spec fold_until(list(AHQ), AHS, fun((AHS, AHQ) -> continue_or_stop(AHS))) -> AHS.
 fold_until(Collection, Accumulator, Fun) ->
     case Collection of
         [] ->
@@ -400,7 +400,7 @@ fold_until(Collection, Accumulator, Fun) ->
             end
     end.
 
--spec find(list(AHY), fun((AHY) -> boolean())) -> {ok, AHY} | {error, nil}.
+-spec find(list(AHU), fun((AHU) -> boolean())) -> {ok, AHU} | {error, nil}.
 find(Haystack, Is_desired) ->
     case Haystack of
         [] ->
@@ -416,7 +416,7 @@ find(Haystack, Is_desired) ->
             end
     end.
 
--spec find_map(list(AIC), fun((AIC) -> {ok, AIE} | {error, any()})) -> {ok, AIE} |
+-spec find_map(list(AHY), fun((AHY) -> {ok, AIA} | {error, any()})) -> {ok, AIA} |
     {error, nil}.
 find_map(Haystack, Fun) ->
     case Haystack of
@@ -433,7 +433,7 @@ find_map(Haystack, Fun) ->
             end
     end.
 
--spec all(list(AIK), fun((AIK) -> boolean())) -> boolean().
+-spec all(list(AIG), fun((AIG) -> boolean())) -> boolean().
 all(List, Predicate) ->
     case List of
         [] ->
@@ -449,7 +449,7 @@ all(List, Predicate) ->
             end
     end.
 
--spec any(list(AIM), fun((AIM) -> boolean())) -> boolean().
+-spec any(list(AII), fun((AII) -> boolean())) -> boolean().
 any(List, Predicate) ->
     case List of
         [] ->
@@ -465,7 +465,7 @@ any(List, Predicate) ->
             end
     end.
 
--spec do_zip(list(AIO), list(AIQ), list({AIO, AIQ})) -> list({AIO, AIQ}).
+-spec do_zip(list(AIK), list(AIM), list({AIK, AIM})) -> list({AIK, AIM}).
 do_zip(Xs, Ys, Acc) ->
     case {Xs, Ys} of
         {[X | Xs@1], [Y | Ys@1]} ->
@@ -475,11 +475,11 @@ do_zip(Xs, Ys, Acc) ->
             lists:reverse(Acc)
     end.
 
--spec zip(list(AIU), list(AIW)) -> list({AIU, AIW}).
+-spec zip(list(AIQ), list(AIS)) -> list({AIQ, AIS}).
 zip(List, Other) ->
     do_zip(List, Other, []).
 
--spec strict_zip(list(AIZ), list(AJB)) -> {ok, list({AIZ, AJB})} | {error, nil}.
+-spec strict_zip(list(AIV), list(AIX)) -> {ok, list({AIV, AIX})} | {error, nil}.
 strict_zip(List, Other) ->
     case erlang:length(List) =:= erlang:length(Other) of
         true ->
@@ -489,7 +489,7 @@ strict_zip(List, Other) ->
             {error, nil}
     end.
 
--spec do_unzip(list({AZU, AZV}), list(AZU), list(AZV)) -> {list(AZU), list(AZV)}.
+-spec do_unzip(list({AZQ, AZR}), list(AZQ), list(AZR)) -> {list(AZQ), list(AZR)}.
 do_unzip(Input, Xs, Ys) ->
     case Input of
         [] ->
@@ -499,11 +499,11 @@ do_unzip(Input, Xs, Ys) ->
             do_unzip(Rest, [X | Xs], [Y | Ys])
     end.
 
--spec unzip(list({AJK, AJL})) -> {list(AJK), list(AJL)}.
+-spec unzip(list({AJG, AJH})) -> {list(AJG), list(AJH)}.
 unzip(Input) ->
     do_unzip(Input, [], []).
 
--spec do_intersperse(list(AJP), AJP, list(AJP)) -> list(AJP).
+-spec do_intersperse(list(AJL), AJL, list(AJL)) -> list(AJL).
 do_intersperse(List, Separator, Acc) ->
     case List of
         [] ->
@@ -513,7 +513,7 @@ do_intersperse(List, Separator, Acc) ->
             do_intersperse(Rest, Separator, [X, Separator | Acc])
     end.
 
--spec intersperse(list(AJT), AJT) -> list(AJT).
+-spec intersperse(list(AJP), AJP) -> list(AJP).
 intersperse(List, Elem) ->
     case List of
         [] ->
@@ -526,7 +526,7 @@ intersperse(List, Elem) ->
             do_intersperse(Rest, Elem, [X])
     end.
 
--spec unique(list(AJW)) -> list(AJW).
+-spec unique(list(AJS)) -> list(AJS).
 unique(List) ->
     case List of
         [] ->
@@ -537,13 +537,13 @@ unique(List) ->
     end.
 
 -spec sequences(
-    list(AKC),
-    fun((AKC, AKC) -> gleam@order:order()),
-    list(AKC),
+    list(AJY),
+    fun((AJY, AJY) -> gleam@order:order()),
+    list(AJY),
     sorting(),
-    AKC,
-    list(list(AKC))
-) -> list(list(AKC)).
+    AJY,
+    list(list(AJY))
+) -> list(list(AJY)).
 sequences(List, Compare, Growing, Direction, Prev, Acc) ->
     Growing@1 = [Prev | Growing],
     case List of
@@ -669,11 +669,11 @@ sequences(List, Compare, Growing, Direction, Prev, Acc) ->
     end.
 
 -spec merge_ascendings(
-    list(AKZ),
-    list(AKZ),
-    fun((AKZ, AKZ) -> gleam@order:order()),
-    list(AKZ)
-) -> list(AKZ).
+    list(AKV),
+    list(AKV),
+    fun((AKV, AKV) -> gleam@order:order()),
+    list(AKV)
+) -> list(AKV).
 merge_ascendings(List1, List2, Compare, Acc) ->
     case {List1, List2} of
         {[], List} ->
@@ -696,10 +696,10 @@ merge_ascendings(List1, List2, Compare, Acc) ->
     end.
 
 -spec merge_ascending_pairs(
-    list(list(AKN)),
-    fun((AKN, AKN) -> gleam@order:order()),
-    list(list(AKN))
-) -> list(list(AKN)).
+    list(list(AKJ)),
+    fun((AKJ, AKJ) -> gleam@order:order()),
+    list(list(AKJ))
+) -> list(list(AKJ)).
 merge_ascending_pairs(Sequences, Compare, Acc) ->
     case Sequences of
         [] ->
@@ -714,11 +714,11 @@ merge_ascending_pairs(Sequences, Compare, Acc) ->
     end.
 
 -spec merge_descendings(
-    list(ALE),
-    list(ALE),
-    fun((ALE, ALE) -> gleam@order:order()),
-    list(ALE)
-) -> list(ALE).
+    list(ALA),
+    list(ALA),
+    fun((ALA, ALA) -> gleam@order:order()),
+    list(ALA)
+) -> list(ALA).
 merge_descendings(List1, List2, Compare, Acc) ->
     case {List1, List2} of
         {[], List} ->
@@ -741,10 +741,10 @@ merge_descendings(List1, List2, Compare, Acc) ->
     end.
 
 -spec merge_descending_pairs(
-    list(list(AKT)),
-    fun((AKT, AKT) -> gleam@order:order()),
-    list(list(AKT))
-) -> list(list(AKT)).
+    list(list(AKP)),
+    fun((AKP, AKP) -> gleam@order:order()),
+    list(list(AKP))
+) -> list(list(AKP)).
 merge_descending_pairs(Sequences, Compare, Acc) ->
     case Sequences of
         [] ->
@@ -759,10 +759,10 @@ merge_descending_pairs(Sequences, Compare, Acc) ->
     end.
 
 -spec merge_all(
-    list(list(AKJ)),
+    list(list(AKF)),
     sorting(),
-    fun((AKJ, AKJ) -> gleam@order:order())
-) -> list(AKJ).
+    fun((AKF, AKF) -> gleam@order:order())
+) -> list(AKF).
 merge_all(Sequences, Direction, Compare) ->
     case {Sequences, Direction} of
         {[], _} ->
@@ -783,7 +783,7 @@ merge_all(Sequences, Direction, Compare) ->
             merge_all(Sequences@2, ascending, Compare)
     end.
 
--spec sort(list(AJZ), fun((AJZ, AJZ) -> gleam@order:order())) -> list(AJZ).
+-spec sort(list(AJV), fun((AJV, AJV) -> gleam@order:order())) -> list(AJV).
 sort(List, Compare) ->
     case List of
         [] ->
@@ -824,7 +824,7 @@ tail_recursive_range(Start, Stop, Acc) ->
 range(Start, Stop) ->
     tail_recursive_range(Start, Stop, []).
 
--spec do_repeat(ALM, integer(), list(ALM)) -> list(ALM).
+-spec do_repeat(ALI, integer(), list(ALI)) -> list(ALI).
 do_repeat(A, Times, Acc) ->
     case Times =< 0 of
         true ->
@@ -834,11 +834,11 @@ do_repeat(A, Times, Acc) ->
             do_repeat(A, Times - 1, [A | Acc])
     end.
 
--spec repeat(ALP, integer()) -> list(ALP).
+-spec repeat(ALL, integer()) -> list(ALL).
 repeat(A, Times) ->
     do_repeat(A, Times, []).
 
--spec do_split(list(ALR), integer(), list(ALR)) -> {list(ALR), list(ALR)}.
+-spec do_split(list(ALN), integer(), list(ALN)) -> {list(ALN), list(ALN)}.
 do_split(List, N, Taken) ->
     case N =< 0 of
         true ->
@@ -854,12 +854,12 @@ do_split(List, N, Taken) ->
             end
     end.
 
--spec split(list(ALW), integer()) -> {list(ALW), list(ALW)}.
+-spec split(list(ALS), integer()) -> {list(ALS), list(ALS)}.
 split(List, Index) ->
     do_split(List, Index, []).
 
--spec do_split_while(list(AMA), fun((AMA) -> boolean()), list(AMA)) -> {list(AMA),
-    list(AMA)}.
+-spec do_split_while(list(ALW), fun((ALW) -> boolean()), list(ALW)) -> {list(ALW),
+    list(ALW)}.
 do_split_while(List, F, Acc) ->
     case List of
         [] ->
@@ -875,11 +875,11 @@ do_split_while(List, F, Acc) ->
             end
     end.
 
--spec split_while(list(AMF), fun((AMF) -> boolean())) -> {list(AMF), list(AMF)}.
+-spec split_while(list(AMB), fun((AMB) -> boolean())) -> {list(AMB), list(AMB)}.
 split_while(List, Predicate) ->
     do_split_while(List, Predicate, []).
 
--spec key_find(list({AMJ, AMK}), AMJ) -> {ok, AMK} | {error, nil}.
+-spec key_find(list({AMF, AMG}), AMF) -> {ok, AMG} | {error, nil}.
 key_find(Keyword_list, Desired_key) ->
     find_map(
         Keyword_list,
@@ -895,7 +895,7 @@ key_find(Keyword_list, Desired_key) ->
         end
     ).
 
--spec key_filter(list({AMO, AMP}), AMO) -> list(AMP).
+-spec key_filter(list({AMK, AML}), AMK) -> list(AML).
 key_filter(Keyword_list, Desired_key) ->
     filter_map(
         Keyword_list,
@@ -911,8 +911,8 @@ key_filter(Keyword_list, Desired_key) ->
         end
     ).
 
--spec do_pop(list(BEV), fun((BEV) -> boolean()), list(BEV)) -> {ok,
-        {BEV, list(BEV)}} |
+-spec do_pop(list(BER), fun((BER) -> boolean()), list(BER)) -> {ok,
+        {BER, list(BER)}} |
     {error, nil}.
 do_pop(Haystack, Predicate, Checked) ->
     case Haystack of
@@ -929,13 +929,13 @@ do_pop(Haystack, Predicate, Checked) ->
             end
     end.
 
--spec pop(list(AMW), fun((AMW) -> boolean())) -> {ok, {AMW, list(AMW)}} |
+-spec pop(list(AMS), fun((AMS) -> boolean())) -> {ok, {AMS, list(AMS)}} |
     {error, nil}.
 pop(Haystack, Is_desired) ->
     do_pop(Haystack, Is_desired, []).
 
--spec do_pop_map(list(BFJ), fun((BFJ) -> {ok, BFW} | {error, any()}), list(BFJ)) -> {ok,
-        {BFW, list(BFJ)}} |
+-spec do_pop_map(list(BFF), fun((BFF) -> {ok, BFS} | {error, any()}), list(BFF)) -> {ok,
+        {BFS, list(BFF)}} |
     {error, nil}.
 do_pop_map(Haystack, Mapper, Checked) ->
     case Haystack of
@@ -952,13 +952,13 @@ do_pop_map(Haystack, Mapper, Checked) ->
             end
     end.
 
--spec pop_map(list(ANF), fun((ANF) -> {ok, ANH} | {error, any()})) -> {ok,
-        {ANH, list(ANF)}} |
+-spec pop_map(list(ANB), fun((ANB) -> {ok, AND} | {error, any()})) -> {ok,
+        {AND, list(ANB)}} |
     {error, nil}.
 pop_map(Haystack, Is_desired) ->
     do_pop_map(Haystack, Is_desired, []).
 
--spec key_pop(list({ANO, ANP}), ANO) -> {ok, {ANP, list({ANO, ANP})}} |
+-spec key_pop(list({ANK, ANL}), ANK) -> {ok, {ANL, list({ANK, ANL})}} |
     {error, nil}.
 key_pop(Haystack, Key) ->
     pop_map(
@@ -975,7 +975,7 @@ key_pop(Haystack, Key) ->
         end
     ).
 
--spec key_set(list({ANU, ANV}), ANU, ANV) -> list({ANU, ANV}).
+-spec key_set(list({ANQ, ANR}), ANQ, ANR) -> list({ANQ, ANR}).
 key_set(List, Key, Value) ->
     case List of
         [] ->
@@ -988,7 +988,7 @@ key_set(List, Key, Value) ->
             [First | key_set(Rest@1, Key, Value)]
     end.
 
--spec each(list(ANY), fun((ANY) -> any())) -> nil.
+-spec each(list(ANU), fun((ANU) -> any())) -> nil.
 each(List, F) ->
     case List of
         [] ->
@@ -999,8 +999,8 @@ each(List, F) ->
             each(Xs, F)
     end.
 
--spec try_each(list(AOB), fun((AOB) -> {ok, any()} | {error, AOE})) -> {ok, nil} |
-    {error, AOE}.
+-spec try_each(list(ANX), fun((ANX) -> {ok, any()} | {error, AOA})) -> {ok, nil} |
+    {error, AOA}.
 try_each(List, Fun) ->
     case List of
         [] ->
@@ -1016,8 +1016,8 @@ try_each(List, Fun) ->
             end
     end.
 
--spec do_partition(list(BHD), fun((BHD) -> boolean()), list(BHD), list(BHD)) -> {list(BHD),
-    list(BHD)}.
+-spec do_partition(list(BGZ), fun((BGZ) -> boolean()), list(BGZ), list(BGZ)) -> {list(BGZ),
+    list(BGZ)}.
 do_partition(List, Categorise, Trues, Falses) ->
     case List of
         [] ->
@@ -1033,11 +1033,11 @@ do_partition(List, Categorise, Trues, Falses) ->
             end
     end.
 
--spec partition(list(AOO), fun((AOO) -> boolean())) -> {list(AOO), list(AOO)}.
+-spec partition(list(AOK), fun((AOK) -> boolean())) -> {list(AOK), list(AOK)}.
 partition(List, Categorise) ->
     do_partition(List, Categorise, [], []).
 
--spec permutations(list(AOS)) -> list(list(AOS)).
+-spec permutations(list(AOO)) -> list(list(AOO)).
 permutations(L) ->
     case L of
         [] ->
@@ -1063,7 +1063,7 @@ permutations(L) ->
             concat(_pipe@5)
     end.
 
--spec do_window(list(list(AOW)), list(AOW), integer()) -> list(list(AOW)).
+-spec do_window(list(list(AOS)), list(AOS), integer()) -> list(list(AOS)).
 do_window(Acc, L, N) ->
     Window = take(L, N),
     case erlang:length(Window) =:= N of
@@ -1074,7 +1074,7 @@ do_window(Acc, L, N) ->
             Acc
     end.
 
--spec window(list(APC), integer()) -> list(list(APC)).
+-spec window(list(AOY), integer()) -> list(list(AOY)).
 window(L, N) ->
     case N =< 0 of
         true ->
@@ -1085,11 +1085,11 @@ window(L, N) ->
             lists:reverse(_pipe)
     end.
 
--spec window_by_2(list(APG)) -> list({APG, APG}).
+-spec window_by_2(list(APC)) -> list({APC, APC}).
 window_by_2(L) ->
     zip(L, drop(L, 1)).
 
--spec drop_while(list(APJ), fun((APJ) -> boolean())) -> list(APJ).
+-spec drop_while(list(APF), fun((APF) -> boolean())) -> list(APF).
 drop_while(List, Predicate) ->
     case List of
         [] ->
@@ -1105,7 +1105,7 @@ drop_while(List, Predicate) ->
             end
     end.
 
--spec do_take_while(list(APM), fun((APM) -> boolean()), list(APM)) -> list(APM).
+-spec do_take_while(list(API), fun((API) -> boolean()), list(API)) -> list(API).
 do_take_while(List, Predicate, Acc) ->
     case List of
         [] ->
@@ -1121,11 +1121,11 @@ do_take_while(List, Predicate, Acc) ->
             end
     end.
 
--spec take_while(list(APQ), fun((APQ) -> boolean())) -> list(APQ).
+-spec take_while(list(APM), fun((APM) -> boolean())) -> list(APM).
 take_while(List, Predicate) ->
     do_take_while(List, Predicate, []).
 
--spec do_chunk(list(APT), fun((APT) -> APV), APV, list(APT), list(list(APT))) -> list(list(APT)).
+-spec do_chunk(list(APP), fun((APP) -> APR), APR, list(APP), list(list(APP))) -> list(list(APP)).
 do_chunk(List, F, Previous_key, Current_chunk, Acc) ->
     case List of
         [First | Rest] ->
@@ -1143,7 +1143,7 @@ do_chunk(List, F, Previous_key, Current_chunk, Acc) ->
             lists:reverse([lists:reverse(Current_chunk) | Acc])
     end.
 
--spec chunk(list(AQB), fun((AQB) -> any())) -> list(list(AQB)).
+-spec chunk(list(APX), fun((APX) -> any())) -> list(list(APX)).
 chunk(List, F) ->
     case List of
         [] ->
@@ -1154,12 +1154,12 @@ chunk(List, F) ->
     end.
 
 -spec do_sized_chunk(
-    list(AQG),
+    list(AQC),
     integer(),
     integer(),
-    list(AQG),
-    list(list(AQG))
-) -> list(list(AQG)).
+    list(AQC),
+    list(list(AQC))
+) -> list(list(AQC)).
 do_sized_chunk(List, Count, Left, Current_chunk, Acc) ->
     case List of
         [] ->
@@ -1188,11 +1188,11 @@ do_sized_chunk(List, Count, Left, Current_chunk, Acc) ->
             end
     end.
 
--spec sized_chunk(list(AQN), integer()) -> list(list(AQN)).
+-spec sized_chunk(list(AQJ), integer()) -> list(list(AQJ)).
 sized_chunk(List, Count) ->
     do_sized_chunk(List, Count, Count, [], []).
 
--spec reduce(list(AQR), fun((AQR, AQR) -> AQR)) -> {ok, AQR} | {error, nil}.
+-spec reduce(list(AQN), fun((AQN, AQN) -> AQN)) -> {ok, AQN} | {error, nil}.
 reduce(List, Fun) ->
     case List of
         [] ->
@@ -1202,7 +1202,7 @@ reduce(List, Fun) ->
             {ok, fold(Rest, First, Fun)}
     end.
 
--spec do_scan(list(AQV), AQX, list(AQX), fun((AQX, AQV) -> AQX)) -> list(AQX).
+-spec do_scan(list(AQR), AQT, list(AQT), fun((AQT, AQR) -> AQT)) -> list(AQT).
 do_scan(List, Accumulator, Accumulated, Fun) ->
     case List of
         [] ->
@@ -1213,16 +1213,16 @@ do_scan(List, Accumulator, Accumulated, Fun) ->
             do_scan(Xs, Next, [Next | Accumulated], Fun)
     end.
 
--spec scan(list(ARA), ARC, fun((ARC, ARA) -> ARC)) -> list(ARC).
+-spec scan(list(AQW), AQY, fun((AQY, AQW) -> AQY)) -> list(AQY).
 scan(List, Initial, Fun) ->
     do_scan(List, Initial, [], Fun).
 
--spec last(list(ARE)) -> {ok, ARE} | {error, nil}.
+-spec last(list(ARA)) -> {ok, ARA} | {error, nil}.
 last(List) ->
     _pipe = List,
     reduce(_pipe, fun(_, Elem) -> Elem end).
 
--spec combinations(list(ARI), integer()) -> list(list(ARI)).
+-spec combinations(list(ARE), integer()) -> list(list(ARE)).
 combinations(Items, N) ->
     case N of
         0 ->
@@ -1249,7 +1249,7 @@ combinations(Items, N) ->
             end
     end.
 
--spec do_combination_pairs(list(ARM)) -> list(list({ARM, ARM})).
+-spec do_combination_pairs(list(ARI)) -> list(list({ARI, ARI})).
 do_combination_pairs(Items) ->
     case Items of
         [] ->
@@ -1260,12 +1260,12 @@ do_combination_pairs(Items) ->
             [First_combinations | do_combination_pairs(Xs)]
     end.
 
--spec combination_pairs(list(ARQ)) -> list({ARQ, ARQ}).
+-spec combination_pairs(list(ARM)) -> list({ARM, ARM}).
 combination_pairs(Items) ->
     _pipe = do_combination_pairs(Items),
     concat(_pipe).
 
--spec transpose(list(list(ARX))) -> list(list(ARX)).
+-spec transpose(list(list(ART))) -> list(list(ART)).
 transpose(List_of_list) ->
     Take_first = fun(List) -> case List of
             [] ->
@@ -1294,12 +1294,12 @@ transpose(List_of_list) ->
             [Firsts | Rest]
     end.
 
--spec interleave(list(list(ART))) -> list(ART).
+-spec interleave(list(list(ARP))) -> list(ARP).
 interleave(List) ->
     _pipe = transpose(List),
     concat(_pipe).
 
--spec do_shuffle_pair_unwrap(list({float(), ASC}), list(ASC)) -> list(ASC).
+-spec do_shuffle_pair_unwrap(list({float(), ARY}), list(ARY)) -> list(ARY).
 do_shuffle_pair_unwrap(List, Acc) ->
     case List of
         [] ->
@@ -1312,7 +1312,7 @@ do_shuffle_pair_unwrap(List, Acc) ->
             )
     end.
 
--spec do_shuffle_by_pair_indexes(list({float(), ASG})) -> list({float(), ASG}).
+-spec do_shuffle_by_pair_indexes(list({float(), ASC})) -> list({float(), ASC}).
 do_shuffle_by_pair_indexes(List_of_pairs) ->
     sort(
         List_of_pairs,
@@ -1324,7 +1324,7 @@ do_shuffle_by_pair_indexes(List_of_pairs) ->
         end
     ).
 
--spec shuffle(list(ASJ)) -> list(ASJ).
+-spec shuffle(list(ASF)) -> list(ASF).
 shuffle(List) ->
     _pipe = List,
     _pipe@1 = fold(_pipe, [], fun(Acc, A) -> [{rand:uniform(), A} | Acc] end),

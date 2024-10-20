@@ -332,45 +332,31 @@ export function origin(uri) {
   let scheme = uri.scheme;
   let host = uri.host;
   let port = uri.port;
-  if (scheme instanceof Some &&
+  if (host instanceof Some &&
+  scheme instanceof Some &&
   scheme[0] === "https" &&
   (isEqual(port, new Some(443)))) {
-    let origin$1 = new Uri(
-      scheme,
-      new None(),
-      host,
-      new None(),
-      "",
-      new None(),
-      new None(),
-    );
-    return new Ok(to_string(origin$1));
-  } else if (scheme instanceof Some &&
+    let h = host[0];
+    return new Ok($string.concat(toList(["https://", h])));
+  } else if (host instanceof Some &&
+  scheme instanceof Some &&
   scheme[0] === "http" &&
   (isEqual(port, new Some(80)))) {
-    let origin$1 = new Uri(
-      scheme,
-      new None(),
-      host,
-      new None(),
-      "",
-      new None(),
-      new None(),
-    );
-    return new Ok(to_string(origin$1));
-  } else if (scheme instanceof Some &&
+    let h = host[0];
+    return new Ok($string.concat(toList(["http://", h])));
+  } else if (host instanceof Some &&
+  scheme instanceof Some &&
   ((scheme[0] === "http") || (scheme[0] === "https"))) {
+    let h = host[0];
     let s = scheme[0];
-    let origin$1 = new Uri(
-      scheme,
-      new None(),
-      host,
-      port,
-      "",
-      new None(),
-      new None(),
-    );
-    return new Ok(to_string(origin$1));
+    if (port instanceof Some) {
+      let p = port[0];
+      return new Ok(
+        $string.concat(toList([s, "://", h, ":", $int.to_string(p)])),
+      );
+    } else {
+      return new Ok($string.concat(toList([s, "://", h])));
+    }
   } else {
     return new Error(undefined);
   }

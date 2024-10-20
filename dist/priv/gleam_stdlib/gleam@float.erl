@@ -1,7 +1,7 @@
 -module(gleam@float).
 -compile([no_auto_import, nowarn_unused_vars, nowarn_unused_function, nowarn_nomatch]).
 
--export([parse/1, to_string/1, compare/2, min/2, max/2, clamp/3, ceiling/1, floor/1, truncate/1, absolute_value/1, loosely_compare/3, loosely_equals/3, power/2, square_root/1, negate/1, round/1, sum/1, product/1, random/0, divide/2, add/2, multiply/2, subtract/2]).
+-export([parse/1, to_string/1, compare/2, min/2, max/2, clamp/3, ceiling/1, floor/1, truncate/1, absolute_value/1, loosely_compare/3, loosely_equals/3, power/2, square_root/1, negate/1, round/1, sum/1, product/1, random/0, modulo/2, divide/2, add/2, multiply/2, subtract/2]).
 
 -spec parse(binary()) -> {ok, float()} | {error, nil}.
 parse(String) ->
@@ -153,6 +153,20 @@ product(Numbers) ->
 -spec random() -> float().
 random() ->
     rand:uniform().
+
+-spec modulo(float(), float()) -> {ok, float()} | {error, nil}.
+modulo(Dividend, Divisor) ->
+    case Divisor of
+        +0.0 ->
+            {error, nil};
+
+        _ ->
+            {ok, Dividend - (floor(case Divisor of
+                        +0.0 -> +0.0;
+                        -0.0 -> -0.0;
+                        Gleam@denominator -> Dividend / Gleam@denominator
+                    end) * Divisor)}
+    end.
 
 -spec divide(float(), float()) -> {ok, float()} | {error, nil}.
 divide(A, B) ->

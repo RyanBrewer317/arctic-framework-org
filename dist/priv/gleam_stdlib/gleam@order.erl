@@ -1,7 +1,7 @@
 -module(gleam@order).
 -compile([no_auto_import, nowarn_unused_vars, nowarn_unused_function, nowarn_nomatch]).
 
--export([negate/1, to_int/1, compare/2, max/2, min/2, reverse/1, break_tie/2, lazy_break_tie/2]).
+-export([negate/1, to_int/1, compare/2, reverse/1, break_tie/2, lazy_break_tie/2]).
 -export_type([order/0]).
 
 -type order() :: lt | eq | gt.
@@ -46,32 +46,6 @@ compare(A, B) ->
 
         {_, _} ->
             gt
-    end.
-
--spec max(order(), order()) -> order().
-max(A, B) ->
-    case {A, B} of
-        {gt, _} ->
-            gt;
-
-        {eq, lt} ->
-            eq;
-
-        {_, _} ->
-            B
-    end.
-
--spec min(order(), order()) -> order().
-min(A, B) ->
-    case {A, B} of
-        {lt, _} ->
-            lt;
-
-        {eq, gt} ->
-            eq;
-
-        {_, _} ->
-            B
     end.
 
 -spec reverse(fun((I, I) -> order())) -> fun((I, I) -> order()).

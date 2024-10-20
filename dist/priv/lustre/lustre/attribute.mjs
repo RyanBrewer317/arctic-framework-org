@@ -109,7 +109,7 @@ export function selected(is_selected) {
 }
 
 export function accept(types) {
-  return attribute("accept", $string.join(types, " "));
+  return attribute("accept", $string.join(types, ","));
 }
 
 export function accept_charset(types) {

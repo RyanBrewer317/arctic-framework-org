@@ -1,12 +1,4 @@
-import {
-  Ok,
-  Error,
-  toList,
-  prepend as listPrepend,
-  CustomType as $CustomType,
-  remainderInt,
-  divideInt,
-} from "../gleam.mjs";
+import { Ok, Error, toList, prepend as listPrepend, remainderInt, divideInt } from "../gleam.mjs";
 import * as $float from "../gleam/float.mjs";
 import * as $order from "../gleam/order.mjs";
 import {
@@ -31,8 +23,6 @@ export {
   bitwise_shift_left,
   bitwise_shift_right,
 };
-
-export class InvalidBase extends $CustomType {}
 
 export function absolute_value(x) {
   let $ = x >= 0;
@@ -65,7 +55,7 @@ export function to_base_string(x, base) {
   if ($) {
     return new Ok(do_to_base_string(x, base));
   } else {
-    return new Error(new InvalidBase());
+    return new Error(undefined);
   }
 }
 
@@ -213,7 +203,7 @@ function do_digits(loop$x, loop$base, loop$acc) {
 export function digits(x, base) {
   let $ = base < 2;
   if ($) {
-    return new Error(new InvalidBase());
+    return new Error(undefined);
   } else {
     return new Ok(do_digits(x, base, toList([])));
   }
@@ -228,7 +218,7 @@ function do_undigits(loop$numbers, loop$base, loop$acc) {
       return new Ok(acc);
     } else if (numbers.atLeastLength(1) && (numbers.head >= base)) {
       let digit = numbers.head;
-      return new Error(new InvalidBase());
+      return new Error(undefined);
     } else {
       let digit = numbers.head;
       let rest = numbers.tail;
@@ -242,7 +232,7 @@ function do_undigits(loop$numbers, loop$base, loop$acc) {
 export function undigits(numbers, base) {
   let $ = base < 2;
   if ($) {
-    return new Error(new InvalidBase());
+    return new Error(undefined);
   } else {
     return do_undigits(numbers, base, 0);
   }

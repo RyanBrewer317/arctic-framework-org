@@ -268,6 +268,9 @@ export function get(toml, key) {
     if ($.isOk() && $[0] instanceof Table) {
       let t = $[0][0];
       return push_key(get(t, key$1), k);
+    } else if ($.isOk() && $[0] instanceof InlineTable) {
+      let t = $[0][0];
+      return push_key(get(t, key$1), k);
     } else if ($.isOk()) {
       let other = $[0];
       return new Error(new WrongType(toList([k]), "Table", classify(other)));
@@ -446,7 +449,7 @@ function merge(table, key, old, new$) {
 
 function insert_loop(table, key, value) {
   if (key.hasLength(0)) {
-    throw makeError("panic", "tom", 514, "insert_loop", "unreachable", {})
+    throw makeError("panic", "tom", 515, "insert_loop", "unreachable", {})
   } else if (key.hasLength(1)) {
     let k = key.head;
     let $ = $dict.get(table, k);
@@ -632,21 +635,42 @@ function skip_whitespace(loop$input) {
   }
 }
 
-function drop_comments(loop$input, loop$acc) {
+function drop_comments(loop$input, loop$acc, loop$in_string) {
   while (true) {
     let input = loop$input;
     let acc = loop$acc;
-    if (input.atLeastLength(1) && input.head === "#") {
+    let in_string = loop$in_string;
+    if (input.atLeastLength(2) &&
+    input.head === "\\" &&
+    input.tail.head === "\"" &&
+    (in_string)) {
+      let input$1 = input.tail.tail;
+      loop$input = input$1;
+      loop$acc = listPrepend("\"", listPrepend("\\", acc));
+      loop$in_string = in_string;
+    } else if (input.atLeastLength(1) && input.head === "\"") {
+      let input$1 = input.tail;
+      loop$input = input$1;
+      loop$acc = listPrepend("\"", acc);
+      loop$in_string = !in_string;
+    } else if (input.atLeastLength(1) && input.head === "#" && (in_string)) {
+      let input$1 = input.tail;
+      loop$input = input$1;
+      loop$acc = listPrepend("#", acc);
+      loop$in_string = in_string;
+    } else if (input.atLeastLength(1) && input.head === "#" && (!in_string)) {
       let input$1 = input.tail;
       let _pipe = input$1;
       let _pipe$1 = $list.drop_while(_pipe, (g) => { return g !== "\n"; });
       loop$input = _pipe$1;
       loop$acc = acc;
+      loop$in_string = in_string;
     } else if (input.atLeastLength(1)) {
       let g = input.head;
       let input$1 = input.tail;
       loop$input = input$1;
       loop$acc = listPrepend(g, acc);
+      loop$in_string = in_string;
     } else {
       return $list.reverse(acc);
     }
@@ -1188,6 +1212,18 @@ function parse_string(loop$input, loop$string) {
       loop$string = string + "\t";
     } else if (input.atLeastLength(2) &&
     input.head === "\\" &&
+    input.tail.head === "e") {
+      let input$1 = input.tail.tail;
+      loop$input = input$1;
+      loop$string = string + "\u{001b}";
+    } else if (input.atLeastLength(2) &&
+    input.head === "\\" &&
+    input.tail.head === "b") {
+      let input$1 = input.tail.tail;
+      loop$input = input$1;
+      loop$string = string + "\u{0008}";
+    } else if (input.atLeastLength(2) &&
+    input.head === "\\" &&
     input.tail.head === "n") {
       let input$1 = input.tail.tail;
       loop$input = input$1;
@@ -1198,6 +1234,12 @@ function parse_string(loop$input, loop$string) {
       let input$1 = input.tail.tail;
       loop$input = input$1;
       loop$string = string + "\r";
+    } else if (input.atLeastLength(2) &&
+    input.head === "\\" &&
+    input.tail.head === "f") {
+      let input$1 = input.tail.tail;
+      loop$input = input$1;
+      loop$string = string + "\f";
     } else if (input.atLeastLength(2) &&
     input.head === "\\" &&
     input.tail.head === "\"") {
@@ -2400,6 +2442,115 @@ function parse_number(loop$input, loop$number, loop$sign) {
   }
 }
 
+export function as_int(toml) {
+  if (toml instanceof Int) {
+    let f = toml[0];
+    return new Ok(f);
+  } else {
+    let other = toml;
+    return new Error(new WrongType(toList([]), "Int", classify(other)));
+  }
+}
+
+export function as_float(toml) {
+  if (toml instanceof Float) {
+    let f = toml[0];
+    return new Ok(f);
+  } else {
+    let other = toml;
+    return new Error(new WrongType(toList([]), "Float", classify(other)));
+  }
+}
+
+export function as_bool(toml) {
+  if (toml instanceof Bool) {
+    let b = toml[0];
+    return new Ok(b);
+  } else {
+    let other = toml;
+    return new Error(new WrongType(toList([]), "Bool", classify(other)));
+  }
+}
+
+export function as_string(toml) {
+  if (toml instanceof String) {
+    let s = toml[0];
+    return new Ok(s);
+  } else {
+    let other = toml;
+    return new Error(new WrongType(toList([]), "String", classify(other)));
+  }
+}
+
+export function as_date(toml) {
+  if (toml instanceof Date) {
+    let d = toml[0];
+    return new Ok(d);
+  } else {
+    let other = toml;
+    return new Error(new WrongType(toList([]), "Date", classify(other)));
+  }
+}
+
+export function as_time(toml) {
+  if (toml instanceof Time) {
+    let t = toml[0];
+    return new Ok(t);
+  } else {
+    let other = toml;
+    return new Error(new WrongType(toList([]), "Time", classify(other)));
+  }
+}
+
+export function as_date_time(toml) {
+  if (toml instanceof DateTime) {
+    let dt = toml[0];
+    return new Ok(dt);
+  } else {
+    let other = toml;
+    return new Error(new WrongType(toList([]), "DateTime", classify(other)));
+  }
+}
+
+export function as_array(toml) {
+  if (toml instanceof Array) {
+    let arr = toml[0];
+    return new Ok(arr);
+  } else {
+    let other = toml;
+    return new Error(new WrongType(toList([]), "Array", classify(other)));
+  }
+}
+
+export function as_table(toml) {
+  if (toml instanceof Table) {
+    let tbl = toml[0];
+    return new Ok(tbl);
+  } else {
+    let other = toml;
+    return new Error(new WrongType(toList([]), "Table", classify(other)));
+  }
+}
+
+export function as_number(toml) {
+  if (toml instanceof Int) {
+    let x = toml[0];
+    return new Ok(new NumberInt(x));
+  } else if (toml instanceof Float) {
+    let x = toml[0];
+    return new Ok(new NumberFloat(x));
+  } else if (toml instanceof Nan) {
+    let x = toml[0];
+    return new Ok(new NumberNan(x));
+  } else if (toml instanceof Infinity) {
+    let x = toml[0];
+    return new Ok(new NumberInfinity(x));
+  } else {
+    let other = toml;
+    return new Error(new WrongType(toList([]), "Number", classify(other)));
+  }
+}
+
 function reverse_arrays_of_tables(toml) {
   if (toml instanceof ArrayOfTables) {
     let tables = toml[0];
@@ -2824,7 +2975,7 @@ function parse_tables(loop$input, loop$toml) {
 
 export function parse(input) {
   let input$1 = $string.to_graphemes(input);
-  let input$2 = drop_comments(input$1, toList([]));
+  let input$2 = drop_comments(input$1, toList([]), false);
   let input$3 = skip_whitespace(input$2);
   return do$(
     parse_table(input$3, $dict.new$()),

@@ -3,23 +3,23 @@
 
 -export([compose/2, curry2/1, curry3/1, curry4/1, curry5/1, curry6/1, flip/1, identity/1, constant/1, tap/2, apply1/2, apply2/3, apply3/4]).
 
--spec compose(fun((EUZ) -> EVA), fun((EVA) -> EVB)) -> fun((EUZ) -> EVB).
+-spec compose(fun((EUU) -> EUV), fun((EUV) -> EUW)) -> fun((EUU) -> EUW).
 compose(Fun1, Fun2) ->
     fun(A) -> Fun2(Fun1(A)) end.
 
--spec curry2(fun((EVC, EVD) -> EVE)) -> fun((EVC) -> fun((EVD) -> EVE)).
+-spec curry2(fun((EUX, EUY) -> EUZ)) -> fun((EUX) -> fun((EUY) -> EUZ)).
 curry2(Fun) ->
     fun(A) -> fun(B) -> Fun(A, B) end end.
 
--spec curry3(fun((EVG, EVH, EVI) -> EVJ)) -> fun((EVG) -> fun((EVH) -> fun((EVI) -> EVJ))).
+-spec curry3(fun((EVB, EVC, EVD) -> EVE)) -> fun((EVB) -> fun((EVC) -> fun((EVD) -> EVE))).
 curry3(Fun) ->
     fun(A) -> fun(B) -> fun(C) -> Fun(A, B, C) end end end.
 
--spec curry4(fun((EVL, EVM, EVN, EVO) -> EVP)) -> fun((EVL) -> fun((EVM) -> fun((EVN) -> fun((EVO) -> EVP)))).
+-spec curry4(fun((EVG, EVH, EVI, EVJ) -> EVK)) -> fun((EVG) -> fun((EVH) -> fun((EVI) -> fun((EVJ) -> EVK)))).
 curry4(Fun) ->
     fun(A) -> fun(B) -> fun(C) -> fun(D) -> Fun(A, B, C, D) end end end end.
 
--spec curry5(fun((EVR, EVS, EVT, EVU, EVV) -> EVW)) -> fun((EVR) -> fun((EVS) -> fun((EVT) -> fun((EVU) -> fun((EVV) -> EVW))))).
+-spec curry5(fun((EVM, EVN, EVO, EVP, EVQ) -> EVR)) -> fun((EVM) -> fun((EVN) -> fun((EVO) -> fun((EVP) -> fun((EVQ) -> EVR))))).
 curry5(Fun) ->
     fun(A) ->
         fun(B) ->
@@ -27,7 +27,7 @@ curry5(Fun) ->
         end
     end.
 
--spec curry6(fun((EVY, EVZ, EWA, EWB, EWC, EWD) -> EWE)) -> fun((EVY) -> fun((EVZ) -> fun((EWA) -> fun((EWB) -> fun((EWC) -> fun((EWD) -> EWE)))))).
+-spec curry6(fun((EVT, EVU, EVV, EVW, EVX, EVY) -> EVZ)) -> fun((EVT) -> fun((EVU) -> fun((EVV) -> fun((EVW) -> fun((EVX) -> fun((EVY) -> EVZ)))))).
 curry6(Fun) ->
     fun(A) ->
         fun(B) ->
@@ -37,31 +37,31 @@ curry6(Fun) ->
         end
     end.
 
--spec flip(fun((EWG, EWH) -> EWI)) -> fun((EWH, EWG) -> EWI).
+-spec flip(fun((EWB, EWC) -> EWD)) -> fun((EWC, EWB) -> EWD).
 flip(Fun) ->
     fun(B, A) -> Fun(A, B) end.
 
--spec identity(EWJ) -> EWJ.
+-spec identity(EWE) -> EWE.
 identity(X) ->
     X.
 
--spec constant(EWK) -> fun((any()) -> EWK).
+-spec constant(EWF) -> fun((any()) -> EWF).
 constant(Value) ->
     fun(_) -> Value end.
 
--spec tap(EWM, fun((EWM) -> any())) -> EWM.
+-spec tap(EWH, fun((EWH) -> any())) -> EWH.
 tap(Arg, Effect) ->
     Effect(Arg),
     Arg.
 
--spec apply1(fun((EWO) -> EWP), EWO) -> EWP.
+-spec apply1(fun((EWJ) -> EWK), EWJ) -> EWK.
 apply1(Fun, Arg1) ->
     Fun(Arg1).
 
--spec apply2(fun((EWQ, EWR) -> EWS), EWQ, EWR) -> EWS.
+-spec apply2(fun((EWL, EWM) -> EWN), EWL, EWM) -> EWN.
 apply2(Fun, Arg1, Arg2) ->
     Fun(Arg1, Arg2).
 
--spec apply3(fun((EWT, EWU, EWV) -> EWW), EWT, EWU, EWV) -> EWW.
+-spec apply3(fun((EWO, EWP, EWQ) -> EWR), EWO, EWP, EWQ) -> EWR.
 apply3(Fun, Arg1, Arg2, Arg3) ->
     Fun(Arg1, Arg2, Arg3).

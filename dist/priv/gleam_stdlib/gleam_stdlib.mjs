@@ -156,7 +156,7 @@ export function graphemes(string) {
 }
 
 function graphemes_iterator(string) {
-  if (Intl && Intl.Segmenter) {
+  if (globalThis.Intl && Intl.Segmenter) {
     return new Intl.Segmenter().segment(string)[Symbol.iterator]();
   }
 }
@@ -256,7 +256,7 @@ const unicode_whitespaces = [
   "\u0085", // Next line
   "\u2028", // Line separator
   "\u2029", // Paragraph separator
-].join();
+].join("");
 
 const left_trim_regex = new RegExp(`^([${unicode_whitespaces}]*)`, "g");
 const right_trim_regex = new RegExp(`([${unicode_whitespaces}]*)$`, "g");
@@ -479,6 +479,10 @@ export function map_insert(key, value, map) {
 }
 
 function unsafe_percent_decode(string) {
+  return decodeURIComponent(string || "");
+}
+
+function unsafe_percent_decode_query(string) {
   return decodeURIComponent((string || "").replace("+", " "));
 }
 
@@ -491,7 +495,7 @@ export function percent_decode(string) {
 }
 
 export function percent_encode(string) {
-  return encodeURIComponent(string);
+  return encodeURIComponent(string).replace("%2B", "+");
 }
 
 export function parse_query(query) {
@@ -500,7 +504,10 @@ export function parse_query(query) {
     for (const section of query.split("&")) {
       const [key, value] = section.split("=");
       if (!key) continue;
-      pairs.push([unsafe_percent_decode(key), unsafe_percent_decode(value)]);
+
+      const decodedKey = unsafe_percent_decode_query(key)
+      const decodedValue = unsafe_percent_decode_query(value)
+      pairs.push([decodedKey, decodedValue])
     }
     return new Ok(List.fromArray(pairs));
   } catch {

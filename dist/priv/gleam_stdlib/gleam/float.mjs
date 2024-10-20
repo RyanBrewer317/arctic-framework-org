@@ -169,6 +169,14 @@ export function product(numbers) {
   }
 }
 
+export function modulo(dividend, divisor) {
+  if (divisor === 0.0) {
+    return new Error(undefined);
+  } else {
+    return new Ok(dividend - (floor(divideFloat(dividend, divisor)) * divisor));
+  }
+}
+
 export function divide(a, b) {
   if (b === 0.0) {
     return new Error(undefined);

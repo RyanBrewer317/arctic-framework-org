@@ -1,35 +1,52 @@
 -module(lustre@internals@vdom).
 -compile([no_auto_import, nowarn_unused_vars, nowarn_unused_function, nowarn_nomatch]).
 
--export([attribute_to_json/2, attribute_to_event_handler/1, element_to_string/1, element_to_string_builder/1, element_to_json/2, handlers/1]).
+-export([attribute_to_event_handler/1, attribute_to_json/2, element_to_string/1, element_to_string_builder/1, element_to_json/2, handlers/1]).
 -export_type([element/1, attribute/1]).
 
--type element(NFO) :: {text, binary()} |
+-type element(NUQ) :: {text, binary()} |
     {element,
         binary(),
         binary(),
         binary(),
-        list(attribute(NFO)),
-        list(element(NFO)),
+        list(attribute(NUQ)),
+        list(element(NUQ)),
         boolean(),
         boolean()} |
-    {map, fun(() -> element(NFO))} |
-    {fragment, list(element(NFO)), binary()}.
+    {map, fun(() -> element(NUQ))} |
+    {fragment, list(element(NUQ)), binary()}.
 
--type attribute(NFP) :: {attribute,
+-type attribute(NUR) :: {attribute,
         binary(),
         gleam@dynamic:dynamic_(),
         boolean()} |
     {event,
         binary(),
-        fun((gleam@dynamic:dynamic_()) -> {ok, NFP} |
+        fun((gleam@dynamic:dynamic_()) -> {ok, NUR} |
             {error, list(gleam@dynamic:decode_error())})}.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 389).
+-spec attribute_to_event_handler(attribute(NWM)) -> {ok,
+        {binary(),
+            fun((gleam@dynamic:dynamic_()) -> {ok, NWM} |
+                {error, list(gleam@dynamic:decode_error())})}} |
+    {error, nil}.
+attribute_to_event_handler(Attribute) ->
+    case Attribute of
+        {attribute, _, _, _} ->
+            {error, nil};
+
+        {event, Name, Handler} ->
+            Name@1 = gleam@string:drop_left(Name, 2),
+            {ok, {Name@1, Handler}}
+    end.
+
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 112).
 -spec attribute_to_json(attribute(any()), binary()) -> {ok, gleam@json:json()} |
     {error, nil}.
 attribute_to_json(Attribute, Key) ->
-    True_atom = gleam@dynamic:from(true),
-    False_atom = gleam@dynamic:from(false),
+    True_atom = gleam_stdlib:identity(true),
+    False_atom = gleam_stdlib:identity(false),
     case Attribute of
         {attribute, _, _, true} ->
             {error, nil};
@@ -42,7 +59,7 @@ attribute_to_json(Attribute, Key) ->
                             [{<<"0"/utf8>>, gleam@json:string(Name)},
                                 {<<"1"/utf8>>,
                                     gleam@json:string(
-                                        gleam@dynamic:unsafe_coerce(Value)
+                                        lustre_escape_ffi:coerce(Value)
                                     )}]
                         )};
 
@@ -52,7 +69,7 @@ attribute_to_json(Attribute, Key) ->
                             [{<<"0"/utf8>>, gleam@json:string(Name)},
                                 {<<"1"/utf8>>,
                                     gleam@json:bool(
-                                        gleam@dynamic:unsafe_coerce(Value)
+                                        lustre_escape_ffi:coerce(Value)
                                     )}]
                         )};
 
@@ -62,7 +79,7 @@ attribute_to_json(Attribute, Key) ->
                             [{<<"0"/utf8>>, gleam@json:string(Name)},
                                 {<<"1"/utf8>>,
                                     gleam@json:bool(
-                                        gleam@dynamic:unsafe_coerce(Value)
+                                        lustre_escape_ffi:coerce(Value)
                                     )}]
                         )};
 
@@ -72,7 +89,7 @@ attribute_to_json(Attribute, Key) ->
                             [{<<"0"/utf8>>, gleam@json:string(Name)},
                                 {<<"1"/utf8>>,
                                     gleam@json:bool(
-                                        gleam@dynamic:unsafe_coerce(Value)
+                                        lustre_escape_ffi:coerce(Value)
                                     )}]
                         )};
 
@@ -82,7 +99,7 @@ attribute_to_json(Attribute, Key) ->
                             [{<<"0"/utf8>>, gleam@json:string(Name)},
                                 {<<"1"/utf8>>,
                                     gleam@json:int(
-                                        gleam@dynamic:unsafe_coerce(Value)
+                                        lustre_escape_ffi:coerce(Value)
                                     )}]
                         )};
 
@@ -92,7 +109,7 @@ attribute_to_json(Attribute, Key) ->
                             [{<<"0"/utf8>>, gleam@json:string(Name)},
                                 {<<"1"/utf8>>,
                                     gleam@json:float(
-                                        gleam@dynamic:unsafe_coerce(Value)
+                                        lustre_escape_ffi:coerce(Value)
                                     )}]
                         )};
 
@@ -116,6 +133,7 @@ attribute_to_json(Attribute, Key) ->
                 )}
     end.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 352).
 -spec attribute_to_string_parts(attribute(any())) -> {ok, {binary(), binary()}} |
     {error, nil}.
 attribute_to_string_parts(Attr) ->
@@ -124,10 +142,10 @@ attribute_to_string_parts(Attr) ->
             {error, nil};
 
         {attribute, Name, Value, As_property} ->
-            True_atom = gleam@dynamic:from(true),
+            True_atom = gleam_stdlib:identity(true),
             case gleam@dynamic:classify(Value) of
                 <<"String"/utf8>> ->
-                    {ok, {Name, gleam@dynamic:unsafe_coerce(Value)}};
+                    {ok, {Name, lustre_escape_ffi:coerce(Value)}};
 
                 <<"Atom"/utf8>> when Value =:= True_atom ->
                     {ok, {Name, <<""/utf8>>}};
@@ -150,15 +168,13 @@ attribute_to_string_parts(Attr) ->
                 <<"Int"/utf8>> ->
                     {ok,
                         {Name,
-                            gleam@int:to_string(
-                                gleam@dynamic:unsafe_coerce(Value)
-                            )}};
+                            gleam@int:to_string(lustre_escape_ffi:coerce(Value))}};
 
                 <<"Float"/utf8>> ->
                     {ok,
                         {Name,
                             gleam@float:to_string(
-                                gleam@dynamic:unsafe_coerce(Value)
+                                lustre_escape_ffi:coerce(Value)
                             )}};
 
                 _ when As_property ->
@@ -172,6 +188,7 @@ attribute_to_string_parts(Attr) ->
             {error, nil}
     end.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 281).
 -spec attributes_to_string_builder(list(attribute(any()))) -> {gleam@string_builder:string_builder(),
     binary()}.
 attributes_to_string_builder(Attrs) ->
@@ -268,21 +285,7 @@ attributes_to_string_builder(Attrs) ->
                 )
         end, Inner_html@1}.
 
--spec attribute_to_event_handler(attribute(NHK)) -> {ok,
-        {binary(),
-            fun((gleam@dynamic:dynamic_()) -> {ok, NHK} |
-                {error, list(gleam@dynamic:decode_error())})}} |
-    {error, nil}.
-attribute_to_event_handler(Attribute) ->
-    case Attribute of
-        {attribute, _, _, _} ->
-            {error, nil};
-
-        {event, Name, Handler} ->
-            Name@1 = gleam@string:drop_left(Name, 2),
-            {ok, {Name@1, Handler}}
-    end.
-
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 269).
 -spec children_to_string_builder(
     gleam@string_builder:string_builder(),
     list(element(any())),
@@ -293,6 +296,7 @@ children_to_string_builder(Html, Children, Raw_text) ->
             _pipe@1 = do_element_to_string_builder(_pipe, Raw_text),
             gleam@string_builder:append_builder(Html@1, _pipe@1) end).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 192).
 -spec do_element_to_string_builder(element(any()), boolean()) -> gleam@string_builder:string_builder().
 do_element_to_string_builder(Element, Raw_text) ->
     case Element of
@@ -319,7 +323,7 @@ do_element_to_string_builder(Element, Raw_text) ->
                     _ ->
                         [{attribute,
                                 <<"xmlns"/utf8>>,
-                                gleam@dynamic:from(Namespace),
+                                gleam_stdlib:identity(Namespace),
                                 false} |
                             Attrs]
                 end),
@@ -338,7 +342,7 @@ do_element_to_string_builder(Element, Raw_text) ->
                     _ ->
                         [{attribute,
                                 <<"xmlns"/utf8>>,
-                                gleam@dynamic:from(Namespace@1),
+                                gleam_stdlib:identity(Namespace@1),
                                 false} |
                             Attrs@2]
                 end),
@@ -400,7 +404,7 @@ do_element_to_string_builder(Element, Raw_text) ->
                     _ ->
                         [{attribute,
                                 <<"xmlns"/utf8>>,
-                                gleam@dynamic:from(Namespace@2),
+                                gleam_stdlib:identity(Namespace@2),
                                 false} |
                             Attrs@6]
                 end
@@ -449,16 +453,19 @@ do_element_to_string_builder(Element, Raw_text) ->
             )
     end.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 182).
 -spec element_to_string(element(any())) -> binary().
 element_to_string(Element) ->
     _pipe = Element,
     _pipe@1 = do_element_to_string_builder(_pipe, false),
     gleam@string_builder:to_string(_pipe@1).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 188).
 -spec element_to_string_builder(element(any())) -> gleam@string_builder:string_builder().
 element_to_string_builder(Element) ->
     do_element_to_string_builder(Element, false).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 104).
 -spec do_element_list_to_json(list(element(any())), binary()) -> gleam@json:json().
 do_element_list_to_json(Elements, Key) ->
     gleam@json:preprocessed_array(
@@ -472,6 +479,7 @@ do_element_list_to_json(Elements, Key) ->
         ))
     ).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 79).
 -spec element_to_json(element(any()), binary()) -> gleam@json:json().
 element_to_json(Element, Key) ->
     case Element of
@@ -506,12 +514,13 @@ element_to_json(Element, Key) ->
             )
     end.
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 67).
 -spec do_element_list_handlers(
-    list(element(NGD)),
-    gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, NGD} |
+    list(element(NVF)),
+    gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, NVF} |
         {error, list(gleam@dynamic:decode_error())})),
     binary()
-) -> gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, NGD} |
+) -> gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, NVF} |
     {error, list(gleam@dynamic:decode_error())})).
 do_element_list_handlers(Elements, Handlers, Key) ->
     gleam@list:index_fold(
@@ -524,12 +533,13 @@ do_element_list_handlers(Elements, Handlers, Key) ->
         end
     ).
 
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 43).
 -spec do_handlers(
-    element(NFV),
-    gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, NFV} |
+    element(NUX),
+    gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, NUX} |
         {error, list(gleam@dynamic:decode_error())})),
     binary()
-) -> gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, NFV} |
+) -> gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, NUX} |
     {error, list(gleam@dynamic:decode_error())})).
 do_handlers(Element, Handlers, Key) ->
     case Element of
@@ -563,8 +573,9 @@ do_handlers(Element, Handlers, Key) ->
             do_element_list_handlers(Elements, Handlers, Key)
     end.
 
--spec handlers(element(NFQ)) -> gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok,
-        NFQ} |
+-file("/home/runner/work/lustre/lustre/src/lustre/internals/vdom.gleam", 39).
+-spec handlers(element(NUS)) -> gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok,
+        NUS} |
     {error, list(gleam@dynamic:decode_error())})).
 handlers(Element) ->
     do_handlers(Element, gleam@dict:new(), <<"0"/utf8>>).

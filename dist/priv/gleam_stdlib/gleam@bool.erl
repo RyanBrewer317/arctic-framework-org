@@ -121,7 +121,7 @@ to_string(Bool) ->
             <<"True"/utf8>>
     end.
 
--spec guard(boolean(), DKK, fun(() -> DKK)) -> DKK.
+-spec guard(boolean(), DKG, fun(() -> DKG)) -> DKG.
 guard(Requirement, Consequence, Alternative) ->
     case Requirement of
         true ->
@@ -131,7 +131,7 @@ guard(Requirement, Consequence, Alternative) ->
             Alternative()
     end.
 
--spec lazy_guard(boolean(), fun(() -> DKL), fun(() -> DKL)) -> DKL.
+-spec lazy_guard(boolean(), fun(() -> DKH), fun(() -> DKH)) -> DKH.
 lazy_guard(Requirement, Consequence, Alternative) ->
     case Requirement of
         true ->

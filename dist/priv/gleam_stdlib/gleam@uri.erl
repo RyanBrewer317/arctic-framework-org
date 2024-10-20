@@ -68,7 +68,7 @@ extra_required(List, Remaining) ->
             extra_required(Xs, Remaining - 1)
     end.
 
--spec pad_list(list(gleam@option:option(FKC)), integer()) -> list(gleam@option:option(FKC)).
+-spec pad_list(list(gleam@option:option(FJX)), integer()) -> list(gleam@option:option(FJX)).
 pad_list(List, Size) ->
     _pipe = List,
     lists:append(_pipe, gleam@list:repeat(none, extra_required(List, Size))).
@@ -234,24 +234,34 @@ to_string(Uri) ->
 -spec origin(uri()) -> {ok, binary()} | {error, nil}.
 origin(Uri) ->
     {uri, Scheme, _, Host, Port, _, _, _} = Uri,
-    case Scheme of
-        {some, <<"https"/utf8>>} when Port =:= {some, 443} ->
-            Origin = {uri, Scheme, none, Host, none, <<""/utf8>>, none, none},
-            {ok, to_string(Origin)};
+    case {Host, Scheme} of
+        {{some, H}, {some, <<"https"/utf8>>}} when Port =:= {some, 443} ->
+            {ok, gleam@string:concat([<<"https://"/utf8>>, H])};
 
-        {some, <<"http"/utf8>>} when Port =:= {some, 80} ->
-            Origin@1 = {uri, Scheme, none, Host, none, <<""/utf8>>, none, none},
-            {ok, to_string(Origin@1)};
+        {{some, H@1}, {some, <<"http"/utf8>>}} when Port =:= {some, 80} ->
+            {ok, gleam@string:concat([<<"http://"/utf8>>, H@1])};
 
-        {some, S} when (S =:= <<"http"/utf8>>) orelse (S =:= <<"https"/utf8>>) ->
-            Origin@2 = {uri, Scheme, none, Host, Port, <<""/utf8>>, none, none},
-            {ok, to_string(Origin@2)};
+        {{some, H@2}, {some, S}} when (S =:= <<"http"/utf8>>) orelse (S =:= <<"https"/utf8>>) ->
+            case Port of
+                {some, P} ->
+                    {ok,
+                        gleam@string:concat(
+                            [S,
+                                <<"://"/utf8>>,
+                                H@2,
+                                <<":"/utf8>>,
+                                gleam@int:to_string(P)]
+                        )};
 
-        _ ->
+                none ->
+                    {ok, gleam@string:concat([S, <<"://"/utf8>>, H@2])}
+            end;
+
+        {_, _} ->
             {error, nil}
     end.
 
--spec drop_last(list(FLC)) -> list(FLC).
+-spec drop_last(list(FKX)) -> list(FKX).
 drop_last(Elements) ->
     gleam@list:take(Elements, erlang:length(Elements) - 1).
 

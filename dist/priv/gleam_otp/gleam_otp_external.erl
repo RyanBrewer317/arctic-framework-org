@@ -1,6 +1,9 @@
 -module(gleam_otp_external).
 
--export([application_stopped/0, convert_system_message/2]).
+-export([
+    application_stopped/0, convert_system_message/2,
+    static_supervisor_start_link/1
+]).
 
 % TODO: support other system messages
 %   {replace_state, StateFn}
@@ -28,7 +31,7 @@ convert_system_message({From, Ref}, Request) when is_pid(From) ->
         get_state -> System(fun(State) -> Reply({ok, State}) end);
         suspend -> System(fun() -> Reply(ok) end);
         resume -> System(fun() -> Reply(ok) end);
-        Other -> {unexpeceted, Other}
+        Other -> {unexpected, Other}
     end.
 
 process_status({status_info, Module, Parent, Mode, DebugState, State}) ->
@@ -41,3 +44,9 @@ process_status({status_info, Module, Parent, Mode, DebugState, State}) ->
 
 application_stopped() ->
     ok.
+
+static_supervisor_start_link(Arg) ->
+    case supervisor:start_link(gleam@otp@static_supervisor, Arg) of
+        {ok, P} -> {ok, P};
+        {error, E} -> {ok, {init_crashed, E}}
+    end.

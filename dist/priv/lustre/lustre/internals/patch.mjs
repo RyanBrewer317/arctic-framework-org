@@ -19,6 +19,7 @@ import {
   makeError,
   isEqual,
 } from "../../gleam.mjs";
+import { coerce as unsafe_coerce } from "../../lustre-escape.ffi.mjs";
 import * as $constants from "../../lustre/internals/constants.mjs";
 import * as $vdom from "../../lustre/internals/vdom.mjs";
 import { Attribute, Element, Event, Fragment, Map, Text } from "../../lustre/internals/vdom.mjs";
@@ -211,90 +212,6 @@ function zip(xs, ys) {
   }
 }
 
-function attribute_dict(attributes) {
-  return $list.fold(
-    attributes,
-    $dict.new$(),
-    (dict, attr) => {
-      if (attr instanceof Attribute && attr[0] === "class") {
-        let value = attr[1];
-        let $ = $dict.get(dict, "class");
-        if ($.isOk() && $[0] instanceof Attribute) {
-          let classes = $[0][1];
-          let classes$1 = $dynamic.from(
-            ($dynamic.unsafe_coerce(classes) + " ") + $dynamic.unsafe_coerce(
-              value,
-            ),
-          );
-          return $dict.insert(
-            dict,
-            "class",
-            new Attribute("class", classes$1, false),
-          );
-        } else if ($.isOk()) {
-          return $dict.insert(dict, "class", attr);
-        } else {
-          return $dict.insert(dict, "class", attr);
-        }
-      } else if (attr instanceof Attribute && attr[0] === "style") {
-        let value = attr[1];
-        let $ = $dict.get(dict, "style");
-        if ($.isOk() && $[0] instanceof Attribute) {
-          let styles = $[0][1];
-          let styles$1 = $dynamic.from(
-            $list.append(
-              $dynamic.unsafe_coerce(styles),
-              $dynamic.unsafe_coerce(value),
-            ),
-          );
-          return $dict.insert(
-            dict,
-            "style",
-            new Attribute("style", styles$1, false),
-          );
-        } else if ($.isOk()) {
-          return $dict.insert(dict, "class", attr);
-        } else {
-          return $dict.insert(dict, "class", attr);
-        }
-      } else if (attr instanceof Attribute) {
-        let key = attr[0];
-        return $dict.insert(dict, key, attr);
-      } else {
-        let key = attr[0];
-        return $dict.insert(dict, key, attr);
-      }
-    },
-  );
-}
-
-export function attributes(old, new$) {
-  let old$1 = attribute_dict(old);
-  let new$1 = attribute_dict(new$);
-  let init = new AttributeDiff($set.new$(), $set.new$(), $dict.new$());
-  let $ = $dict.fold(
-    old$1,
-    [init, new$1],
-    (_use0, key, attr) => {
-      let diff = _use0[0];
-      let new$2 = _use0[1];
-      let new_attr = $dict.get(new$2, key);
-      let diff$1 = do_attribute(diff, key, new Ok(attr), new_attr);
-      let new$3 = $dict.delete$(new$2, key);
-      return [diff$1, new$3];
-    },
-  );
-  let diff = $[0];
-  let new$2 = $[1];
-  return $dict.fold(
-    new$2,
-    diff,
-    (diff, key, attr) => {
-      return do_attribute(diff, key, new Error(undefined), new Ok(attr));
-    },
-  );
-}
-
 function event_handler(attribute) {
   if (attribute instanceof Attribute) {
     return new Error(undefined);
@@ -413,6 +330,85 @@ export function patch_to_json(patch) {
       ]),
     );
   }
+}
+
+function attribute_dict(attributes) {
+  return $list.fold(
+    attributes,
+    $dict.new$(),
+    (dict, attr) => {
+      if (attr instanceof Attribute && attr[0] === "class") {
+        let value = attr[1];
+        let $ = $dict.get(dict, "class");
+        if ($.isOk() && $[0] instanceof Attribute) {
+          let classes = $[0][1];
+          let classes$1 = $dynamic.from(
+            (unsafe_coerce(classes) + " ") + unsafe_coerce(value),
+          );
+          return $dict.insert(
+            dict,
+            "class",
+            new Attribute("class", classes$1, false),
+          );
+        } else if ($.isOk()) {
+          return $dict.insert(dict, "class", attr);
+        } else {
+          return $dict.insert(dict, "class", attr);
+        }
+      } else if (attr instanceof Attribute && attr[0] === "style") {
+        let value = attr[1];
+        let $ = $dict.get(dict, "style");
+        if ($.isOk() && $[0] instanceof Attribute) {
+          let styles = $[0][1];
+          let styles$1 = $dynamic.from(
+            $list.append(unsafe_coerce(styles), unsafe_coerce(value)),
+          );
+          return $dict.insert(
+            dict,
+            "style",
+            new Attribute("style", styles$1, false),
+          );
+        } else if ($.isOk()) {
+          return $dict.insert(dict, "class", attr);
+        } else {
+          return $dict.insert(dict, "class", attr);
+        }
+      } else if (attr instanceof Attribute) {
+        let key = attr[0];
+        return $dict.insert(dict, key, attr);
+      } else {
+        let key = attr[0];
+        return $dict.insert(dict, key, attr);
+      }
+    },
+  );
+}
+
+export function attributes(old, new$) {
+  let old$1 = attribute_dict(old);
+  let new$1 = attribute_dict(new$);
+  let init = new AttributeDiff($set.new$(), $set.new$(), $dict.new$());
+  let $ = $dict.fold(
+    old$1,
+    [init, new$1],
+    (_use0, key, attr) => {
+      let diff = _use0[0];
+      let new$2 = _use0[1];
+      let new_attr = $dict.get(new$2, key);
+      let diff$1 = do_attribute(diff, key, new Ok(attr), new_attr);
+      let new$3 = $dict.delete$(new$2, key);
+      return [diff$1, new$3];
+    },
+  );
+  let diff = $[0];
+  let new$2 = $[1];
+  return $dict.fold(
+    new$2,
+    diff,
+    (diff, key, attr) => {
+      return do_attribute(diff, key, new Error(undefined), new Ok(attr));
+    },
+  );
 }
 
 function do_element_list(diff, old_elements, new_elements, key) {

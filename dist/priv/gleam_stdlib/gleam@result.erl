@@ -23,8 +23,8 @@ is_error(Result) ->
             true
     end.
 
--spec map({ok, BNQ} | {error, BNR}, fun((BNQ) -> BNU)) -> {ok, BNU} |
-    {error, BNR}.
+-spec map({ok, BNM} | {error, BNN}, fun((BNM) -> BNQ)) -> {ok, BNQ} |
+    {error, BNN}.
 map(Result, Fun) ->
     case Result of
         {ok, X} ->
@@ -34,8 +34,8 @@ map(Result, Fun) ->
             {error, E}
     end.
 
--spec map_error({ok, BNX} | {error, BNY}, fun((BNY) -> BOB)) -> {ok, BNX} |
-    {error, BOB}.
+-spec map_error({ok, BNT} | {error, BNU}, fun((BNU) -> BNX)) -> {ok, BNT} |
+    {error, BNX}.
 map_error(Result, Fun) ->
     case Result of
         {ok, X} ->
@@ -45,8 +45,8 @@ map_error(Result, Fun) ->
             {error, Fun(Error)}
     end.
 
--spec flatten({ok, {ok, BOE} | {error, BOF}} | {error, BOF}) -> {ok, BOE} |
-    {error, BOF}.
+-spec flatten({ok, {ok, BOA} | {error, BOB}} | {error, BOB}) -> {ok, BOA} |
+    {error, BOB}.
 flatten(Result) ->
     case Result of
         {ok, X} ->
@@ -56,9 +56,9 @@ flatten(Result) ->
             {error, Error}
     end.
 
--spec 'try'({ok, BOM} | {error, BON}, fun((BOM) -> {ok, BOQ} | {error, BON})) -> {ok,
-        BOQ} |
-    {error, BON}.
+-spec 'try'({ok, BOI} | {error, BOJ}, fun((BOI) -> {ok, BOM} | {error, BOJ})) -> {ok,
+        BOM} |
+    {error, BOJ}.
 'try'(Result, Fun) ->
     case Result of
         {ok, X} ->
@@ -68,13 +68,13 @@ flatten(Result) ->
             {error, E}
     end.
 
--spec then({ok, BOV} | {error, BOW}, fun((BOV) -> {ok, BOZ} | {error, BOW})) -> {ok,
-        BOZ} |
-    {error, BOW}.
+-spec then({ok, BOR} | {error, BOS}, fun((BOR) -> {ok, BOV} | {error, BOS})) -> {ok,
+        BOV} |
+    {error, BOS}.
 then(Result, Fun) ->
     'try'(Result, Fun).
 
--spec unwrap({ok, BPE} | {error, any()}, BPE) -> BPE.
+-spec unwrap({ok, BPA} | {error, any()}, BPA) -> BPA.
 unwrap(Result, Default) ->
     case Result of
         {ok, V} ->
@@ -84,7 +84,7 @@ unwrap(Result, Default) ->
             Default
     end.
 
--spec lazy_unwrap({ok, BPI} | {error, any()}, fun(() -> BPI)) -> BPI.
+-spec lazy_unwrap({ok, BPE} | {error, any()}, fun(() -> BPE)) -> BPE.
 lazy_unwrap(Result, Default) ->
     case Result of
         {ok, V} ->
@@ -94,7 +94,7 @@ lazy_unwrap(Result, Default) ->
             Default()
     end.
 
--spec unwrap_error({ok, any()} | {error, BPN}, BPN) -> BPN.
+-spec unwrap_error({ok, any()} | {error, BPJ}, BPJ) -> BPJ.
 unwrap_error(Result, Default) ->
     case Result of
         {ok, _} ->
@@ -104,7 +104,7 @@ unwrap_error(Result, Default) ->
             E
     end.
 
--spec unwrap_both({ok, BPQ} | {error, BPQ}) -> BPQ.
+-spec unwrap_both({ok, BPM} | {error, BPM}) -> BPM.
 unwrap_both(Result) ->
     case Result of
         {ok, A} ->
@@ -114,12 +114,12 @@ unwrap_both(Result) ->
             A@1
     end.
 
--spec nil_error({ok, BPT} | {error, any()}) -> {ok, BPT} | {error, nil}.
+-spec nil_error({ok, BPP} | {error, any()}) -> {ok, BPP} | {error, nil}.
 nil_error(Result) ->
     map_error(Result, fun(_) -> nil end).
 
--spec 'or'({ok, BPZ} | {error, BQA}, {ok, BPZ} | {error, BQA}) -> {ok, BPZ} |
-    {error, BQA}.
+-spec 'or'({ok, BPV} | {error, BPW}, {ok, BPV} | {error, BPW}) -> {ok, BPV} |
+    {error, BPW}.
 'or'(First, Second) ->
     case First of
         {ok, _} ->
@@ -129,9 +129,9 @@ nil_error(Result) ->
             Second
     end.
 
--spec lazy_or({ok, BQH} | {error, BQI}, fun(() -> {ok, BQH} | {error, BQI})) -> {ok,
-        BQH} |
-    {error, BQI}.
+-spec lazy_or({ok, BQD} | {error, BQE}, fun(() -> {ok, BQD} | {error, BQE})) -> {ok,
+        BQD} |
+    {error, BQE}.
 lazy_or(First, Second) ->
     case First of
         {ok, _} ->
@@ -141,12 +141,12 @@ lazy_or(First, Second) ->
             Second()
     end.
 
--spec all(list({ok, BQP} | {error, BQQ})) -> {ok, list(BQP)} | {error, BQQ}.
+-spec all(list({ok, BQL} | {error, BQM})) -> {ok, list(BQL)} | {error, BQM}.
 all(Results) ->
     gleam@list:try_map(Results, fun(X) -> X end).
 
--spec do_partition(list({ok, BRE} | {error, BRF}), list(BRE), list(BRF)) -> {list(BRE),
-    list(BRF)}.
+-spec do_partition(list({ok, BRA} | {error, BRB}), list(BRA), list(BRB)) -> {list(BRA),
+    list(BRB)}.
 do_partition(Results, Oks, Errors) ->
     case Results of
         [] ->
@@ -159,11 +159,11 @@ do_partition(Results, Oks, Errors) ->
             do_partition(Rest@1, Oks, [E | Errors])
     end.
 
--spec partition(list({ok, BQX} | {error, BQY})) -> {list(BQX), list(BQY)}.
+-spec partition(list({ok, BQT} | {error, BQU})) -> {list(BQT), list(BQU)}.
 partition(Results) ->
     do_partition(Results, [], []).
 
--spec replace({ok, any()} | {error, BRN}, BRQ) -> {ok, BRQ} | {error, BRN}.
+-spec replace({ok, any()} | {error, BRJ}, BRM) -> {ok, BRM} | {error, BRJ}.
 replace(Result, Value) ->
     case Result of
         {ok, _} ->
@@ -173,7 +173,7 @@ replace(Result, Value) ->
             {error, Error}
     end.
 
--spec replace_error({ok, BRT} | {error, any()}, BRX) -> {ok, BRT} | {error, BRX}.
+-spec replace_error({ok, BRP} | {error, any()}, BRT) -> {ok, BRP} | {error, BRT}.
 replace_error(Result, Error) ->
     case Result of
         {ok, X} ->
@@ -183,14 +183,14 @@ replace_error(Result, Error) ->
             {error, Error}
     end.
 
--spec values(list({ok, BSA} | {error, any()})) -> list(BSA).
+-spec values(list({ok, BRW} | {error, any()})) -> list(BRW).
 values(Results) ->
     gleam@list:filter_map(Results, fun(R) -> R end).
 
 -spec try_recover(
-    {ok, BSG} | {error, BSH},
-    fun((BSH) -> {ok, BSG} | {error, BSK})
-) -> {ok, BSG} | {error, BSK}.
+    {ok, BSC} | {error, BSD},
+    fun((BSD) -> {ok, BSC} | {error, BSG})
+) -> {ok, BSC} | {error, BSG}.
 try_recover(Result, Fun) ->
     case Result of
         {ok, Value} ->

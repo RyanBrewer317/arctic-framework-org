@@ -4,18 +4,19 @@
 -export([async/1, try_await/2, await/2, try_await_forever/1, await_forever/1]).
 -export_type([task/1, await_error/0, message/1]).
 
--opaque task(GYX) :: {task,
+-opaque task(HKS) :: {task,
         gleam@erlang@process:pid_(),
         gleam@erlang@process:pid_(),
         gleam@erlang@process:process_monitor(),
-        gleam@erlang@process:selector(message(GYX))}.
+        gleam@erlang@process:selector(message(HKS))}.
 
 -type await_error() :: timeout | {exit, gleam@dynamic:dynamic_()}.
 
--type message(GYY) :: {from_monitor, gleam@erlang@process:process_down()} |
-    {from_subject, GYY}.
+-type message(HKT) :: {from_monitor, gleam@erlang@process:process_down()} |
+    {from_subject, HKT}.
 
--spec async(fun(() -> GYZ)) -> task(GYZ).
+-file("/Users/louis/src/gleam/otp/src/gleam/otp/task.gleam", 51).
+-spec async(fun(() -> HKU)) -> task(HKU).
 async(Work) ->
     Owner = erlang:self(),
     Subject = gleam@erlang@process:new_subject(),
@@ -39,6 +40,7 @@ async(Work) ->
     end,
     {task, Owner, Pid, Monitor, Selector}.
 
+-file("/Users/louis/src/gleam/otp/src/gleam/otp/task.gleam", 71).
 -spec assert_owner(task(any())) -> nil.
 assert_owner(Task) ->
     Self = erlang:self(),
@@ -53,7 +55,8 @@ assert_owner(Task) ->
             )
     end.
 
--spec try_await(task(GZD), integer()) -> {ok, GZD} | {error, await_error()}.
+-file("/Users/louis/src/gleam/otp/src/gleam/otp/task.gleam", 94).
+-spec try_await(task(HKY), integer()) -> {ok, HKY} | {error, await_error()}.
 try_await(Task, Timeout) ->
     assert_owner(Task),
     case gleam_erlang_ffi:select(erlang:element(5, Task), Timeout) of
@@ -68,22 +71,24 @@ try_await(Task, Timeout) ->
             {error, timeout}
     end.
 
--spec await(task(GZH), integer()) -> GZH.
+-file("/Users/louis/src/gleam/otp/src/gleam/otp/task.gleam", 118).
+-spec await(task(HLC), integer()) -> HLC.
 await(Task, Timeout) ->
     _assert_subject = try_await(Task, Timeout),
     {ok, Value} = case _assert_subject of
         {ok, _} -> _assert_subject;
         _assert_fail ->
             erlang:error(#{gleam_error => let_assert,
-                        message => <<"Assertion pattern match failed"/utf8>>,
+                        message => <<"Pattern match failed, no pattern matched the value."/utf8>>,
                         value => _assert_fail,
                         module => <<"gleam/otp/task"/utf8>>,
                         function => <<"await"/utf8>>,
-                        line => 117})
+                        line => 119})
     end,
     Value.
 
--spec try_await_forever(task(GZJ)) -> {ok, GZJ} | {error, await_error()}.
+-file("/Users/louis/src/gleam/otp/src/gleam/otp/task.gleam", 129).
+-spec try_await_forever(task(HLE)) -> {ok, HLE} | {error, await_error()}.
 try_await_forever(Task) ->
     assert_owner(Task),
     case gleam_erlang_ffi:select(erlang:element(5, Task)) of
@@ -95,17 +100,18 @@ try_await_forever(Task) ->
             {error, {exit, Reason}}
     end.
 
--spec await_forever(task(GZN)) -> GZN.
+-file("/Users/louis/src/gleam/otp/src/gleam/otp/task.gleam", 150).
+-spec await_forever(task(HLI)) -> HLI.
 await_forever(Task) ->
     _assert_subject = try_await_forever(Task),
     {ok, Value} = case _assert_subject of
         {ok, _} -> _assert_subject;
         _assert_fail ->
             erlang:error(#{gleam_error => let_assert,
-                        message => <<"Assertion pattern match failed"/utf8>>,
+                        message => <<"Pattern match failed, no pattern matched the value."/utf8>>,
                         value => _assert_fail,
                         module => <<"gleam/otp/task"/utf8>>,
                         function => <<"await_forever"/utf8>>,
-                        line => 149})
+                        line => 151})
     end,
     Value.

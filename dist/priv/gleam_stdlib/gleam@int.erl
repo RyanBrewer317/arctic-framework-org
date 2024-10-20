@@ -2,9 +2,6 @@
 -compile([no_auto_import, nowarn_unused_vars, nowarn_unused_function, nowarn_nomatch]).
 
 -export([absolute_value/1, parse/1, base_parse/2, to_string/1, to_base_string/2, to_base2/1, to_base8/1, to_base16/1, to_base36/1, to_float/1, power/2, square_root/1, compare/2, min/2, max/2, clamp/3, is_even/1, is_odd/1, negate/1, sum/1, product/1, digits/2, undigits/2, random/1, divide/2, remainder/2, modulo/2, floor_divide/2, add/2, multiply/2, subtract/2, bitwise_and/2, bitwise_not/1, bitwise_or/2, bitwise_exclusive_or/2, bitwise_shift_left/2, bitwise_shift_right/2]).
--export_type([invalid_base/0]).
-
--type invalid_base() :: invalid_base.
 
 -spec absolute_value(integer()) -> integer().
 absolute_value(X) ->
@@ -34,15 +31,14 @@ base_parse(String, Base) ->
 to_string(X) ->
     erlang:integer_to_binary(X).
 
--spec to_base_string(integer(), integer()) -> {ok, binary()} |
-    {error, invalid_base()}.
+-spec to_base_string(integer(), integer()) -> {ok, binary()} | {error, nil}.
 to_base_string(X, Base) ->
     case (Base >= 2) andalso (Base =< 36) of
         true ->
             {ok, erlang:integer_to_binary(X, Base)};
 
         false ->
-            {error, invalid_base}
+            {error, nil}
     end.
 
 -spec to_base2(integer()) -> binary().
@@ -182,37 +178,35 @@ do_digits(X, Base, Acc) ->
                     end | Acc])
     end.
 
--spec digits(integer(), integer()) -> {ok, list(integer())} |
-    {error, invalid_base()}.
+-spec digits(integer(), integer()) -> {ok, list(integer())} | {error, nil}.
 digits(X, Base) ->
     case Base < 2 of
         true ->
-            {error, invalid_base};
+            {error, nil};
 
         false ->
             {ok, do_digits(X, Base, [])}
     end.
 
 -spec do_undigits(list(integer()), integer(), integer()) -> {ok, integer()} |
-    {error, invalid_base()}.
+    {error, nil}.
 do_undigits(Numbers, Base, Acc) ->
     case Numbers of
         [] ->
             {ok, Acc};
 
         [Digit | _] when Digit >= Base ->
-            {error, invalid_base};
+            {error, nil};
 
         [Digit@1 | Rest] ->
             do_undigits(Rest, Base, (Acc * Base) + Digit@1)
     end.
 
--spec undigits(list(integer()), integer()) -> {ok, integer()} |
-    {error, invalid_base()}.
+-spec undigits(list(integer()), integer()) -> {ok, integer()} | {error, nil}.
 undigits(Numbers, Base) ->
     case Base < 2 of
         true ->
-            {error, invalid_base};
+            {error, nil};
 
         false ->
             do_undigits(Numbers, Base, 0)

@@ -40,26 +40,6 @@ export function compare(a, b) {
   }
 }
 
-export function max(a, b) {
-  if (a instanceof Gt) {
-    return new Gt();
-  } else if (a instanceof Eq && b instanceof Lt) {
-    return new Eq();
-  } else {
-    return b;
-  }
-}
-
-export function min(a, b) {
-  if (a instanceof Lt) {
-    return new Lt();
-  } else if (a instanceof Eq && b instanceof Gt) {
-    return new Eq();
-  } else {
-    return b;
-  }
-}
-
 export function reverse(orderer) {
   return (a, b) => { return orderer(b, a); };
 }

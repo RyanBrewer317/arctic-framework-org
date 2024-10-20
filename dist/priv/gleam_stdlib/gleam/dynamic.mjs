@@ -4,11 +4,11 @@ import * as $dict from "../gleam/dict.mjs";
 import * as $int from "../gleam/int.mjs";
 import * as $list from "../gleam/list.mjs";
 import * as $option from "../gleam/option.mjs";
+import { Some } from "../gleam/option.mjs";
 import * as $result from "../gleam/result.mjs";
 import * as $string_builder from "../gleam/string_builder.mjs";
 import {
-  identity as do_from,
-  identity as do_unsafe_coerce,
+  identity as from,
   decode_bit_array,
   classify_dynamic as do_classify,
   decode_int,
@@ -30,6 +30,8 @@ import {
   decode_string,
 } from "../gleam_stdlib.mjs";
 
+export { from };
+
 export class DecodeError extends $CustomType {
   constructor(expected, found, path) {
     super();
@@ -37,14 +39,6 @@ export class DecodeError extends $CustomType {
     this.found = found;
     this.path = path;
   }
-}
-
-export function from(a) {
-  return do_from(a);
-}
-
-export function unsafe_coerce(a) {
-  return do_unsafe_coerce(a);
 }
 
 export function dynamic(value) {
@@ -255,8 +249,8 @@ export function optional_field(name, inner_type) {
           return new Ok(new $option.None());
         } else {
           let dynamic_inner = maybe_inner[0];
-          let _pipe = dynamic_inner;
-          let _pipe$1 = decode_optional(_pipe, inner_type);
+          let _pipe = inner_type(dynamic_inner);
+          let _pipe$1 = $result.map(_pipe, (var0) => { return new Some(var0); });
           return map_errors(
             _pipe$1,
             (_capture) => { return push_path(_capture, name); },
