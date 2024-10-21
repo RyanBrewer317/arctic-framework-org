@@ -17,7 +17,14 @@ export function main() {
           toList([
             $html.head(
               toList([]),
-              toList([$html.style(toList([]), "body { color: purple; }")]),
+              toList([
+                $html.link(
+                  toList([
+                    $attribute.href("https://ryanbrewer.dev/style.css"),
+                    $attribute.rel("stylesheet"),
+                  ]),
+                ),
+              ]),
             ),
             $html.body(
               toList([]),

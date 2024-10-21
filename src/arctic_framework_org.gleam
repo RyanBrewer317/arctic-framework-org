@@ -9,7 +9,12 @@ pub fn main() {
     config.new()
     |> config.home_renderer(fn(_) {
       html.html([], [
-        html.head([], [html.style([], "body { color: purple; }")]),
+        html.head([], [
+          html.link([
+            attribute.href("https://ryanbrewer.dev/style.css"),
+            attribute.rel("stylesheet"),
+          ]),
+        ]),
         html.body([], [
           element.text("hello from SPA Arctic! "),
           a([attribute.href("/test")], [element.text("test")]),
