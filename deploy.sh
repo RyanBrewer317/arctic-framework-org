@@ -18,7 +18,6 @@ rm -r dist/public &&
 cp -r arctic_build/public/* dist &&
 cp -r build/dev/javascript/* dist/priv &&
 rm dist/priv/lustre/priv &&
-cp style.css dist/ &&
 # npx vite build && # this doesn't hang because of vite-plugin-close.ts
 git add . &&
 git commit -m "$msg" &&
