@@ -29,7 +29,11 @@ pub fn parse(src_name: String, content: String) -> Result(Page, Snag) {
   })
   |> add_static_component("img", fn(args, body, _data) {
     case args {
-      [url] -> Ok(#(img([src(url), alt(body)]), Nil))
+      [url] ->
+        Ok(#(
+          img([src(url), alt(body), attribute.attribute("async", "true")]),
+          Nil,
+        ))
       _ -> snag.error("img expected a URL argument")
     }
   })

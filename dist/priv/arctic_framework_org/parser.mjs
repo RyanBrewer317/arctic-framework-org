@@ -90,7 +90,18 @@ export function parse(src_name, content) {
     (args, body, _) => {
       if (args.hasLength(1)) {
         let url = args.head;
-        return new Ok([img(toList([src(url), alt(body)])), undefined]);
+        return new Ok(
+          [
+            img(
+              toList([
+                src(url),
+                alt(body),
+                $attribute.attribute("async", "true"),
+              ]),
+            ),
+            undefined,
+          ],
+        );
       } else {
         return $snag.error("img expected a URL argument");
       }
