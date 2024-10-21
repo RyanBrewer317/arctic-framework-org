@@ -1,12 +1,12 @@
 :root {
   --color: rgb(255, 226, 231);
   --background: rgb(13, 1, 13);
-  --hightlight: rgb(255, 88, 199);
+  --highlight: rgb(255, 88, 199);
 }
 
 body,
 html,
-#app {
+#arctic-app {
   padding: 0;
   margin: 0;
   background: var(--background);
@@ -25,6 +25,7 @@ nav {
   top: 0pt;
   background-color: var(--background);
   z-index: 1;
+  margin-right: 15pt
 }
 
 nav.dropdown a { 
