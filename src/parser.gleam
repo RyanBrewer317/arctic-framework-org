@@ -7,7 +7,7 @@ import gleam/list
 import gleam/string.{replace, split}
 import lustre/attribute.{alt, class, href, src}
 import lustre/element.{text}
-import lustre/element/html.{a, code, em, h1, h3, img, li, pre, strong, ul}
+import lustre/element/html.{a, code, div, em, h1, h3, img, li, pre, strong, ul}
 import snag.{type Snag}
 
 pub fn parse(src_name: String, content: String) -> Result(Page, Snag) {
@@ -31,7 +31,9 @@ pub fn parse(src_name: String, content: String) -> Result(Page, Snag) {
     case args {
       [url] ->
         Ok(#(
-          img([src(url), alt(body), attribute.attribute("async", "true")]),
+          div([class("img-container")], [
+            img([src(url), alt(body), attribute.attribute("async", "true")]),
+          ]),
           Nil,
         ))
       _ -> snag.error("img expected a URL argument")

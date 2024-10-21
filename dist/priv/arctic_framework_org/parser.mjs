@@ -15,7 +15,7 @@ import { alt, class$, href, src } from "../lustre/lustre/attribute.mjs";
 import * as $element from "../lustre/lustre/element.mjs";
 import { text } from "../lustre/lustre/element.mjs";
 import * as $html from "../lustre/lustre/element/html.mjs";
-import { a, code, em, h1, h3, img, li, pre, strong, ul } from "../lustre/lustre/element/html.mjs";
+import { a, code, div, em, h1, h3, img, li, pre, strong, ul } from "../lustre/lustre/element/html.mjs";
 import * as $snag from "../snag/snag.mjs";
 import { Ok, toList, makeError } from "./gleam.mjs";
 
@@ -92,11 +92,16 @@ export function parse(src_name, content) {
         let url = args.head;
         return new Ok(
           [
-            img(
+            div(
+              toList([class$("img-container")]),
               toList([
-                src(url),
-                alt(body),
-                $attribute.attribute("async", "true"),
+                img(
+                  toList([
+                    src(url),
+                    alt(body),
+                    $attribute.attribute("async", "true"),
+                  ]),
+                ),
               ]),
             ),
             undefined,
