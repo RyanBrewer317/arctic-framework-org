@@ -394,8 +394,13 @@ spa(Frame, Home) ->
                 lustre@element@html:script(
                     [],
                     <<"
-// algorithm stolen from Hayleigh Thompson's wonderful Modem library
-async function go_to(url) {
+if (window.location.pathname !== '/') {
+  go_to(new URL(window.location.href));
+}
+// SPA algorithm stolen from Hayleigh Thompson's wonderful Modem library
+async function go_to(url, no_loader) {
+  const $app = document.getElementById('arctic-app');
+  if (!no_loader) $app.innerHTML = '<div id=\"arctic-loader\"></div>';
   window.history.pushState({}, '', url.href);
   window.requestAnimationFrame(() => {
     // scroll in #-link elements, as the browser would if we didn't preventDefault
@@ -409,7 +414,7 @@ async function go_to(url) {
   if (!response.ok) response = await fetch('/__pages/404.html');
   if (!response.ok) return;
   const html = await response.text();
-  document.getElementById('arctic-app').innerHTML = html;
+  $app.innerHTML = html;
 }
 document.addEventListener('click', async function(e) {
   const a = find_a(e.target);
@@ -419,7 +424,7 @@ document.addEventListener('click', async function(e) {
     const is_external = url.host !== window.location.host;
     if (is_external) return;
     event.preventDefault();
-    go_to(url);
+    go_to(url, true);
   } catch {
     return;
   }
@@ -428,9 +433,6 @@ function find_a(target) {
   if (!target || target.tagName === 'BODY') return null;
   if (target.tagName === 'A') return target;
   return find_a(target.parentElement);
-}
-if (window.location.pathname !== '/') {
-  go_to(new URL(window.location.href));
 }
   "/utf8>>
                 )]
@@ -547,7 +549,7 @@ make_ssg_config(Processed_collections, Config, K) ->
                                                         value => _assert_fail,
                                                         module => <<"arctic/build"/utf8>>,
                                                         function => <<"make_ssg_config"/utf8>>,
-                                                        line => 347}
+                                                        line => 349}
                                                 )
                                     end,
                                     Cached_path = <<<<"arctic_build/"/utf8,
@@ -563,7 +565,7 @@ make_ssg_config(Processed_collections, Config, K) ->
                                                     message => Cached_path,
                                                     module => <<"arctic/build"/utf8>>,
                                                     function => <<"make_ssg_config"/utf8>>,
-                                                    line => 352})
+                                                    line => 354})
                                     end,
                                     lustre@ssg:add_static_asset(
                                         S@1,

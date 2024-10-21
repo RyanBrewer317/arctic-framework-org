@@ -24,7 +24,36 @@ export function main() {
         );
       },
     );
-    return $config.add_main_page(_pipe$1, "test", $element.text("woo!"));
+    let _pipe$2 = $config.add_main_page(
+      _pipe$1,
+      "test",
+      div(
+        toList([]),
+        toList([
+          $element.text("woo! "),
+          a(
+            toList([$attribute.href("/")]),
+            toList([$element.text("back home")]),
+          ),
+        ]),
+      ),
+    );
+    return $config.add_spa_frame(
+      _pipe$2,
+      (body) => {
+        return div(
+          toList([]),
+          toList([
+            div(toList([$attribute.id("boop")]), toList([])),
+            $html.style(
+              toList([]),
+              "\n#boop {\n  width: 48px;\n  height: 48px;\n  border: 5px solid #FFF;\n  border-bottom-color: #FF3D00;\n  border-radius: 50%;\n  display: inline-block;\n  box-sizing: border-box;\n  animation: rotation 1s linear infinite;\n}\n\n@keyframes rotation {\n  0% {\n      transform: rotate(0deg);\n  }\n  100% {\n      transform: rotate(360deg);\n  }\n} \n        ",
+            ),
+            body,
+          ]),
+        );
+      },
+    );
   })();
   return $build.build(cfg);
 }
