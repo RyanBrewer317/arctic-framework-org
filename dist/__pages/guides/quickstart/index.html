@@ -3,7 +3,7 @@
 </span></h1><p><span>Make sure you&#39;ve got <a href="https://gleam.run"><span>gleam</span></a> working.
 Create a new project with <code><span>gleam new my_project</span></code> and <code><span>cd</span></code> into it.
 </span></p><p><span>For this quickstart, I&#39;ll assume that you either 
-</span></p><ul><li></li><li>have a build script that runs `gleam run` and deploys to your production website, or</li><li>have a github action that deploys to your production website, and you run `gleam run` before you commit.
+</span></p><ul><li>have a build script that runs `gleam run` and deploys to your production website, or</li><li>have a github action that deploys to your production website, and you run `gleam run` before you commit.
 </li></ul><p><span>I use <a href="https://firebase.google.com/docs/hosting/"><span>Firebase Hosting</span></a> 
 for <a href="https://ryanbrewer.dev"><span>ryanbrewer.dev</span></a>
 because Arctic doesn&#39;t require a server-side, and I&#39;m very happy with it.
@@ -38,7 +38,8 @@ pub fn parse(source_name: String, text: String) -&gt; Result(Page, Snag) {
   |&gt; parse.add_infix_rule(&quot;_&quot;, &quot;_&quot;, parse.wrap_infix(html.em))
   |&gt; parse.parse(source_name, text)
 }
-</code></pre><p><span>This will italicize anything between underscores, as in <code><span><em><span>I&#39;m italicized</span></em> and I&#39;m not</span></code>.
+</code></pre><p><span>This will <em><span>italicize</span></em> anything between underscores, as in <code><span>_I&#39;m italicized_ and I&#39;m not</span></code>.
+Note that &#39;\&#39; escapes it, as in <code><span>\_I&#39;m not italicized\_</span></code>.
 </span></p><h3><span>Replace the Default <code><span>my_project.gleam</span></code>
 </span></h3><p><span>(Obviously the name will vary per project.
 I just mean the file with your <code><span>main</span></code> function.)

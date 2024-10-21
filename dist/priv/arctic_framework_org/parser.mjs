@@ -32,7 +32,7 @@ export function parse(src_name, content) {
         throw makeError(
           "assignment_no_match",
           "parser",
-          18,
+          19,
           "",
           "Assignment pattern did not match",
           { value: $ }
