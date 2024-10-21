@@ -1,14 +1,15 @@
 import * as $arctic from "../arctic/arctic.mjs";
 import * as $element from "../lustre/lustre/element.mjs";
 import * as $html from "../lustre/lustre/element/html.mjs";
-import { toList } from "./gleam.mjs";
+import { toList, prepend as listPrepend } from "./gleam.mjs";
+import * as $navbar from "./navbar.mjs";
 
 export function render(page) {
   return $html.html(
     toList([]),
     toList([
       $html.head(toList([]), toList([])),
-      $html.body(toList([]), page.body),
+      $html.body(toList([]), listPrepend($navbar.navbar(), page.body)),
     ]),
   );
 }

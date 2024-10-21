@@ -2,10 +2,9 @@ import * as $build from "../arctic/arctic/build.mjs";
 import * as $collection from "../arctic/arctic/collection.mjs";
 import * as $config from "../arctic/arctic/config.mjs";
 import * as $html from "../lustre/lustre/element/html.mjs";
-import { div } from "../lustre/lustre/element/html.mjs";
 import * as $simplifile from "../simplifile/simplifile.mjs";
 import * as $demos from "./demos.mjs";
-import { toList, makeError } from "./gleam.mjs";
+import { toList, prepend as listPrepend, makeError } from "./gleam.mjs";
 import * as $head from "./head.mjs";
 import * as $navbar from "./navbar.mjs";
 import * as $parser from "./parser.mjs";
@@ -50,7 +49,7 @@ export function main() {
           toList([]),
           toList([
             $html.head(toList([]), toList([])),
-            $html.body(toList([]), page.body),
+            $html.body(toList([]), listPrepend($navbar.navbar(), page.body)),
           ]),
         );
       },
@@ -62,13 +61,7 @@ export function main() {
       (body) => {
         return $html.html(
           toList([]),
-          toList([
-            $head.head(),
-            $html.body(
-              toList([]),
-              toList([div(toList([]), toList([$navbar.navbar(), body]))]),
-            ),
-          ]),
+          toList([$head.head(), $html.body(toList([]), toList([body]))]),
         );
       },
     );

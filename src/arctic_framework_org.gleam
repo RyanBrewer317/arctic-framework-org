@@ -3,7 +3,7 @@ import arctic/collection
 import arctic/config
 import demos
 import head
-import lustre/element/html.{div}
+import lustre/element/html
 import navbar
 import parser
 import render_guide
@@ -19,15 +19,15 @@ pub fn main() {
     |> config.home_renderer(fn(_) {
       let assert Ok(content) = simplifile.read("./content/home.md")
       let assert Ok(page) = parser.parse("home", content)
-      html.html([], [html.head([], []), html.body([], page.body)])
+      html.html([], [
+        html.head([], []),
+        html.body([], [navbar.navbar(), ..page.body]),
+      ])
     })
     |> config.add_main_page("demos", demos.demos())
     |> config.add_collection(guides)
     |> config.add_spa_frame(fn(body) {
-      html.html([], [
-        head.head(),
-        html.body([], [div([], [navbar.navbar(), body])]),
-      ])
+      html.html([], [head.head(), html.body([], [body])])
     })
   build.build(cfg)
 }
