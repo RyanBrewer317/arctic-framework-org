@@ -1,42 +1,59 @@
 import * as $build from "../arctic/arctic/build.mjs";
+import * as $collection from "../arctic/arctic/collection.mjs";
 import * as $config from "../arctic/arctic/config.mjs";
-import * as $attribute from "../lustre/lustre/attribute.mjs";
-import { attribute } from "../lustre/lustre/attribute.mjs";
 import * as $html from "../lustre/lustre/element/html.mjs";
 import { div } from "../lustre/lustre/element/html.mjs";
+import * as $simplifile from "../simplifile/simplifile.mjs";
 import { toList, makeError } from "./gleam.mjs";
 import * as $head from "./head.mjs";
+import * as $navbar from "./navbar.mjs";
 import * as $parser from "./parser.mjs";
+import * as $render_guide from "./render_guide.mjs";
 
 export function main() {
+  let guides = (() => {
+    let _pipe = $collection.new$("guides");
+    let _pipe$1 = $collection.with_parser(_pipe, $parser.parse);
+    return $collection.with_renderer(_pipe$1, $render_guide.render);
+  })();
   let cfg = (() => {
     let _pipe = $config.new$();
     let _pipe$1 = $config.home_renderer(
       _pipe,
       (_) => {
-        let $ = $parser.parse(
-          "home",
-          "id: home-page\n\n# Arctic\n\nArctic is a high-performance frontend framework for your [Lustre](https://lustre.build/) workloads.\n      ",
-        );
+        let $ = $simplifile.read("./content/home.md");
         if (!$.isOk()) {
           throw makeError(
             "assignment_no_match",
             "arctic_framework_org",
-            12,
+            19,
             "",
             "Assignment pattern did not match",
             { value: $ }
           )
         }
-        let page = $[0];
+        let content = $[0];
+        let $1 = $parser.parse("home", content);
+        if (!$1.isOk()) {
+          throw makeError(
+            "assignment_no_match",
+            "arctic_framework_org",
+            20,
+            "",
+            "Assignment pattern did not match",
+            { value: $1 }
+          )
+        }
+        let page = $1[0];
         return $html.html(
           toList([]),
           toList([$head.head(), $html.body(toList([]), page.body)]),
         );
       },
     );
+    let _pipe$2 = $config.add_collection(_pipe$1, guides);
     return $config.add_spa_frame(
-      _pipe$1,
+      _pipe$2,
       (body) => {
         return $html.html(
           toList([]),
@@ -44,19 +61,7 @@ export function main() {
             $html.head(toList([]), toList([])),
             $html.body(
               toList([]),
-              toList([
-                div(
-                  toList([]),
-                  toList([
-                    div(toList([$attribute.id("boop")]), toList([])),
-                    $html.style(
-                      toList([]),
-                      "\n#boop {\n  width: 48px;\n  height: 48px;\n  border: 5px solid #FFF;\n  border-bottom-color: #FF3D00;\n  border-radius: 50%;\n  display: inline-block;\n  box-sizing: border-box;\n  animation: rotation 1s linear infinite;\n}\n\n@keyframes rotation {\n  0% {\n      transform: rotate(0deg);\n  }\n  100% {\n      transform: rotate(360deg);\n  }\n} \n        ",
-                    ),
-                    body,
-                  ]),
-                ),
-              ]),
+              toList([div(toList([]), toList([$navbar.navbar(), body]))]),
             ),
           ]),
         );

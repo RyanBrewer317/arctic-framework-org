@@ -1,0 +1,155 @@
+id: quickstart
+title: Quickstart
+blerb: Getting started with a simple Arctic website.
+tags: quick,start,simple,started
+
+# Arctic Quickstart
+
+Make sure you've got [gleam](https://gleam.run) working.
+Create a new project with `gleam new my_project` and `cd` into it.
+
+For this quickstart, I'll assume that you either 
+
+@ul
+- have a build script that runs `gleam run` and deploys to your production website, or
+- have a github action that deploys to your production website, and you run `gleam run` before you commit.
+
+I use [Firebase Hosting](https://firebase.google.com/docs/hosting/) 
+for [ryanbrewer.dev](https://ryanbrewer.dev)
+because Arctic doesn't require a server-side, and I'm very happy with it.
+
+Add Arctic to your project by running `gleam add arctic`.
+
+Also add [Simplifile](https://hexdocs.pm/simplifile/),
+[Lustre](https://hexdocs.pm/lustre/),
+and [Snag](https://hexdocs.pm/snag/) to your project, if you haven't already:
+
+@code(plaintext)
+gleam add simplifile
+gleam add lustre
+gleam add snag
+
+Arctic uses these for reading files, producing HTML, and handling errors, respectively.
+
+### Write Some Content
+
+Make a directory, perhaps called `content`.
+Put some text files in it, at the very least `index.txt`.
+(Or `index.md`, or `main.txt`, you get the idea.)
+
+For the rest of this quickstart,
+I'll assume we've named the directory `content`, 
+and the file `index.txt`.
+
+Make sure the first line in your file starts with `id: home`.
+This annoying requirement will be lifted in the near future.
+
+### Create a Parser
+
+In `src`, create a file called `parser.gleam`.
+For now, put the following code:
+
+@code(gleam)
+import arctic.{type Page}
+import arctic/parse
+import snag.{type Snag}
+import lustre/element/html\n
+pub fn parse(source_name: String, text: String) -> Result(Page, Snag) {
+  parse.new(Nil)
+  |> parse.add_infix_rule("_", "_", parse.wrap_infix(html.em))
+  |> parse.parse(source_name, text)
+}
+
+This will italicize anything between underscores, as in `_I'm italicized_ and I'm not`.
+
+### Replace the Default `my_project.gleam`
+
+(Obviously the name will vary per project.
+I just mean the file with your `main` function.)
+
+@code(gleam)
+import arctic/config
+import arctic/parse
+import arctic/build
+import simplifile
+import lustre/element/html
+import parser\n
+pub fn main() {
+  let cfg = 
+    config.new()
+    |> config.home_renderer(fn(_) {
+      let assert Ok(text) = simplifile.read("content/index.txt")
+      // "index.txt" will be used in helpful error messages
+      let Ok(page) = parser.parse("index.txt", text)
+      html.html([], [
+        html.head([], []),
+        html.body([], page.body)
+      ])
+    })
+  build.build(cfg)
+}
+
+Here we take the text from `content/index.txt`,
+run it through our parser to get fancy HTML,
+and construct a website from it.
+When you run `gleam run`,
+you will find your site in the new `arctic_build/` directory.
+`arctic_build/index.html` might be hard to understand because of Arctic's optimization,
+but `arctic_build/__pages/index.html` should hopefully look more familiar.
+
+### Next Steps
+
+I don't usually deploy from `arctic_build/` directly.
+I typically use a build script that copies the contents 
+of `arctic_build/` to a different directory, which I call `dist/`.
+
+I also have a `public/` directory full of files that I'd like
+my website to have, like a `style.css` file. 
+Then, with the build script I mentioned, I copy everything in `public/` into `dist/`.
+
+You can see the code for this website [here](https://github.com/RyanBrewer317/arctic_framework_org).
+It should give you ideas for how to extend your parser and add new pages.
+[ryanbrewer.dev](https://ryanbrewer.dev) is an even bigger example, 
+and has [licensed code](https://github.com/RyanBrewer317/ryanbrewer-dev).
+
+You might run into difficulties with Arctic's routing in the beginning.
+The easiest solution is to add `|> config.turn_off_spa()` to your `main` function.
+A much better solution, though, is to instead 
+get your hosting provider to send all requests to `/index.html`.
+If you're using Firebase Hosting, 
+you can do this by adding a `rewrites` section to your `firebase.json`:
+
+@code(json)
+"rewrites": [
+  {
+    "source": "**",
+    "destination": "/index.html"
+  }
+]
+
+This allows Arctic to handle routing and potentially speed up your website.
+If you want to use SPA tricks like non-rerendering internal links, you'll have to do this.
+Arctic offers the `|> config.add_spa_frame(f)` option for this purpose,
+and you can see how this site uses it to avoid rerendering the navigation bar.
+
+I also use the build script to copy javascript 
+that I compiled from client-side gleam code into `dist/`.
+This way I can write my client side as a Lustre application.
+You can see this in action on [here](https://github.com/RyanBrewer317/ryanbrewer-dev).
+Currently I also copy in some of the compiled packages (I at least need Lustre!)
+in a kind of hacky way, which I hope to improve in the future.
+You can find my whole build script 
+[here](https://github.com/RyanBrewer317/ryanbrewer-dev/blob/main/commands/deploy.sh).
+
+### Conclusion
+
+There's a lot more to Arctic than what's covered in this guide,
+such as pages, collections, and indices.
+These features are where Arctic starts to really carry its weight.
+I hope this convinces you that Arctic is designed with
+incremental exposition of complexity in mind.
+If you already had a website built on Lustre, especially `lustre_ssg`,
+you can hopefully see how to migrate to Arctic without much rewriting.
+
+Reach out to me (Ryan Brewer) through GitHub, my website, or in the Gleam discord,
+where Arctic questions will surely find their way to me pretty quick.

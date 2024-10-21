@@ -7,14 +7,15 @@ import {
   wrap_inline,
   wrap_prefix,
 } from "../arctic/arctic/parse.mjs";
+import * as $list from "../gleam_stdlib/gleam/list.mjs";
 import * as $string from "../gleam_stdlib/gleam/string.mjs";
-import { replace } from "../gleam_stdlib/gleam/string.mjs";
+import { replace, split } from "../gleam_stdlib/gleam/string.mjs";
 import * as $attribute from "../lustre/lustre/attribute.mjs";
 import { alt, class$, href, src } from "../lustre/lustre/attribute.mjs";
 import * as $element from "../lustre/lustre/element.mjs";
 import { text } from "../lustre/lustre/element.mjs";
 import * as $html from "../lustre/lustre/element/html.mjs";
-import { a, code, em, h1, h3, img, pre, strong } from "../lustre/lustre/element/html.mjs";
+import { a, code, em, h1, h3, img, li, pre, strong, ul } from "../lustre/lustre/element/html.mjs";
 import * as $snag from "../snag/snag.mjs";
 import { Ok, toList } from "./gleam.mjs";
 
@@ -24,6 +25,25 @@ export function parse(src_name, content) {
   let _pipe$2 = add_prefix_rule(_pipe$1, "###", wrap_prefix(h3));
   let _pipe$3 = add_static_component(
     _pipe$2,
+    "ul",
+    (_, body, _1) => {
+      let rows = split("\n" + body, "\n- ");
+      return new Ok(
+        [
+          ul(
+            toList([]),
+            $list.map(
+              rows,
+              (row) => { return li(toList([]), toList([text(row)])); },
+            ),
+          ),
+          undefined,
+        ],
+      );
+    },
+  );
+  let _pipe$4 = add_static_component(
+    _pipe$3,
     "code",
     (args, body, _) => {
       let body2 = replace(body, "\\n", "\n");
@@ -53,8 +73,8 @@ export function parse(src_name, content) {
       }
     },
   );
-  let _pipe$4 = add_static_component(
-    _pipe$3,
+  let _pipe$5 = add_static_component(
+    _pipe$4,
     "img",
     (args, body, _) => {
       if (args.hasLength(1)) {
@@ -65,11 +85,11 @@ export function parse(src_name, content) {
       }
     },
   );
-  let _pipe$5 = add_inline_rule(_pipe$4, "*", "*", wrap_inline(strong));
-  let _pipe$6 = add_inline_rule(_pipe$5, "_", "_", wrap_inline(em));
-  let _pipe$7 = add_inline_rule(_pipe$6, "`", "`", wrap_inline(code));
-  let _pipe$8 = add_inline_rule(
-    _pipe$7,
+  let _pipe$6 = add_inline_rule(_pipe$5, "*", "*", wrap_inline(strong));
+  let _pipe$7 = add_inline_rule(_pipe$6, "_", "_", wrap_inline(em));
+  let _pipe$8 = add_inline_rule(_pipe$7, "`", "`", wrap_inline(code));
+  let _pipe$9 = add_inline_rule(
+    _pipe$8,
     "[",
     "]",
     (el, args, _) => {
@@ -81,5 +101,5 @@ export function parse(src_name, content) {
       }
     },
   );
-  return $parse.parse(_pipe$8, src_name, content);
+  return $parse.parse(_pipe$9, src_name, content);
 }

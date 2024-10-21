@@ -3,16 +3,21 @@ import arctic/parse.{
   add_inline_rule, add_prefix_rule, add_static_component, wrap_inline,
   wrap_prefix,
 }
-import gleam/string.{replace}
+import gleam/list
+import gleam/string.{replace, split}
 import lustre/attribute.{alt, class, href, src}
 import lustre/element.{text}
-import lustre/element/html.{a, code, em, h1, h3, img, pre, strong}
+import lustre/element/html.{a, code, em, h1, h3, img, li, pre, strong, ul}
 import snag.{type Snag}
 
 pub fn parse(src_name: String, content: String) -> Result(Page, Snag) {
   parse.new(Nil)
   |> add_prefix_rule("#", wrap_prefix(h1))
   |> add_prefix_rule("###", wrap_prefix(h3))
+  |> add_static_component("ul", fn(_args, body, _data) {
+    let rows = split("\n" <> body, "\n- ")
+    Ok(#(ul([], list.map(rows, fn(row) { li([], [text(row)]) })), Nil))
+  })
   |> add_static_component("code", fn(args, body, _data) {
     let body2 = replace(body, "\\n", "\n")
     case args {

@@ -1,0 +1,116 @@
+<!doctype html>
+<html><head><title>Arctic</title><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Arctic is a high-performance frontend framework for your Lustre workloads."><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>hljs.highlightAll();</script><link rel="stylesheet" href="/style.css"></head><body><h1><span>Arctic Quickstart
+</span></h1><p><span>Make sure you&#39;ve got <a href="https://gleam.run"><span>gleam</span></a> working.
+Create a new project with <code><span>gleam new my_project</span></code> and <code><span>cd</span></code> into it.
+</span></p><p><span>For this quickstart, I&#39;ll assume that you either 
+</span></p><ul><li></li><li>have a build script that runs `gleam run` and deploys to your production website, or</li><li>have a github action that deploys to your production website, and you run `gleam run` before you commit.
+</li></ul><p><span>I use <a href="https://firebase.google.com/docs/hosting/"><span>Firebase Hosting</span></a> 
+for <a href="https://ryanbrewer.dev"><span>ryanbrewer.dev</span></a>
+because Arctic doesn&#39;t require a server-side, and I&#39;m very happy with it.
+</span></p><p><span>Add Arctic to your project by running <code><span>gleam add arctic</span></code>.
+</span></p><p><span>Also add <a href="https://hexdocs.pm/simplifile/"><span>Simplifile</span></a>,
+<a href="https://hexdocs.pm/lustre/"><span>Lustre</span></a>,
+and <a href="https://hexdocs.pm/snag/"><span>Snag</span></a> to your project, if you haven&#39;t already:
+</span></p><pre><code class="language-plaintext">gleam add simplifile
+gleam add lustre
+gleam add snag
+</code></pre><p><span>Arctic uses these for reading files, producing HTML, and handling errors, respectively.
+</span></p><h3><span>Write Some Content
+</span></h3><p><span>Make a directory, perhaps called <code><span>content</span></code>.
+Put some text files in it, at the very least <code><span>index.txt</span></code>.
+(Or <code><span>index.md</span></code>, or <code><span>main.txt</span></code>, you get the idea.)
+</span></p><p><span>For the rest of this quickstart,
+I&#39;ll assume we&#39;ve named the directory <code><span>content</span></code>, 
+and the file <code><span>index.txt</span></code>.
+</span></p><p><span>Make sure the first line in your file starts with <code><span>id: home</span></code>.
+This annoying requirement will be lifted in the near future.
+</span></p><h3><span>Create a Parser
+</span></h3><p><span>In <code><span>src</span></code>, create a file called <code><span>parser.gleam</span></code>.
+For now, put the following code:
+</span></p><pre><code class="language-gleam">import arctic.{type Page}
+import arctic/parse
+import snag.{type Snag}
+import lustre/element/html
+
+pub fn parse(source_name: String, text: String) -&gt; Result(Page, Snag) {
+  parse.new(Nil)
+  |&gt; parse.add_infix_rule(&quot;_&quot;, &quot;_&quot;, parse.wrap_infix(html.em))
+  |&gt; parse.parse(source_name, text)
+}
+</code></pre><p><span>This will italicize anything between underscores, as in <code><span><em><span>I&#39;m italicized</span></em> and I&#39;m not</span></code>.
+</span></p><h3><span>Replace the Default <code><span>my_project.gleam</span></code>
+</span></h3><p><span>(Obviously the name will vary per project.
+I just mean the file with your <code><span>main</span></code> function.)
+</span></p><pre><code class="language-gleam">import arctic/config
+import arctic/parse
+import arctic/build
+import simplifile
+import lustre/element/html
+import parser
+
+pub fn main() {
+  let cfg = 
+    config.new()
+    |&gt; config.home_renderer(fn(_) {
+      let assert Ok(text) = simplifile.read(&quot;content/index.txt&quot;)
+      // &quot;index.txt&quot; will be used in helpful error messages
+      let Ok(page) = parser.parse(&quot;index.txt&quot;, text)
+      html.html([], [
+        html.head([], []),
+        html.body([], page.body)
+      ])
+    })
+  build.build(cfg)
+}
+</code></pre><p><span>Here we take the text from <code><span>content/index.txt</span></code>,
+run it through our parser to get fancy HTML,
+and construct a website from it.
+When you run <code><span>gleam run</span></code>,
+you will find your site in the new <code><span>arctic_build/</span></code> directory.
+<code><span>arctic_build/index.html</span></code> might be hard to understand because of Arctic&#39;s optimization,
+but <code><span>arctic_build/<em><span></span></em>pages/index.html</span></code> should hopefully look more familiar.
+</span></p><h3><span>Next Steps
+</span></h3><p><span>I don&#39;t usually deploy from <code><span>arctic_build/</span></code> directly.
+I typically use a build script that copies the contents 
+of <code><span>arctic_build/</span></code> to a different directory, which I call <code><span>dist/</span></code>.
+</span></p><p><span>I also have a <code><span>public/</span></code> directory full of files that I&#39;d like
+my website to have, like a <code><span>style.css</span></code> file. 
+Then, with the build script I mentioned, I copy everything in <code><span>public/</span></code> into <code><span>dist/</span></code>.
+</span></p><p><span>You can see the code for this website <a href="https://github.com/RyanBrewer317/arctic_framework_org"><span>here</span></a>.
+It should give you ideas for how to extend your parser and add new pages.
+<a href="https://ryanbrewer.dev"><span>ryanbrewer.dev</span></a> is an even bigger example, 
+and has <a href="https://github.com/RyanBrewer317/ryanbrewer-dev"><span>licensed code</span></a>.
+</span></p><p><span>You might run into difficulties with Arctic&#39;s routing in the beginning.
+The easiest solution is to add <code><span>|&gt; config.turn<em><span>off</span></em>spa()</span></code> to your <code><span>main</span></code> function.
+A much better solution, though, is to instead 
+get your hosting provider to send all requests to <code><span>/index.html</span></code>.
+If you&#39;re using Firebase Hosting, 
+you can do this by adding a <code><span>rewrites</span></code> section to your <code><span>firebase.json</span></code>:
+</span></p><pre><code class="language-json">&quot;rewrites&quot;: [
+  {
+    &quot;source&quot;: &quot;**&quot;,
+    &quot;destination&quot;: &quot;/index.html&quot;
+  }
+]
+</code></pre><p><span>This allows Arctic to handle routing and potentially speed up your website.
+If you want to use SPA tricks like non-rerendering internal links, you&#39;ll have to do this.
+Arctic offers the <code><span>|&gt; config.add<em><span>spa</span></em>frame(f)</span></code> option for this purpose,
+and you can see how this site uses it to avoid rerendering the navigation bar.
+</span></p><p><span>I also use the build script to copy javascript 
+that I compiled from client-side gleam code into <code><span>dist/</span></code>.
+This way I can write my client side as a Lustre application.
+You can see this in action on <a href="https://github.com/RyanBrewer317/ryanbrewer-dev"><span>here</span></a>.
+Currently I also copy in some of the compiled packages (I at least need Lustre!)
+in a kind of hacky way, which I hope to improve in the future.
+You can find my whole build script 
+<a href="https://github.com/RyanBrewer317/ryanbrewer-dev/blob/main/commands/deploy.sh"><span>here</span></a>.
+</span></p><h3><span>Conclusion
+</span></h3><p><span>There&#39;s a lot more to Arctic than what&#39;s covered in this guide,
+such as pages, collections, and indices.
+These features are where Arctic starts to really carry its weight.
+I hope this convinces you that Arctic is designed with
+incremental exposition of complexity in mind.
+If you already had a website built on Lustre, especially <code><span>lustre_ssg</span></code>,
+you can hopefully see how to migrate to Arctic without much rewriting.
+</span></p><p><span>Reach out to me (Ryan Brewer) through GitHub, my website, or in the Gleam discord,
+where Arctic questions will surely find their way to me pretty quick.</span></p></body></html>

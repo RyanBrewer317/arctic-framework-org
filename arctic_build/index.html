@@ -1,27 +1,6 @@
 <!doctype html>
-<html><head></head><body><div><div id="boop"></div><style>
-#boop {
-  width: 48px;
-  height: 48px;
-  border: 5px solid #FFF;
-  border-bottom-color: #FF3D00;
-  border-radius: 50%;
-  display: inline-block;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-
-@keyframes rotation {
-  0% {
-      transform: rotate(0deg);
-  }
-  100% {
-      transform: rotate(360deg);
-  }
-} 
-        </style><div><div id="arctic-app"><html><head><title>Arctic</title><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Arctic is a high-performance frontend framework for your Lustre workloads."><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>hljs.highlightAll();</script><link rel="stylesheet" href="/style.css"></head><body><h1><span>Arctic
-</span></h1><p><span>Arctic is a high-performance frontend framework for your <a href="https://lustre.build/"><span>Lustre</span></a> workloads.
-      </span></p></body></html></div><script>
+<html><head></head><body><div><nav id="nav"><div id="nav-dropdown" onclick="document.getElementById(&#39;nav&#39;).classList.toggle(&#39;dropdown&#39;);document.body.classList.toggle(&#39;noscroll&#39;);">☰</div><a href="/" id="nav-home">Arctic</a><a href="/guides" id="nav-guides">Guides</a><a href="/demos" id="nav-demos">Demos</a><a href="https://hexdocs.pm/arctic/" id="nav-docs">Docs</a></nav><div><div id="arctic-app"><html><head><title>Arctic</title><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Arctic is a high-performance frontend framework for your Lustre workloads."><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>hljs.highlightAll();</script><link rel="stylesheet" href="/style.css"></head><body><h1><span>Arctic
+</span></h1><p><span>Arctic is a high-performance frontend framework for your <a href="https://lustre.build/"><span>Lustre</span></a> workloads.</span></p></body></html></div><script>
 if (window.location.pathname !== '/') {
   go_to(new URL(window.location.href));
 }
