@@ -19,10 +19,12 @@ All of this is handled automatically by the framework.
 Arctic websites use content-to-HTML compilers that
 are easy to extend and can helpfully validate content.
 To get a sense of how this works, check out the [quickstart](/guides/quickstart)!
+Arctic uses caching to avoid re-compiling content that hasn't changed,
+which keeps build times extremely fast.
 
-You could call it static, or you could call it frozen.
+You could call it static, or you could even call it frozen.
 However, Arctic sites integrate well with your high-performance Gleam [backends](https://github.com/Pevensie),
-or any others! It's just a way of organizing your client side code,
+or any other backend! It's just a way of organizing your client side code,
 which happens to not always require a server side codebase at all.
 And if you use a Gleam backend, you can reuse Lustre components across the stack!
 
