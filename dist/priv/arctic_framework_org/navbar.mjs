@@ -11,7 +11,7 @@ export function navbar() {
       $attribute.id("nav"),
       attribute(
         "onload",
-        "document.body.paddingTop = '' + document.getElementById('nav').clientHeight + 'px';",
+        "document.body.style.paddingTop = '' + document.getElementById('nav').clientHeight + 'px';",
       ),
     ]),
     toList([
