@@ -24,7 +24,10 @@ export function navbar() {
         toList([text("Arctic")]),
       ),
       $html.a(
-        toList([$attribute.href("/guides"), $attribute.id("nav-guides")]),
+        toList([
+          $attribute.href("/guides/quickstart"),
+          $attribute.id("nav-guides"),
+        ]),
         toList([text("Guides")]),
       ),
       $html.a(

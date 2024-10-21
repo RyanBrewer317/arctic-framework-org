@@ -15,7 +15,7 @@ pub fn navbar() -> Element(a) {
       [text("☰")],
     ),
     html.a([attribute.href("/"), attribute.id("nav-home")], [text("Arctic")]),
-    html.a([attribute.href("/guides"), attribute.id("nav-guides")], [
+    html.a([attribute.href("/guides/quickstart"), attribute.id("nav-guides")], [
       text("Guides"),
     ]),
     html.a([attribute.href("/demos"), attribute.id("nav-demos")], [

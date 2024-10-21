@@ -17,7 +17,7 @@ import { text } from "../lustre/lustre/element.mjs";
 import * as $html from "../lustre/lustre/element/html.mjs";
 import { a, code, em, h1, h3, img, li, pre, strong, ul } from "../lustre/lustre/element/html.mjs";
 import * as $snag from "../snag/snag.mjs";
-import { Ok, toList } from "./gleam.mjs";
+import { Ok, toList, makeError } from "./gleam.mjs";
 
 export function parse(src_name, content) {
   let _pipe = $parse.new$(undefined);
@@ -27,7 +27,18 @@ export function parse(src_name, content) {
     _pipe$2,
     "ul",
     (_, body, _1) => {
-      let rows = split("\n" + body, "\n- ");
+      let $ = split("\n" + body, "\n- ");
+      if (!$.atLeastLength(1)) {
+        throw makeError(
+          "assignment_no_match",
+          "parser",
+          18,
+          "",
+          "Assignment pattern did not match",
+          { value: $ }
+        )
+      }
+      let rows = $.tail;
       return new Ok(
         [
           ul(

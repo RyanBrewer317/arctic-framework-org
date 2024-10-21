@@ -15,7 +15,8 @@ pub fn parse(src_name: String, content: String) -> Result(Page, Snag) {
   |> add_prefix_rule("#", wrap_prefix(h1))
   |> add_prefix_rule("###", wrap_prefix(h3))
   |> add_static_component("ul", fn(_args, body, _data) {
-    let rows = split("\n" <> body, "\n- ")
+    let assert [_, ..rows] = split("\n" <> body, "\n- ")
+    // TODO: make this better
     Ok(#(ul([], list.map(rows, fn(row) { li([], [text(row)]) })), Nil))
   })
   |> add_static_component("code", fn(args, body, _data) {
