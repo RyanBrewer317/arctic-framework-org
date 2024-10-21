@@ -1,10 +1,12 @@
 import * as $build from "../arctic/arctic/build.mjs";
 import * as $config from "../arctic/arctic/config.mjs";
 import * as $attribute from "../lustre/lustre/attribute.mjs";
-import * as $element from "../lustre/lustre/element.mjs";
+import { attribute } from "../lustre/lustre/attribute.mjs";
 import * as $html from "../lustre/lustre/element/html.mjs";
-import { a, div } from "../lustre/lustre/element/html.mjs";
-import { toList } from "./gleam.mjs";
+import { div } from "../lustre/lustre/element/html.mjs";
+import { toList, makeError } from "./gleam.mjs";
+import * as $head from "./head.mjs";
+import * as $parser from "./parser.mjs";
 
 export function main() {
   let cfg = (() => {
@@ -12,56 +14,29 @@ export function main() {
     let _pipe$1 = $config.home_renderer(
       _pipe,
       (_) => {
+        let $ = $parser.parse(
+          "home",
+          "\nid: home-page\n\n# Arctic\n\nArctic is a high-performance frontend framework for your [Lustre](https://lustre.build/) workloads.\n      ",
+        );
+        if (!$.isOk()) {
+          throw makeError(
+            "assignment_no_match",
+            "arctic_framework_org",
+            12,
+            "",
+            "Assignment pattern did not match",
+            { value: $ }
+          )
+        }
+        let page = $[0];
         return $html.html(
           toList([]),
-          toList([
-            $html.head(
-              toList([]),
-              toList([
-                $html.link(
-                  toList([
-                    $attribute.href("https://ryanbrewer.dev/style.css"),
-                    $attribute.rel("stylesheet"),
-                  ]),
-                ),
-              ]),
-            ),
-            $html.body(
-              toList([]),
-              toList([
-                $element.text("hello from SPA Arctic! "),
-                a(
-                  toList([$attribute.href("/test")]),
-                  toList([$element.text("test")]),
-                ),
-              ]),
-            ),
-          ]),
+          toList([$head.head(), $html.body(toList([]), page.body)]),
         );
       },
     );
-    let _pipe$2 = $config.add_main_page(
-      _pipe$1,
-      "test",
-      $html.html(
-        toList([]),
-        toList([
-          $html.head(toList([]), toList([])),
-          $html.body(
-            toList([]),
-            toList([
-              $element.text("woo! "),
-              a(
-                toList([$attribute.href("/")]),
-                toList([$element.text("back home")]),
-              ),
-            ]),
-          ),
-        ]),
-      ),
-    );
     return $config.add_spa_frame(
-      _pipe$2,
+      _pipe$1,
       (body) => {
         return $html.html(
           toList([]),

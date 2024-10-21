@@ -1,36 +1,27 @@
 import arctic/build
 import arctic/config
-import lustre/attribute
-import lustre/element
-import lustre/element/html.{a, div}
+import head
+import lustre/attribute.{attribute}
+import lustre/element/html.{div}
+import parser
 
 pub fn main() {
   let cfg =
     config.new()
     |> config.home_renderer(fn(_) {
-      html.html([], [
-        html.head([], [
-          html.link([
-            attribute.href("https://ryanbrewer.dev/style.css"),
-            attribute.rel("stylesheet"),
-          ]),
-        ]),
-        html.body([], [
-          element.text("hello from SPA Arctic! "),
-          a([attribute.href("/test")], [element.text("test")]),
-        ]),
-      ])
+      let assert Ok(page) =
+        parser.parse(
+          "home",
+          "
+id: home-page
+
+# Arctic
+
+Arctic is a high-performance frontend framework for your [Lustre](https://lustre.build/) workloads.
+      ",
+        )
+      html.html([], [head.head(), html.body([], page.body)])
     })
-    |> config.add_main_page(
-      "test",
-      html.html([], [
-        html.head([], []),
-        html.body([], [
-          element.text("woo! "),
-          a([attribute.href("/")], [element.text("back home")]),
-        ]),
-      ]),
-    )
     |> config.add_spa_frame(fn(body) {
       html.html([], [
         html.head([], []),
