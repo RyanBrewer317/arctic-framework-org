@@ -47,7 +47,10 @@ export function main() {
         let page = $1[0];
         return $html.html(
           toList([]),
-          toList([$head.head(), $html.body(toList([]), page.body)]),
+          toList([
+            $html.head(toList([]), toList([])),
+            $html.body(toList([]), page.body),
+          ]),
         );
       },
     );
@@ -58,7 +61,7 @@ export function main() {
         return $html.html(
           toList([]),
           toList([
-            $html.head(toList([]), toList([])),
+            $head.head(),
             $html.body(
               toList([]),
               toList([div(toList([]), toList([$navbar.navbar(), body]))]),

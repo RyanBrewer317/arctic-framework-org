@@ -1,5 +1,5 @@
 <!doctype html>
-<html><head><title>Arctic</title><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Arctic is a high-performance frontend framework for your Lustre workloads."><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>hljs.highlightAll();</script><link rel="stylesheet" href="/style.css"></head><body><h1><span>Arctic Quickstart
+<html><head></head><body><h1><span>Arctic Quickstart
 </span></h1><p><span>Make sure you&#39;ve got <a href="https://gleam.run"><span>gleam</span></a> working.
 Create a new project with <code><span>gleam new my_project</span></code> and <code><span>cd</span></code> into it.
 </span></p><p><span>For this quickstart, I&#39;ll assume that you either 
@@ -39,7 +39,7 @@ pub fn parse(source_name: String, text: String) -&gt; Result(Page, Snag) {
   |&gt; parse.parse(source_name, text)
 }
 </code></pre><p><span>This will <em><span>italicize</span></em> anything between underscores, as in <code><span>_I&#39;m italicized_ and I&#39;m not</span></code>.
-Note that &#39;\&#39; escapes it, as in <code><span>\_I&#39;m not italicized\_</span></code>.
+Note that <code><span>\</span></code> escapes it, as in <code><span>\_I&#39;m not italicized\_</span></code>.
 </span></p><h3><span>Replace the Default <code><span>my_project.gleam</span></code>
 </span></h3><p><span>(Obviously the name will vary per project.
 I just mean the file with your <code><span>main</span></code> function.)

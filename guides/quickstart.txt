@@ -62,7 +62,7 @@ pub fn parse(source_name: String, text: String) -> Result(Page, Snag) {
 }
 
 This will _italicize_ anything between underscores, as in `\_I'm italicized\_ and I'm not`.
-Note that '\\' escapes it, as in `\\\_I'm not italicized\\\_`.
+Note that `\\` escapes it, as in `\\\_I'm not italicized\\\_`.
 
 ### Replace the Default `my_project.gleam`
 
