@@ -30,15 +30,7 @@ pub fn main() {
     |> config.add_spa_frame(fn(body) {
       html.html([], [
         head.head(),
-        html.body(
-          [
-            attribute.attribute(
-              "onload",
-              "document.body.style.paddingTop = '' + document.getElementById('nav').clientHeight + 'px';",
-            ),
-          ],
-          [body],
-        ),
+        html.body([attribute.style([#("padding-top", "40pt")])], [body]),
       ])
     })
   build.build(cfg)

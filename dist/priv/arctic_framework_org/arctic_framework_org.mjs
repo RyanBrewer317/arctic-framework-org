@@ -65,12 +65,7 @@ export function main() {
           toList([
             $head.head(),
             $html.body(
-              toList([
-                $attribute.attribute(
-                  "onload",
-                  "document.body.style.paddingTop = '' + document.getElementById('nav').clientHeight + 'px';",
-                ),
-              ]),
+              toList([$attribute.style(toList([["padding-top", "40pt"]]))]),
               toList([body]),
             ),
           ]),
