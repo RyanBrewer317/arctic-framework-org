@@ -1,6 +1,7 @@
 <!doctype html>
-<html><head></head><body><nav id="nav" onload="document.body.style.paddingTop = &#39;&#39; + document.getElementById(&#39;nav&#39;).clientHeight + &#39;px&#39;;"><div id="nav-dropdown" onclick="document.getElementById(&#39;nav&#39;).classList.toggle(&#39;dropdown&#39;);">☰</div><a href="/" id="nav-home">Arctic</a><a href="/guides/quickstart" id="nav-guides">Guides</a><a href="/demos" id="nav-demos">Demos</a><a href="https://hexdocs.pm/arctic/" id="nav-docs">Docs</a></nav><h1><span>Arctic Quickstart
-</span></h1><p><span>Make sure you&#39;ve got <a href="https://gleam.run"><span>gleam</span></a> working.
+<div><nav id="nav"><div id="nav-dropdown" onclick="document.getElementById(&#39;nav&#39;).classList.toggle(&#39;dropdown&#39;);">☰</div><a href="/" id="nav-home">Arctic</a><a href="/guides/quickstart" id="nav-guides">Guides</a><a href="/demos" id="nav-demos">Demos</a><a href="https://hexdocs.pm/arctic/" id="nav-docs">Docs</a></nav><h1><span>Arctic Quickstart
+</span></h1><div class="img-container"><img src="/banner.jpg" alt="An icy horizon in the Arctic.
+" async="true"></div><p><span>Make sure you&#39;ve got <a href="https://gleam.run"><span>gleam</span></a> working.
 Create a new project with <code><span>gleam new my_project</span></code> and <code><span>cd</span></code> into it.
 </span></p><p><span>For this quickstart, I&#39;ll assume that you either 
 </span></p><ul><li>have a build script that runs `gleam run` and deploys to your production website, or</li><li>have a github action that deploys to your production website, and you run `gleam run` before you commit.
@@ -115,4 +116,4 @@ incremental exposition of complexity in mind.
 If you already had a website built on Lustre, especially <code><span>lustre_ssg</span></code>,
 you can hopefully see how to migrate to Arctic without much rewriting.
 </span></p><p><span>Reach out to me (Ryan Brewer) through GitHub, my website, or in the Gleam discord,
-where Arctic questions will surely find their way to me pretty quick.</span></p></body></html>
+where Arctic questions will surely find their way to me pretty quick.</span></p></div>

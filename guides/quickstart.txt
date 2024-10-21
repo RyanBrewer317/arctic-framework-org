@@ -5,6 +5,9 @@ tags: quick,start,simple,started
 
 # Arctic Quickstart
 
+@img(/banner.jpg)
+An icy horizon in the Arctic.
+
 Make sure you've got [gleam](https://gleam.run) working.
 Create a new project with `gleam new my_project` and `cd` into it.
 

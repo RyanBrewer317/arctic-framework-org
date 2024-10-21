@@ -2,6 +2,9 @@ id: demos-page
 
 # Demos
 
+@img(/banner.jpg)
+An icy horizon in the Arctic.
+
 This website is made entirely with Arctic!
 You can find the source code [here](https://github.com/RyanBrewer317/arctic-framework-org/).
 You can find the source code for this specific demos page [here](https://github.com/RyanBrewer317/arctic-framework-org/blob/main/src/demos.gleam).
