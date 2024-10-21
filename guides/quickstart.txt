@@ -109,7 +109,7 @@ I also have a `public/` directory full of files that I'd like
 my website to have, like a `style.css` file. 
 Then, with the build script I mentioned, I copy everything in `public/` into `dist/`.
 
-You can see the code for this website [here](https://github.com/RyanBrewer317/arctic_framework_org).
+You can see the code for this website [here](https://github.com/RyanBrewer317/arctic-framework-org).
 It should give you ideas for how to extend your parser and add new pages.
 [ryanbrewer.dev](https://ryanbrewer.dev) is an even bigger example, 
 and has [licensed code](https://github.com/RyanBrewer317/ryanbrewer-dev).
