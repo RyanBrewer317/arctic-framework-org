@@ -8,24 +8,33 @@ pub fn main() {
   let cfg =
     config.new()
     |> config.home_renderer(fn(_) {
-      div([], [
-        element.text("hello from arctic! "),
-        a([attribute.href("/test")], [element.text("test")]),
+      html.html([], [
+        html.head([], [html.style([], "body { color: purple; }")]),
+        html.body([], [
+          element.text("hello from SPA Arctic! "),
+          a([attribute.href("/test")], [element.text("test")]),
+        ]),
       ])
     })
     |> config.add_main_page(
       "test",
-      div([], [
-        element.text("woo! "),
-        a([attribute.href("/")], [element.text("back home")]),
+      html.html([], [
+        html.head([], []),
+        html.body([], [
+          element.text("woo! "),
+          a([attribute.href("/")], [element.text("back home")]),
+        ]),
       ]),
     )
     |> config.add_spa_frame(fn(body) {
-      div([], [
-        div([attribute.id("boop")], []),
-        html.style(
-          [],
-          "
+      html.html([], [
+        html.head([], []),
+        html.body([], [
+          div([], [
+            div([attribute.id("boop")], []),
+            html.style(
+              [],
+              "
 #boop {
   width: 48px;
   height: 48px;
@@ -46,8 +55,10 @@ pub fn main() {
   }
 } 
         ",
-        ),
-        body,
+            ),
+            body,
+          ]),
+        ]),
       ])
     })
   build.build(cfg)

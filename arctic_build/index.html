@@ -1,5 +1,5 @@
 <!doctype html>
-<div><div id="boop"></div><style>
+<html><head></head><body><div><div id="boop"></div><style>
 #boop {
   width: 48px;
   height: 48px;
@@ -19,7 +19,7 @@
       transform: rotate(360deg);
   }
 } 
-        </style><div><div id="arctic-app"><div>hello from arctic! <a href="/test">test</a></div></div><script>
+        </style><div><div id="arctic-app"><html><head><style>body { color: purple; }</style></head><body>hello from SPA Arctic! <a href="/test">test</a></body></html></div><script>
 if (window.location.pathname !== '/') {
   go_to(new URL(window.location.href));
 }
@@ -60,4 +60,4 @@ function find_a(target) {
   if (target.tagName === 'A') return target;
   return find_a(target.parentElement);
 }
-  </script></div></div>
+  </script></div></div></body></html>
