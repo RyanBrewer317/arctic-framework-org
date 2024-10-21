@@ -97,7 +97,7 @@ and construct a website from it.
 When you run `gleam run`,
 you will find your site in the new `arctic_build/` directory.
 `arctic_build/index.html` might be hard to understand because of Arctic's optimization,
-but `arctic_build/__pages/index.html` should hopefully look more familiar.
+but `arctic\_build/\_\_pages/index.html` should hopefully look more familiar.
 
 ### Next Steps
 
@@ -115,7 +115,7 @@ It should give you ideas for how to extend your parser and add new pages.
 and has [licensed code](https://github.com/RyanBrewer317/ryanbrewer-dev).
 
 You might run into difficulties with Arctic's routing in the beginning.
-The easiest solution is to add `|> config.turn_off_spa()` to your `main` function.
+The easiest solution is to add `|> config.turn\_off\_spa()` to your `main` function.
 A much better solution, though, is to instead 
 get your hosting provider to send all requests to `/index.html`.
 If you're using Firebase Hosting, 
@@ -131,7 +131,7 @@ you can do this by adding a `rewrites` section to your `firebase.json`:
 
 This allows Arctic to handle routing and potentially speed up your website.
 If you want to use SPA tricks like non-rerendering internal links, you'll have to do this.
-Arctic offers the `|> config.add_spa_frame(f)` option for this purpose,
+Arctic offers the `|> config.add\_spa\_frame(f)` option for this purpose,
 and you can see how this site uses it to avoid rerendering the navigation bar.
 
 I also use the build script to copy javascript 

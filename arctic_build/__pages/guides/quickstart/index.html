@@ -70,7 +70,7 @@ and construct a website from it.
 When you run <code><span>gleam run</span></code>,
 you will find your site in the new <code><span>arctic_build/</span></code> directory.
 <code><span>arctic_build/index.html</span></code> might be hard to understand because of Arctic&#39;s optimization,
-but <code><span>arctic_build/<em><span></span></em>pages/index.html</span></code> should hopefully look more familiar.
+but <code><span>arctic_build/__pages/index.html</span></code> should hopefully look more familiar.
 </span></p><h3><span>Next Steps
 </span></h3><p><span>I don&#39;t usually deploy from <code><span>arctic_build/</span></code> directly.
 I typically use a build script that copies the contents 
@@ -83,7 +83,7 @@ It should give you ideas for how to extend your parser and add new pages.
 <a href="https://ryanbrewer.dev"><span>ryanbrewer.dev</span></a> is an even bigger example, 
 and has <a href="https://github.com/RyanBrewer317/ryanbrewer-dev"><span>licensed code</span></a>.
 </span></p><p><span>You might run into difficulties with Arctic&#39;s routing in the beginning.
-The easiest solution is to add <code><span>|&gt; config.turn<em><span>off</span></em>spa()</span></code> to your <code><span>main</span></code> function.
+The easiest solution is to add <code><span>|&gt; config.turn_off_spa()</span></code> to your <code><span>main</span></code> function.
 A much better solution, though, is to instead 
 get your hosting provider to send all requests to <code><span>/index.html</span></code>.
 If you&#39;re using Firebase Hosting, 
@@ -96,7 +96,7 @@ you can do this by adding a <code><span>rewrites</span></code> section to your <
 ]
 </code></pre><p><span>This allows Arctic to handle routing and potentially speed up your website.
 If you want to use SPA tricks like non-rerendering internal links, you&#39;ll have to do this.
-Arctic offers the <code><span>|&gt; config.add<em><span>spa</span></em>frame(f)</span></code> option for this purpose,
+Arctic offers the <code><span>|&gt; config.add_spa_frame(f)</span></code> option for this purpose,
 and you can see how this site uses it to avoid rerendering the navigation bar.
 </span></p><p><span>I also use the build script to copy javascript 
 that I compiled from client-side gleam code into <code><span>dist/</span></code>.

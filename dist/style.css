@@ -58,7 +58,7 @@ nav.dropdown {
   }
 }
 
-p {
+p, li {
   line-height: 25pt;
 }
 
@@ -71,6 +71,10 @@ code {
 
 code::-webkit-scrollbar { /* Chrome, Safari */
   display: none;
+}
+
+pre code {
+  display: block;
 }
 
 #arctic-app {
