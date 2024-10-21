@@ -12,8 +12,7 @@ pub fn main() {
       let assert Ok(page) =
         parser.parse(
           "home",
-          "
-id: home-page
+          "id: home-page
 
 # Arctic
 

@@ -16,7 +16,7 @@ export function main() {
       (_) => {
         let $ = $parser.parse(
           "home",
-          "\nid: home-page\n\n# Arctic\n\nArctic is a high-performance frontend framework for your [Lustre](https://lustre.build/) workloads.\n      ",
+          "id: home-page\n\n# Arctic\n\nArctic is a high-performance frontend framework for your [Lustre](https://lustre.build/) workloads.\n      ",
         );
         if (!$.isOk()) {
           throw makeError(
