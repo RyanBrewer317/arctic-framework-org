@@ -97,7 +97,33 @@ a:hover {
   height: 200pt;
 }
 
-.img-container img {
+.img-container div {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 200pt;
+}
+
+.img-container div::before, .img-container div::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  pointer-events: none;
+}
+
+.img-container div::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--background), transparent);
+}
+
+.img-container div::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--background), transparent);
+}
+
+.img-container div img {
   position: absolute;
   left: 0;
   right: 0;

@@ -95,11 +95,16 @@ export function parse(src_name, content) {
             div(
               toList([class$("img-container")]),
               toList([
-                img(
+                div(
+                  toList([]),
                   toList([
-                    src(url),
-                    alt(body),
-                    $attribute.attribute("async", "true"),
+                    img(
+                      toList([
+                        src(url),
+                        alt(body),
+                        $attribute.attribute("async", "true"),
+                      ]),
+                    ),
                   ]),
                 ),
               ]),

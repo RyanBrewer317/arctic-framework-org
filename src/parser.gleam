@@ -32,7 +32,9 @@ pub fn parse(src_name: String, content: String) -> Result(Page, Snag) {
       [url] ->
         Ok(#(
           div([class("img-container")], [
-            img([src(url), alt(body), attribute.attribute("async", "true")]),
+            div([], [
+              img([src(url), alt(body), attribute.attribute("async", "true")]),
+            ]),
           ]),
           Nil,
         ))
