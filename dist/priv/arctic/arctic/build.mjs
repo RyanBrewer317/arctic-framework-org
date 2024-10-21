@@ -319,7 +319,7 @@ function spa(frame, home) {
         $html.div(toList([$attribute.id("arctic-app")]), toList([home])),
         $html.script(
           toList([]),
-          "\nif (window.location.pathname !== '/') {\n  go_to(new URL(window.location.href));\n}\n// SPA algorithm stolen from Hayleigh Thompson's wonderful Modem library\nasync function go_to(url, no_loader) {\n  const $app = document.getElementById('arctic-app');\n  if (!no_loader) $app.innerHTML = '<div id=\"arctic-loader\"></div>';\n  window.history.pushState({}, '', url.href);\n  window.requestAnimationFrame(() => {\n    // scroll in #-link elements, as the browser would if we didn't preventDefault\n    if (url.hash) {\n      document.getElementById(url.hash.slice(1))?.scrollIntoView();\n    }\n  });\n  // handle new path\n  console.log(url.pathname);\n  const response = await fetch('/__pages/' + url.pathname + '/index.html');\n  if (!response.ok) response = await fetch('/__pages/404.html');\n  if (!response.ok) return;\n  const html = await response.text();\n  $app.innerHTML = html;\n}\ndocument.addEventListener('click', async function(e) {\n  const a = find_a(e.target);\n  if (!a) return;\n  try {\n    const url = new URL(a.href);\n    const is_external = url.host !== window.location.host;\n    if (is_external) return;\n    event.preventDefault();\n    go_to(url, true);\n  } catch {\n    return;\n  }\n});\nfunction find_a(target) {\n  if (!target || target.tagName === 'BODY') return null;\n  if (target.tagName === 'A') return target;\n  return find_a(target.parentElement);\n}\n  ",
+          "\nif (window.location.pathname !== '/') {\n  go_to(new URL(window.location.href));\n}\n// SPA algorithm stolen from Hayleigh Thompson's wonderful Modem library\nasync function go_to(url, no_loader) {\n  const $app = document.getElementById('arctic-app');\n  if (!no_loader) $app.innerHTML = '<div id=\"arctic-loader\"></div>';\n  window.history.pushState({}, '', url.href);\n  window.requestAnimationFrame(() => {\n    // scroll in #-link elements, as the browser would if we didn't preventDefault\n    if (url.hash) {\n      document.getElementById(url.hash.slice(1))?.scrollIntoView();\n    }\n  });\n  // handle new path\n  console.log(url.pathname);\n  const response = await fetch('/__pages/' + url.pathname + '/index.html');\n  if (!response.ok) response = await fetch('/__pages/404.html');\n  if (!response.ok) return;\n  const html = await response.text();\n  $app.innerHTML = html;\n}\ndocument.addEventListener('click', async function(e) {\n  const a = find_a(e.target);\n  if (!a) return;\n  try {\n    const url = new URL(a.href);\n    const is_external = url.host !== window.location.host;\n    if (is_external) return;\n    event.preventDefault();\n    go_to(url);\n  } catch {\n    return;\n  }\n});\nwindow.addEventListener('popstate', (e) => {\n  e.preventDefault();\n  const url = new URL(window.location.href);\n  go_to(url);\n});\nfunction find_a(target) {\n  if (!target || target.tagName === 'BODY') return null;\n  if (target.tagName === 'A') return target;\n  return find_a(target.parentElement);\n}\n  ",
         ),
       ]),
     ),
@@ -403,7 +403,7 @@ function make_ssg_config(processed_collections, config, k) {
                   throw makeError(
                     "assignment_no_match",
                     "arctic/build",
-                    358,
+                    363,
                     "",
                     "Assignment pattern did not match",
                     { value: $ }
@@ -420,7 +420,7 @@ function make_ssg_config(processed_collections, config, k) {
                     throw makeError(
                       "panic",
                       "arctic/build",
-                      363,
+                      368,
                       "",
                       cached_path,
                       {}
@@ -592,11 +592,19 @@ function add_feed(processed_collections, k) {
 
 function add_vite_config(config, processed_collections, k) {
   let home_page = "\"main\": \"arctic_build/index.html\"";
+  let dir = (() => {
+    let $ = config.render_spa;
+    if ($ instanceof Some) {
+      return "/__pages/";
+    } else {
+      return "/";
+    }
+  })();
   let main_pages = $list.fold(
     config.main_pages,
     "",
     (js, page) => {
-      return ((((js + "\"") + page.id) + "\": \"arctic_build/") + page.id) + "/index.html\", ";
+      return (((((js + "\"") + page.id) + "\": \"arctic_build") + dir) + page.id) + "/index.html\", ";
     },
   );
   let collected_pages = $list.fold(
@@ -607,9 +615,9 @@ function add_vite_config(config, processed_collections, k) {
         processed.pages,
         js,
         (js, page) => {
-          return ((((((((js + "\"") + processed.collection.directory) + "/") + get_id(
+          return (((((((((js + "\"") + processed.collection.directory) + "/") + get_id(
             page,
-          )) + "\": \"arctic_build/") + processed.collection.directory) + "/") + get_id(
+          )) + "\": \"arctic_build") + dir) + processed.collection.directory) + "/") + get_id(
             page,
           )) + "/index.html\", ";
         },
