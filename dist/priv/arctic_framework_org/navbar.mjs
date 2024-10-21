@@ -14,7 +14,7 @@ export function navbar() {
           $attribute.id("nav-dropdown"),
           attribute(
             "onclick",
-            "document.getElementById('nav').classList.toggle('dropdown');document.body.classList.toggle('noscroll');",
+            "\nconst el = document.getElementById('nav');\nconst height = el.clientHeight;\nel.classList.toggle('dropdown');\n// because absolute positioning removes the nav from the dom\nif (el.classList.contains('dropdown'))\n  document.body.style.paddingTop = '' + height + 'px';\nelse\n  document.body.style.paddingTop = '0px';\n          ",
           ),
         ]),
         toList([text("☰")]),

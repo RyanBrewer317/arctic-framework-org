@@ -9,7 +9,16 @@ pub fn navbar() -> Element(a) {
         attribute.id("nav-dropdown"),
         attribute(
           "onclick",
-          "document.getElementById('nav').classList.toggle('dropdown');document.body.classList.toggle('noscroll');",
+          "
+const el = document.getElementById('nav');
+const height = el.clientHeight;
+el.classList.toggle('dropdown');
+// because absolute positioning removes the nav from the dom
+if (el.classList.contains('dropdown'))
+  document.body.style.paddingTop = '' + height + 'px';
+else
+  document.body.style.paddingTop = '0px';
+          ",
         ),
       ],
       [text("☰")],
