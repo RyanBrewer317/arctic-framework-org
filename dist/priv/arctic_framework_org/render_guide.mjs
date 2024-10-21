@@ -5,11 +5,5 @@ import { toList, prepend as listPrepend } from "./gleam.mjs";
 import * as $navbar from "./navbar.mjs";
 
 export function render(page) {
-  return $html.html(
-    toList([]),
-    toList([
-      $html.head(toList([]), toList([])),
-      $html.body(toList([]), listPrepend($navbar.navbar(), page.body)),
-    ]),
-  );
+  return $html.div(toList([]), listPrepend($navbar.navbar(), page.body));
 }

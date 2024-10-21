@@ -3,6 +3,7 @@ import arctic/collection
 import arctic/config
 import demos
 import head
+import lustre/attribute
 import lustre/element/html
 import navbar
 import parser
@@ -27,7 +28,18 @@ pub fn main() {
     |> config.add_main_page("demos", demos.demos())
     |> config.add_collection(guides)
     |> config.add_spa_frame(fn(body) {
-      html.html([], [head.head(), html.body([], [body])])
+      html.html([], [
+        head.head(),
+        html.body(
+          [
+            attribute.attribute(
+              "onload",
+              "document.body.style.paddingTop = '' + document.getElementById('nav').clientHeight + 'px';",
+            ),
+          ],
+          [body],
+        ),
+      ])
     })
   build.build(cfg)
 }

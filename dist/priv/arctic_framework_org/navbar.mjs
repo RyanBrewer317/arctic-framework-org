@@ -7,13 +7,7 @@ import { toList } from "./gleam.mjs";
 
 export function navbar() {
   return $html.nav(
-    toList([
-      $attribute.id("nav"),
-      attribute(
-        "onload",
-        "document.body.style.paddingTop = '' + document.getElementById('nav').clientHeight + 'px';",
-      ),
-    ]),
+    toList([$attribute.id("nav")]),
     toList([
       $html.div(
         toList([

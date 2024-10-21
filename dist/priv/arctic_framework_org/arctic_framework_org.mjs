@@ -1,6 +1,7 @@
 import * as $build from "../arctic/arctic/build.mjs";
 import * as $collection from "../arctic/arctic/collection.mjs";
 import * as $config from "../arctic/arctic/config.mjs";
+import * as $attribute from "../lustre/lustre/attribute.mjs";
 import * as $html from "../lustre/lustre/element/html.mjs";
 import * as $simplifile from "../simplifile/simplifile.mjs";
 import * as $demos from "./demos.mjs";
@@ -26,7 +27,7 @@ export function main() {
           throw makeError(
             "assignment_no_match",
             "arctic_framework_org",
-            20,
+            21,
             "",
             "Assignment pattern did not match",
             { value: $ }
@@ -38,7 +39,7 @@ export function main() {
           throw makeError(
             "assignment_no_match",
             "arctic_framework_org",
-            21,
+            22,
             "",
             "Assignment pattern did not match",
             { value: $1 }
@@ -61,7 +62,18 @@ export function main() {
       (body) => {
         return $html.html(
           toList([]),
-          toList([$head.head(), $html.body(toList([]), toList([body]))]),
+          toList([
+            $head.head(),
+            $html.body(
+              toList([
+                $attribute.attribute(
+                  "onload",
+                  "document.body.style.paddingTop = '' + document.getElementById('nav').clientHeight + 'px';",
+                ),
+              ]),
+              toList([body]),
+            ),
+          ]),
         );
       },
     );
