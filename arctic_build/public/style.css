@@ -1,7 +1,7 @@
 :root {
   --color: rgb(255, 226, 231);
   --background: rgb(13, 1, 13);
-  --background2: rgb(33, 30, 30);
+  --background2: rgb(25, 19, 25);
   --highlight: rgb(255, 88, 199);
 }
 
@@ -43,9 +43,11 @@ nav.dropdown {
   left: 0;
   right: 0;
   background-color: var(--background2);
+  border-bottom: 1pt solid var(--highlight);
 }
 
 #nav-dropdown {
+  color: var(--highlight);
   display: none;
 }
 
