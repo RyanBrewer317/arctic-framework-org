@@ -328,25 +328,33 @@ function spa(frame, home) {
 
 function make_ssg_config(processed_collections, config, k) {
   let home = config.render_home(processed_collections);
+  let dir = (() => {
+    let $ = config.render_spa;
+    if ($ instanceof Some) {
+      return "/__pages/";
+    } else {
+      return "/";
+    }
+  })();
   return $result.try$(
     (() => {
       let _pipe = $ssg.new$("arctic_build");
       let _pipe$1 = $ssg.use_index_routes(_pipe);
-      let _pipe$2 = $ssg.add_static_route(
-        _pipe$1,
-        "/",
-        spa(config.render_spa, home),
-      );
-      let _pipe$3 = $ssg.add_static_route(_pipe$2, "/__pages/", home);
+      let _pipe$2 = $ssg.add_static_route(_pipe$1, dir, home);
+      let _pipe$3 = ((ssg_config) => {
+        let $ = config.render_spa;
+        if ($ instanceof Some) {
+          let frame = $[0];
+          return $ssg.add_static_route(ssg_config, "/", spa(frame, home));
+        } else {
+          return ssg_config;
+        }
+      })(_pipe$2);
       let _pipe$4 = $list.fold(
         config.main_pages,
         _pipe$3,
         (ssg_config, page) => {
-          return $ssg.add_static_route(
-            ssg_config,
-            "/__pages/" + page.id,
-            page.html,
-          );
+          return $ssg.add_static_route(ssg_config, dir + page.id, page.html);
         },
       );
       return $list.try_fold(
@@ -359,7 +367,7 @@ function make_ssg_config(processed_collections, config, k) {
               let render = $[0];
               return $ssg.add_static_route(
                 ssg_config,
-                "/__pages/" + processed.collection.directory,
+                dir + processed.collection.directory,
                 render(processed.pages),
               );
             } else {
@@ -372,7 +380,7 @@ function make_ssg_config(processed_collections, config, k) {
             (s, rp) => {
               return $ssg.add_static_route(
                 s,
-                (("/__pages/" + processed.collection.directory) + "/") + rp.id,
+                ((dir + processed.collection.directory) + "/") + rp.id,
                 rp.html,
               );
             },
@@ -385,7 +393,7 @@ function make_ssg_config(processed_collections, config, k) {
                 let new_page = p[0];
                 return $ssg.add_static_route(
                   s,
-                  (("/__pages/" + processed.collection.directory) + "/") + new_page.id,
+                  ((dir + processed.collection.directory) + "/") + new_page.id,
                   processed.collection.render(new_page),
                 );
               } else {
@@ -395,14 +403,14 @@ function make_ssg_config(processed_collections, config, k) {
                   throw makeError(
                     "assignment_no_match",
                     "arctic/build",
-                    349,
+                    358,
                     "",
                     "Assignment pattern did not match",
                     { value: $ }
                   )
                 }
                 let start = $.head;
-                let cached_path = ("arctic_build/" + start) + "/index.html";
+                let cached_path = (("arctic_build" + dir) + start) + "/index.html";
                 let res = $simplifile.read(cached_path);
                 let content = (() => {
                   if (res.isOk()) {
@@ -412,7 +420,7 @@ function make_ssg_config(processed_collections, config, k) {
                     throw makeError(
                       "panic",
                       "arctic/build",
-                      354,
+                      363,
                       "",
                       cached_path,
                       {}
@@ -421,7 +429,7 @@ function make_ssg_config(processed_collections, config, k) {
                 })();
                 return $ssg.add_static_asset(
                   s,
-                  ("/__pages/" + start) + "/index.html",
+                  (dir + start) + "/index.html",
                   content,
                 );
               }

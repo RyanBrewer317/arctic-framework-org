@@ -38,7 +38,7 @@
         fun((list(processed_collection())) -> lustre@internals@vdom:element(nil)),
         list(raw_page()),
         list(collection()),
-        fun((lustre@internals@vdom:element(nil)) -> lustre@internals@vdom:element(nil))}.
+        gleam@option:option(fun((lustre@internals@vdom:element(nil)) -> lustre@internals@vdom:element(nil)))}.
 
 -spec get_id(cacheable_page()) -> binary().
 get_id(P) ->

@@ -1,3 +1,5 @@
+import * as $option from "../../gleam_stdlib/gleam/option.mjs";
+import { Some, None } from "../../gleam_stdlib/gleam/option.mjs";
 import * as $element from "../../lustre/lustre/element.mjs";
 import { text } from "../../lustre/lustre/element.mjs";
 import * as $html from "../../lustre/lustre/element/html.mjs";
@@ -21,7 +23,7 @@ export function new$() {
     },
     toList([]),
     toList([]),
-    (body) => { return body; },
+    new Some((body) => { return body; }),
   );
 }
 
@@ -41,6 +43,10 @@ export function add_collection(config, collection) {
   });
 }
 
-export function add_spa_frame(config, render_spa) {
-  return config.withFields({ render_spa: render_spa });
+export function add_spa_frame(config, frame) {
+  return config.withFields({ render_spa: new Some(frame) });
+}
+
+export function turn_off_spa(config) {
+  return config.withFields({ render_spa: new None() });
 }

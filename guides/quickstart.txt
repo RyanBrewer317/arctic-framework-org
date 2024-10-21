@@ -35,11 +35,12 @@ Arctic uses these for reading files, producing HTML, and handling errors, respec
 
 Make a directory, perhaps called `content`.
 Put some text files in it, at the very least `index.txt`.
-(Or `index.md`, or `main.txt`, you get the idea.)
+(Or `main.txt`, you get the idea.
+It must end in `.txt` right now, but this will be fixed in the near future.)
 
 For the rest of this quickstart,
 I'll assume we've named the directory `content`, 
-and the file `index.txt`.
+and a file `index.txt`.
 
 Make sure the first line in your file starts with `id: home`.
 This annoying requirement will be lifted in the near future.

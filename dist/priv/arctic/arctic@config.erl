@@ -1,7 +1,7 @@
 -module(arctic@config).
 -compile([no_auto_import, nowarn_unused_vars, nowarn_unused_function, nowarn_nomatch]).
 
--export([new/0, home_renderer/2, add_main_page/3, add_collection/2, add_spa_frame/2]).
+-export([new/0, home_renderer/2, add_main_page/3, add_collection/2, add_spa_frame/2, turn_off_spa/1]).
 
 -spec new() -> arctic:config().
 new() ->
@@ -20,7 +20,7 @@ new() ->
         end,
         [],
         [],
-        fun(Body) -> Body end}.
+        {some, fun(Body) -> Body end}}.
 
 -spec home_renderer(
     arctic:config(),
@@ -49,5 +49,9 @@ add_collection(Config, Collection) ->
     arctic:config(),
     fun((lustre@internals@vdom:element(nil)) -> lustre@internals@vdom:element(nil))
 ) -> arctic:config().
-add_spa_frame(Config, Render_spa) ->
-    erlang:setelement(5, Config, Render_spa).
+add_spa_frame(Config, Frame) ->
+    erlang:setelement(5, Config, {some, Frame}).
+
+-spec turn_off_spa(arctic:config()) -> arctic:config().
+turn_off_spa(Config) ->
+    erlang:setelement(5, Config, none).
