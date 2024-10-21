@@ -111,6 +111,7 @@ a:hover {
   right: 0;
   height: 50%;
   pointer-events: none;
+  z-index: 100;
 }
 
 .img-container div::before {
