@@ -1,6 +1,7 @@
 :root {
-  --color: rgb(255, 223, 228);
-  --background: rgb(32, 1, 32);
+  --color: rgb(255, 226, 231);
+  --background: rgb(13, 1, 13);
+  --hightlight: rgb(255, 88, 199);
 }
 
 body,
@@ -24,4 +25,62 @@ nav {
   top: 0pt;
   background-color: var(--background);
   z-index: 1;
+}
+
+nav.dropdown a { 
+  display: block; 
+  margin: 10pt 0 10pt 15pt;
+}
+
+nav.dropdown {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--background);
+}
+
+#nav-dropdown {
+  display: none;
+}
+
+@media (max-width: 500px) {
+  nav a { 
+    display: none; 
+  }
+  #nav-dropdown { 
+    display: inline-block; 
+  }
+}
+
+p {
+  line-height: 25pt;
+}
+
+code {
+  font-size: 12pt;
+  overflow-x: scroll;
+  scrollbar-width: none; /* firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+code::-webkit-scrollbar { /* Chrome, Safari */
+  display: none;
+}
+
+#arctic-app {
+  padding: 12pt;
+  max-width: 600pt;
+  margin: 0 auto;
+}
+
+a {
+  text-decoration: none;
+  color: var(--highlight);
+}
+
+a:hover {
+  opacity: 0.5;
+  transition: 0.2s;
 }
