@@ -25,6 +25,9 @@ nav {
   top: 0pt;
   background-color: var(--background);
   z-index: 1;
+}
+
+nav a {
   margin-right: 15pt
 }
 
