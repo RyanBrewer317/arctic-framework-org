@@ -4,6 +4,7 @@ import * as $config from "../arctic/arctic/config.mjs";
 import * as $html from "../lustre/lustre/element/html.mjs";
 import { div } from "../lustre/lustre/element/html.mjs";
 import * as $simplifile from "../simplifile/simplifile.mjs";
+import * as $demos from "./demos.mjs";
 import { toList, makeError } from "./gleam.mjs";
 import * as $head from "./head.mjs";
 import * as $navbar from "./navbar.mjs";
@@ -26,7 +27,7 @@ export function main() {
           throw makeError(
             "assignment_no_match",
             "arctic_framework_org",
-            19,
+            20,
             "",
             "Assignment pattern did not match",
             { value: $ }
@@ -38,7 +39,7 @@ export function main() {
           throw makeError(
             "assignment_no_match",
             "arctic_framework_org",
-            20,
+            21,
             "",
             "Assignment pattern did not match",
             { value: $1 }
@@ -54,9 +55,10 @@ export function main() {
         );
       },
     );
-    let _pipe$2 = $config.add_collection(_pipe$1, guides);
+    let _pipe$2 = $config.add_main_page(_pipe$1, "demos", $demos.demos());
+    let _pipe$3 = $config.add_collection(_pipe$2, guides);
     return $config.add_spa_frame(
-      _pipe$2,
+      _pipe$3,
       (body) => {
         return $html.html(
           toList([]),

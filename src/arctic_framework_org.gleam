@@ -1,6 +1,7 @@
 import arctic/build
 import arctic/collection
 import arctic/config
+import demos
 import head
 import lustre/element/html.{div}
 import navbar
@@ -20,6 +21,7 @@ pub fn main() {
       let assert Ok(page) = parser.parse("home", content)
       html.html([], [html.head([], []), html.body([], page.body)])
     })
+    |> config.add_main_page("demos", demos.demos())
     |> config.add_collection(guides)
     |> config.add_spa_frame(fn(body) {
       html.html([], [
