@@ -7,14 +7,20 @@ import { toList } from "./gleam.mjs";
 
 export function navbar() {
   return $html.nav(
-    toList([$attribute.id("nav")]),
+    toList([
+      $attribute.id("nav"),
+      attribute(
+        "onload",
+        "document.body.paddingTop = '' + document.getElementById('nav').clientHeight + 'px';",
+      ),
+    ]),
     toList([
       $html.div(
         toList([
           $attribute.id("nav-dropdown"),
           attribute(
             "onclick",
-            "\nconst el = document.getElementById('nav');\nconst height = el.clientHeight;\nel.classList.toggle('dropdown');\n// because absolute positioning removes the nav from the dom\nif (el.classList.contains('dropdown'))\n  document.body.style.paddingTop = '' + height + 'px';\nelse\n  document.body.style.paddingTop = '0px';\n          ",
+            "document.getElementById('nav').classList.toggle('dropdown');",
           ),
         ]),
         toList([text("☰")]),
