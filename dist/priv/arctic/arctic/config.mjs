@@ -1,5 +1,5 @@
 import * as $option from "../../gleam_stdlib/gleam/option.mjs";
-import { Some, None } from "../../gleam_stdlib/gleam/option.mjs";
+import { None, Some } from "../../gleam_stdlib/gleam/option.mjs";
 import * as $element from "../../lustre/lustre/element.mjs";
 import { text } from "../../lustre/lustre/element.mjs";
 import * as $html from "../../lustre/lustre/element/html.mjs";

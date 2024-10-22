@@ -399,6 +399,11 @@ if (window.location.pathname !== '/') {
 }
 // SPA algorithm stolen from Hayleigh Thompson's wonderful Modem library
 async function go_to(url, loader, back) {
+  if (url.pathname === window.location.pathname) {
+    if (url.hash) document.getElementById(url.hash.slice(1))?.scrollIntoView();
+    else document.body.scrollIntoView();
+    return;
+  }
   const $app = document.getElementById('arctic-app');
   if (loader) $app.innerHTML = '<div id=\"arctic-loader\"></div>';
   if (!back) window.history.pushState({}, '', url.href);
@@ -563,7 +568,7 @@ make_ssg_config(Processed_collections, Config, K) ->
                                                         value => _assert_fail,
                                                         module => <<"arctic/build"/utf8>>,
                                                         function => <<"make_ssg_config"/utf8>>,
-                                                        line => 363}
+                                                        line => 365}
                                                 )
                                     end,
                                     Cached_path = <<<<<<"arctic_build"/utf8,
@@ -580,7 +585,7 @@ make_ssg_config(Processed_collections, Config, K) ->
                                                     message => Cached_path,
                                                     module => <<"arctic/build"/utf8>>,
                                                     function => <<"make_ssg_config"/utf8>>,
-                                                    line => 368})
+                                                    line => 370})
                                     end,
                                     lustre@ssg:add_static_asset(
                                         S@1,
