@@ -4,26 +4,27 @@
 -export([frontmatter/1, metadata/1, content/1, default_renderer/0, render/2, render_with_metadata/2]).
 -export_type([renderer/1]).
 
--type renderer(QDM) :: {renderer,
-        fun((gleam@dict:dict(binary(), binary()), gleam@option:option(binary()), binary()) -> QDM),
-        fun((list(QDM)) -> QDM),
-        fun((gleam@dict:dict(binary(), binary()), integer(), list(QDM)) -> QDM),
-        fun((jot:destination(), gleam@dict:dict(binary(), binary()), list(QDM)) -> QDM),
-        fun((gleam@dict:dict(binary(), binary()), list(QDM)) -> QDM),
-        fun((list(QDM)) -> QDM),
-        fun((binary()) -> QDM),
-        fun((binary()) -> QDM),
-        fun((jot:destination(), binary()) -> QDM),
-        fun(() -> QDM)}.
+-type renderer(QHH) :: {renderer,
+        fun((gleam@dict:dict(binary(), binary()), gleam@option:option(binary()), binary()) -> QHH),
+        fun((list(QHH)) -> QHH),
+        fun((gleam@dict:dict(binary(), binary()), integer(), list(QHH)) -> QHH),
+        fun((jot:destination(), gleam@dict:dict(binary(), binary()), list(QHH)) -> QHH),
+        fun((gleam@dict:dict(binary(), binary()), list(QHH)) -> QHH),
+        fun((list(QHH)) -> QHH),
+        fun((binary()) -> QHH),
+        fun((binary()) -> QHH),
+        fun((jot:destination(), binary()) -> QHH),
+        QHH,
+        QHH}.
 
 -spec frontmatter(binary()) -> {ok, binary()} | {error, nil}.
 frontmatter(Document) ->
     gleam@bool:guard(
-        not gleam@string:starts_with(Document, <<"---"/utf8>>),
+        not gleam_stdlib:string_starts_with(Document, <<"---"/utf8>>),
         {error, nil},
         fun() ->
             Options = {options, false, true},
-            _assert_subject = gleam@regex:compile(
+            _assert_subject = gleam@regexp:compile(
                 <<"^---\\n[\\s\\S]*?\\n---"/utf8>>,
                 Options
             ),
@@ -35,15 +36,15 @@ frontmatter(Document) ->
                                 value => _assert_fail,
                                 module => <<"lustre/ssg/djot"/utf8>>,
                                 function => <<"frontmatter"/utf8>>,
-                                line => 135})
+                                line => 137})
             end,
-            case gleam@regex:scan(Re, Document) of
+            case gleam@regexp:scan(Re, Document) of
                 [{match, Frontmatter, _} | _] ->
                     {ok,
                         begin
                             _pipe = Frontmatter,
-                            _pipe@1 = gleam@string:drop_left(_pipe, 4),
-                            gleam@string:drop_right(_pipe@1, 4)
+                            _pipe@1 = gleam@string:drop_start(_pipe, 4),
+                            gleam@string:drop_end(_pipe@1, 4)
                         end};
 
                 _ ->
@@ -60,7 +61,7 @@ metadata(Document) ->
             tom:parse(Frontmatter);
 
         {error, _} ->
-            {ok, gleam@dict:new()}
+            {ok, maps:new()}
     end.
 
 -spec content(binary()) -> binary().
@@ -80,7 +81,7 @@ content(Document) ->
 
 -spec linkify(binary()) -> binary().
 linkify(Text) ->
-    _assert_subject = gleam@regex:from_string(<<" +"/utf8>>),
+    _assert_subject = gleam@regexp:from_string(<<" +"/utf8>>),
     {ok, Re} = case _assert_subject of
         {ok, _} -> _assert_subject;
         _assert_fail ->
@@ -89,10 +90,10 @@ linkify(Text) ->
                         value => _assert_fail,
                         module => <<"lustre/ssg/djot"/utf8>>,
                         function => <<"linkify"/utf8>>,
-                        line => 284})
+                        line => 290})
     end,
     _pipe = Text,
-    _pipe@1 = gleam@regex:split(Re, _pipe),
+    _pipe@1 = gleam@regexp:split(Re, _pipe),
     gleam@string:join(_pipe@1, <<"-"/utf8>>).
 
 -spec default_renderer() -> renderer(lustre@internals@vdom:element(any())).
@@ -145,7 +146,7 @@ default_renderer() ->
             end end,
         fun(Destination, References, Content@2) -> case Destination of
                 {reference, Ref} ->
-                    case gleam@dict:get(References, Ref) of
+                    case gleam_stdlib:map_get(References, Ref) of
                         {ok, Url} ->
                             lustre@element@html:a(
                                 [lustre@attribute:href(Url)],
@@ -192,7 +193,8 @@ default_renderer() ->
                         [lustre@attribute:src(Url@2), lustre@attribute:alt(Alt)]
                     )
             end end,
-        fun() -> lustre@element@html:br([]) end}.
+        lustre@element@html:br([]),
+        lustre@element@html:hr([])}.
 
 -spec text_content(list(jot:inline())) -> binary().
 text_content(Segments) ->
@@ -222,8 +224,8 @@ text_content(Segments) ->
 -spec render_inline(
     jot:inline(),
     gleam@dict:dict(binary(), binary()),
-    renderer(QEM)
-) -> QEM.
+    renderer(QIH)
+) -> QIH.
 render_inline(Inline, References, Renderer) ->
     case Inline of
         {text, Text} ->
@@ -268,14 +270,14 @@ render_inline(Inline, References, Renderer) ->
             (erlang:element(10, Renderer))(Destination@1, text_content(Alt));
 
         linebreak ->
-            (erlang:element(11, Renderer))()
+            erlang:element(11, Renderer)
     end.
 
 -spec render_block(
     jot:container(),
     gleam@dict:dict(binary(), binary()),
-    renderer(QEI)
-) -> QEI.
+    renderer(QID)
+) -> QID.
 render_block(Block, References, Renderer) ->
     case Block of
         {paragraph, Attrs, Inline} ->
@@ -302,10 +304,13 @@ render_block(Block, References, Renderer) ->
             );
 
         {codeblock, Attrs@2, Language, Code} ->
-            (erlang:element(2, Renderer))(Attrs@2, Language, Code)
+            (erlang:element(2, Renderer))(Attrs@2, Language, Code);
+
+        thematic_break ->
+            erlang:element(12, Renderer)
     end.
 
--spec render(binary(), renderer(QDW)) -> list(QDW).
+-spec render(binary(), renderer(QHR)) -> list(QHR).
 render(Document, Renderer) ->
     Content = content(Document),
     {document, Content@1, References} = jot:parse(Content),
@@ -317,8 +322,8 @@ render(Document, Renderer) ->
 
 -spec render_with_metadata(
     binary(),
-    fun((gleam@dict:dict(binary(), tom:toml())) -> renderer(QEB))
-) -> {ok, list(QEB)} | {error, tom:parse_error()}.
+    fun((gleam@dict:dict(binary(), tom:toml())) -> renderer(QHW))
+) -> {ok, list(QHW)} | {error, tom:parse_error()}.
 render_with_metadata(Document, Renderer) ->
     Toml = frontmatter(Document),
     gleam@result:'try'(

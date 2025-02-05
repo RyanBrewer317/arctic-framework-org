@@ -8,9 +8,8 @@
         list(container()),
         gleam@dict:dict(binary(), binary())}.
 
--type container() :: {paragraph,
-        gleam@dict:dict(binary(), binary()),
-        list(inline())} |
+-type container() :: thematic_break |
+    {paragraph, gleam@dict:dict(binary(), binary()), list(inline())} |
     {heading, gleam@dict:dict(binary(), binary()), integer(), list(inline())} |
     {codeblock,
         gleam@dict:dict(binary(), binary()),
@@ -27,6 +26,7 @@
 
 -type destination() :: {reference, binary()} | {url, binary()}.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 13).
 -spec add_attribute(gleam@dict:dict(binary(), binary()), binary(), binary()) -> gleam@dict:dict(binary(), binary()).
 add_attribute(Attributes, Key, Value) ->
     case Key of
@@ -44,6 +44,7 @@ add_attribute(Attributes, Key, Value) ->
             gleam@dict:insert(Attributes, Key, Value)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 86).
 -spec drop_lines(list(binary())) -> list(binary()).
 drop_lines(In) ->
     case In of
@@ -57,6 +58,7 @@ drop_lines(In) ->
             [C | Rest@1]
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 94).
 -spec drop_spaces(list(binary())) -> list(binary()).
 drop_spaces(In) ->
     case In of
@@ -70,6 +72,46 @@ drop_spaces(In) ->
             [C | Rest@1]
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 170).
+-spec parse_thematic_break(integer(), list(binary())) -> gleam@option:option({container(),
+    list(binary())}).
+parse_thematic_break(Count, In) ->
+    case In of
+        [] ->
+            case Count >= 3 of
+                true ->
+                    {some, {thematic_break, In}};
+
+                false ->
+                    none
+            end;
+
+        [<<"\n"/utf8>> | _] ->
+            case Count >= 3 of
+                true ->
+                    {some, {thematic_break, In}};
+
+                false ->
+                    none
+            end;
+
+        [<<" "/utf8>> | Rest] ->
+            parse_thematic_break(Count, Rest);
+
+        [<<"\t"/utf8>> | Rest] ->
+            parse_thematic_break(Count, Rest);
+
+        [<<"-"/utf8>> | Rest@1] ->
+            parse_thematic_break(Count + 1, Rest@1);
+
+        [<<"*"/utf8>> | Rest@1] ->
+            parse_thematic_break(Count + 1, Rest@1);
+
+        _ ->
+            none
+    end.
+
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 225).
 -spec slurp_verbatim_line(list(binary()), binary()) -> {binary(),
     list(binary())}.
 slurp_verbatim_line(In, Acc) ->
@@ -84,6 +126,7 @@ slurp_verbatim_line(In, Acc) ->
             slurp_verbatim_line(In@2, <<Acc/binary, C/binary>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 233).
 -spec parse_codeblock_end(list(binary()), binary(), integer()) -> gleam@option:option({list(binary())}).
 parse_codeblock_end(In, Delim, Count) ->
     case In of
@@ -103,6 +146,7 @@ parse_codeblock_end(In, Delim, Count) ->
             none
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 210).
 -spec parse_codeblock_content(list(binary()), binary(), integer(), binary()) -> {binary(),
     list(binary())}.
 parse_codeblock_content(In, Delim, Count, Acc) ->
@@ -115,6 +159,7 @@ parse_codeblock_content(In, Delim, Count, Acc) ->
             {Acc, In@2}
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 245).
 -spec parse_codeblock_language(list(binary()), binary()) -> gleam@option:option({gleam@option:option(binary()),
     list(binary())}).
 parse_codeblock_language(In, Language) ->
@@ -135,6 +180,7 @@ parse_codeblock_language(In, Language) ->
             parse_codeblock_language(In@3, <<Language/binary, C/binary>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 193).
 -spec parse_codeblock_start(list(binary()), binary(), integer()) -> gleam@option:option({gleam@option:option(binary()),
     integer(),
     list(binary())}).
@@ -160,6 +206,7 @@ parse_codeblock_start(In, Delim, Count) ->
             none
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 183).
 -spec parse_codeblock(
     list(binary()),
     gleam@dict:dict(binary(), binary()),
@@ -180,6 +227,7 @@ parse_codeblock(In, Attrs, Delim) ->
         end
     ).
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 268).
 -spec parse_ref_value(list(binary()), binary(), binary()) -> gleam@option:option({binary(),
     binary(),
     list(binary())}).
@@ -198,6 +246,7 @@ parse_ref_value(In, Id, Url) ->
             parse_ref_value(In@3, Id, <<Url/binary, C/binary>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 260).
 -spec parse_ref_def(list(binary()), binary()) -> gleam@option:option({binary(),
     binary(),
     list(binary())}).
@@ -219,6 +268,7 @@ parse_ref_def(In, Id) ->
             parse_ref_def(In@2, <<Id/binary, C/binary>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 319).
 -spec parse_attribute_value(list(binary()), binary(), binary()) -> gleam@option:option({binary(),
     binary(),
     list(binary())}).
@@ -237,6 +287,7 @@ parse_attribute_value(In, Key, Value) ->
             parse_attribute_value(In@2, Key, <<Value/binary, C/binary>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 332).
 -spec parse_attribute_quoted_value(list(binary()), binary(), binary()) -> gleam@option:option({binary(),
     binary(),
     list(binary())}).
@@ -252,6 +303,7 @@ parse_attribute_quoted_value(In, Key, Value) ->
             parse_attribute_quoted_value(In@2, Key, <<Value/binary, C/binary>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 310).
 -spec parse_attribute(list(binary()), binary()) -> gleam@option:option({binary(),
     binary(),
     list(binary())}).
@@ -273,6 +325,7 @@ parse_attribute(In, Key) ->
             parse_attribute(In@3, <<Key/binary, C/binary>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 344).
 -spec parse_attributes_id_or_class(list(binary()), binary()) -> gleam@option:option({binary(),
     list(binary())}).
 parse_attributes_id_or_class(In, Id) ->
@@ -302,6 +355,7 @@ parse_attributes_id_or_class(In, Id) ->
             parse_attributes_id_or_class(In@1, <<Id/binary, C/binary>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 357).
 -spec parse_attributes_end(list(binary()), gleam@dict:dict(binary(), binary())) -> gleam@option:option({gleam@dict:dict(binary(), binary()),
     list(binary())}).
 parse_attributes_end(In, Attrs) ->
@@ -319,6 +373,7 @@ parse_attributes_end(In, Attrs) ->
             none
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 281).
 -spec parse_attributes(list(binary()), gleam@dict:dict(binary(), binary())) -> gleam@option:option({gleam@dict:dict(binary(), binary()),
     list(binary())}).
 parse_attributes(In, Attrs) ->
@@ -364,6 +419,7 @@ parse_attributes(In, Attrs) ->
             end
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 411).
 -spec id_char(binary()) -> boolean().
 id_char(Char) ->
     case Char of
@@ -383,6 +439,7 @@ id_char(Char) ->
             true
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 418).
 -spec id_escape(list(binary()), binary()) -> binary().
 id_escape(Content, Acc) ->
     case Content of
@@ -411,6 +468,7 @@ id_escape(Content, Acc) ->
             id_escape(Rest@3, <<Acc/binary, C/binary>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 404).
 -spec id_sanitise(binary()) -> binary().
 id_sanitise(Content) ->
     _pipe = Content,
@@ -418,6 +476,7 @@ id_sanitise(Content) ->
     _pipe@2 = gleam@list:filter(_pipe@1, fun id_char/1),
     id_escape(_pipe@2, <<""/utf8>>).
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 445).
 -spec take_heading_chars_newline_hash(list(binary()), integer(), list(binary())) -> gleam@option:option({list(binary()),
     list(binary())}).
 take_heading_chars_newline_hash(In, Level, Acc) ->
@@ -441,6 +500,7 @@ take_heading_chars_newline_hash(In, Level, Acc) ->
             none
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 431).
 -spec take_heading_chars(list(binary()), integer(), list(binary())) -> {list(binary()),
     list(binary())}.
 take_heading_chars(In, Level, Acc) ->
@@ -471,6 +531,7 @@ take_heading_chars(In, Level, Acc) ->
             take_heading_chars(In@3, Level, [C | Acc])
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 600).
 -spec parse_code_end(list(binary()), integer(), integer(), binary()) -> {boolean(),
     binary(),
     list(binary())}.
@@ -492,6 +553,7 @@ parse_code_end(In, Limit, Count, Content) ->
                 In}
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 582).
 -spec parse_code_content(list(binary()), integer(), binary()) -> {binary(),
     list(binary())}.
 parse_code_content(In, Count, Content) ->
@@ -513,6 +575,7 @@ parse_code_content(In, Count, Content) ->
             parse_code_content(In@3, Count, <<Content/binary, C/binary>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 560).
 -spec parse_code(list(binary()), integer()) -> {inline(), list(binary())}.
 parse_code(In, Count) ->
     case In of
@@ -538,6 +601,7 @@ parse_code(In, Count) ->
             {{code, Content@2}, In@2}
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 625).
 -spec take_emphasis_chars(list(binary()), binary(), list(binary())) -> gleam@option:option({list(binary()),
     list(binary())}).
 take_emphasis_chars(In, Close, Acc) ->
@@ -570,6 +634,7 @@ take_emphasis_chars(In, Close, Acc) ->
             take_emphasis_chars(Rest, Close, [C@4 | Acc])
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 693).
 -spec take_link_chars_destination(
     list(binary()),
     boolean(),
@@ -607,6 +672,7 @@ take_link_chars_destination(In, Is_url, Inline_in, Acc) ->
             )
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 673).
 -spec take_link_chars(list(binary()), list(binary())) -> gleam@option:option({list(binary()),
     destination(),
     list(binary())}).
@@ -627,6 +693,7 @@ take_link_chars(In, Inline_in) ->
             take_link_chars(Rest, [C | Inline_in])
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 714).
 -spec heading_level(list(binary()), integer()) -> gleam@option:option({integer(),
     list(binary())}).
 heading_level(In, Level) ->
@@ -647,6 +714,7 @@ heading_level(In, Level) ->
             none
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 725).
 -spec take_inline_text(list(inline()), binary()) -> binary().
 take_inline_text(Inlines, Acc) ->
     case Inlines of
@@ -680,6 +748,7 @@ take_inline_text(Inlines, Acc) ->
             end
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 753).
 -spec take_paragraph_chars(list(binary()), list(binary())) -> {list(binary()),
     list(binary())}.
 take_paragraph_chars(In, Acc) ->
@@ -697,10 +766,12 @@ take_paragraph_chars(In, Acc) ->
             take_paragraph_chars(Rest@1, [C | Acc])
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 825).
 -spec close_tag(binary(), binary()) -> binary().
 close_tag(Html, Tag) ->
     <<<<<<Html/binary, "</"/utf8>>/binary, Tag/binary>>/binary, ">"/utf8>>.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 886).
 -spec destination_attribute(
     binary(),
     destination(),
@@ -722,6 +793,7 @@ destination_attribute(Key, Destination, Refs) ->
             end
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 902).
 -spec attributes_to_html(binary(), gleam@dict:dict(binary(), binary())) -> binary().
 attributes_to_html(Html, Attributes) ->
     _pipe = Attributes,
@@ -744,11 +816,13 @@ attributes_to_html(Html, Attributes) ->
         end
     ).
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 816).
 -spec open_tag(binary(), binary(), gleam@dict:dict(binary(), binary())) -> binary().
 open_tag(Html, Tag, Attributes) ->
     Html@1 = <<<<Html/binary, "<"/utf8>>/binary, Tag/binary>>,
     <<(attributes_to_html(Html@1, Attributes))/binary, ">"/utf8>>.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 841).
 -spec inline_to_html(binary(), inline(), gleam@dict:dict(binary(), binary())) -> binary().
 inline_to_html(Html, Inline, Refs) ->
     case Inline of
@@ -808,6 +882,7 @@ inline_to_html(Html, Inline, Refs) ->
             close_tag(_pipe@15, <<"code"/utf8>>)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 829).
 -spec inlines_to_html(
     binary(),
     list(inline()),
@@ -825,6 +900,7 @@ inlines_to_html(Html, Inlines, Refs) ->
             gleam@string:trim_right(_pipe@2)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 781).
 -spec container_to_html(
     binary(),
     container(),
@@ -832,6 +908,9 @@ inlines_to_html(Html, Inlines, Refs) ->
 ) -> binary().
 container_to_html(Html, Container, Refs) ->
     <<(case Container of
+            thematic_break ->
+                <<Html/binary, "<hr>"/utf8>>;
+
             {paragraph, Attrs, Inlines} ->
                 _pipe = Html,
                 _pipe@1 = open_tag(_pipe, <<"p"/utf8>>, Attrs),
@@ -865,6 +944,7 @@ container_to_html(Html, Container, Refs) ->
                 close_tag(_pipe@10, Tag)
         end)/binary, "\n"/utf8>>.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 767).
 -spec containers_to_html(
     list(container()),
     gleam@dict:dict(binary(), binary()),
@@ -880,6 +960,7 @@ containers_to_html(Containers, Refs, Html) ->
             containers_to_html(Rest, Refs, Html@1)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 763).
 -spec document_to_html(document()) -> binary().
 document_to_html(Document) ->
     containers_to_html(
@@ -888,6 +969,7 @@ document_to_html(Document) ->
         <<""/utf8>>
     ).
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 614).
 -spec parse_emphasis(list(binary()), binary()) -> gleam@option:option({list(inline()),
     list(binary())}).
 parse_emphasis(In, Close) ->
@@ -900,6 +982,7 @@ parse_emphasis(In, Close) ->
             {some, {Inline, In@1}}
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 463).
 -spec parse_inline(list(binary()), binary(), list(inline())) -> list(inline()).
 parse_inline(In, Text, Acc) ->
     case In of
@@ -910,10 +993,13 @@ parse_inline(In, Text, Acc) ->
             parse_inline([], <<""/utf8>>, [{text, Text} | Acc]);
 
         [<<"\\"/utf8>>, C | Rest] ->
-            Aft = parse_inline(Rest, <<""/utf8>>, Acc),
             case C of
                 <<"\n"/utf8>> ->
-                    lists:append([{text, Text}, linebreak], Aft);
+                    parse_inline(
+                        Rest,
+                        <<""/utf8>>,
+                        [linebreak, {text, Text} | Acc]
+                    );
 
                 <<" "/utf8>> ->
                     parse_inline(Rest, <<Text/binary, "&nbsp;"/utf8>>, Acc);
@@ -1078,10 +1164,15 @@ parse_inline(In, Text, Acc) ->
             {Code, In@5} = parse_code(Rest@7, 1),
             parse_inline(In@5, <<""/utf8>>, [Code, {text, Text} | Acc]);
 
-        [C@3 | Rest@8] ->
-            parse_inline(Rest@8, <<Text/binary, C@3/binary>>, Acc)
+        [<<"\n"/utf8>> | Rest@8] ->
+            _pipe = drop_spaces(Rest@8),
+            parse_inline(_pipe, <<Text/binary, "\n"/utf8>>, Acc);
+
+        [C@3 | Rest@9] ->
+            parse_inline(Rest@9, <<Text/binary, C@3/binary>>, Acc)
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 654).
 -spec parse_link(
     list(binary()),
     fun((list(inline()), destination()) -> inline())
@@ -1103,6 +1194,7 @@ parse_link(In, To_inline) ->
             {some, {To_inline(Inline, Ref@2), In@1}}
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 744).
 -spec parse_paragraph(list(binary()), gleam@dict:dict(binary(), binary())) -> {container(),
     list(binary())}.
 parse_paragraph(In, Attrs) ->
@@ -1110,6 +1202,7 @@ parse_paragraph(In, Attrs) ->
     Inline = parse_inline(Inline_in, <<""/utf8>>, []),
     {{paragraph, Attrs, Inline}, In@1}.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 369).
 -spec parse_heading(
     list(binary()),
     gleam@dict:dict(binary(), binary()),
@@ -1149,6 +1242,7 @@ parse_heading(In, Refs, Attrs) ->
             {P, Refs, In@4}
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 102).
 -spec parse_document(
     list(binary()),
     gleam@dict:dict(binary(), binary()),
@@ -1237,11 +1331,52 @@ parse_document(In, Refs, Ast, Attrs) ->
                     parse_document(In@10, Refs@2, Ast, gleam@dict:new())
             end;
 
+        [<<"-"/utf8>> | In2@3] ->
+            case parse_thematic_break(1, In2@3) of
+                none ->
+                    {Paragraph@3, In@11} = parse_paragraph(In@2, Attrs),
+                    parse_document(
+                        In@11,
+                        Refs,
+                        [Paragraph@3 | Ast],
+                        gleam@dict:new()
+                    );
+
+                {some, {Thematic_break, In@12}} ->
+                    parse_document(
+                        In@12,
+                        Refs,
+                        [Thematic_break | Ast],
+                        gleam@dict:new()
+                    )
+            end;
+
+        [<<"*"/utf8>> | In2@3] ->
+            case parse_thematic_break(1, In2@3) of
+                none ->
+                    {Paragraph@3, In@11} = parse_paragraph(In@2, Attrs),
+                    parse_document(
+                        In@11,
+                        Refs,
+                        [Paragraph@3 | Ast],
+                        gleam@dict:new()
+                    );
+
+                {some, {Thematic_break, In@12}} ->
+                    parse_document(
+                        In@12,
+                        Refs,
+                        [Thematic_break | Ast],
+                        gleam@dict:new()
+                    )
+            end;
+
         _ ->
-            {Paragraph@3, In@11} = parse_paragraph(In@2, Attrs),
-            parse_document(In@11, Refs, [Paragraph@3 | Ast], gleam@dict:new())
+            {Paragraph@4, In@13} = parse_paragraph(In@2, Attrs),
+            parse_document(In@13, Refs, [Paragraph@4 | Ast], gleam@dict:new())
     end.
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 79).
 -spec parse(binary()) -> document().
 parse(Djot) ->
     _pipe = Djot,
@@ -1249,6 +1384,7 @@ parse(Djot) ->
     _pipe@2 = gleam@string:to_graphemes(_pipe@1),
     parse_document(_pipe@2, gleam@dict:new(), [], gleam@dict:new()).
 
+-file("/Users/louis/src/gleam/jot/src/jot.gleam", 68).
 -spec to_html(binary()) -> binary().
 to_html(Djot) ->
     _pipe = Djot,

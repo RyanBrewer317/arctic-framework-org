@@ -14,6 +14,8 @@ export class Document extends $CustomType {
   }
 }
 
+export class ThematicBreak extends $CustomType {}
+
 export class Paragraph extends $CustomType {
   constructor(attributes, x1) {
     super();
@@ -147,6 +149,46 @@ function drop_spaces(loop$in) {
       let c = in$.head;
       let rest = in$.tail;
       return listPrepend(c, rest);
+    }
+  }
+}
+
+function parse_thematic_break(loop$count, loop$in) {
+  while (true) {
+    let count = loop$count;
+    let in$ = loop$in;
+    if (in$.hasLength(0)) {
+      let $ = count >= 3;
+      if ($) {
+        return new Some([new ThematicBreak(), in$]);
+      } else {
+        return new None();
+      }
+    } else if (in$.atLeastLength(1) && in$.head === "\n") {
+      let $ = count >= 3;
+      if ($) {
+        return new Some([new ThematicBreak(), in$]);
+      } else {
+        return new None();
+      }
+    } else if (in$.atLeastLength(1) && in$.head === " ") {
+      let rest = in$.tail;
+      loop$count = count;
+      loop$in = rest;
+    } else if (in$.atLeastLength(1) && in$.head === "\t") {
+      let rest = in$.tail;
+      loop$count = count;
+      loop$in = rest;
+    } else if (in$.atLeastLength(1) && in$.head === "-") {
+      let rest = in$.tail;
+      loop$count = count + 1;
+      loop$in = rest;
+    } else if (in$.atLeastLength(1) && in$.head === "*") {
+      let rest = in$.tail;
+      loop$count = count + 1;
+      loop$in = rest;
+    } else {
+      return new None();
     }
   }
 }
@@ -688,7 +730,7 @@ function parse_code(loop$in, loop$count) {
       let content$1 = (() => {
         let $1 = $string.starts_with(content, " `");
         if ($1) {
-          return $string.trim_left(content);
+          return $string.trim_start(content);
         } else {
           return content;
         }
@@ -696,7 +738,7 @@ function parse_code(loop$in, loop$count) {
       let content$2 = (() => {
         let $1 = $string.ends_with(content$1, "` ");
         if ($1) {
-          return $string.trim_right(content$1);
+          return $string.trim_end(content$1);
         } else {
           return content$1;
         }
@@ -1014,13 +1056,15 @@ function inlines_to_html(html, inlines, refs) {
     let _pipe = html;
     let _pipe$1 = inline_to_html(_pipe, inline, refs);
     let _pipe$2 = inlines_to_html(_pipe$1, rest, refs);
-    return $string.trim_right(_pipe$2);
+    return $string.trim_end(_pipe$2);
   }
 }
 
 function container_to_html(html, container, refs) {
   return (() => {
-    if (container instanceof Paragraph) {
+    if (container instanceof ThematicBreak) {
+      return html + "<hr>";
+    } else if (container instanceof Paragraph) {
       let attrs = container.attributes;
       let inlines = container[1];
       let _pipe = html;
@@ -1106,9 +1150,13 @@ function parse_inline(loop$in, loop$text, loop$acc) {
     } else if (in$.atLeastLength(2) && in$.head === "\\") {
       let c = in$.tail.head;
       let rest = in$.tail.tail;
-      let aft = parse_inline(rest, "", acc);
       if (c === "\n") {
-        return $list.append(toList([new Text(text), new Linebreak()]), aft);
+        loop$in = rest;
+        loop$text = "";
+        loop$acc = listPrepend(
+          new Linebreak(),
+          listPrepend(new Text(text), acc),
+        );
       } else if (c === " ") {
         loop$in = rest;
         loop$text = text + "&nbsp;";
@@ -1327,6 +1375,12 @@ function parse_inline(loop$in, loop$text, loop$acc) {
       loop$in = in$1;
       loop$text = "";
       loop$acc = listPrepend(code, listPrepend(new Text(text), acc));
+    } else if (in$.atLeastLength(1) && in$.head === "\n") {
+      let rest = in$.tail;
+      let _pipe = drop_spaces(rest);
+      loop$in = _pipe;
+      loop$text = text + "\n";
+      loop$acc = acc;
     } else {
       let c = in$.head;
       let rest = in$.tail;
@@ -1503,6 +1557,44 @@ function parse_document(loop$in, loop$refs, loop$ast, loop$attrs) {
         loop$in = in$3;
         loop$refs = refs$1;
         loop$ast = ast;
+        loop$attrs = $dict.new$();
+      }
+    } else if (in$2.atLeastLength(1) && in$2.head === "-") {
+      let in2 = in$2.tail;
+      let $ = parse_thematic_break(1, in2);
+      if ($ instanceof None) {
+        let $1 = parse_paragraph(in$2, attrs);
+        let paragraph = $1[0];
+        let in$3 = $1[1];
+        loop$in = in$3;
+        loop$refs = refs;
+        loop$ast = listPrepend(paragraph, ast);
+        loop$attrs = $dict.new$();
+      } else {
+        let thematic_break = $[0][0];
+        let in$3 = $[0][1];
+        loop$in = in$3;
+        loop$refs = refs;
+        loop$ast = listPrepend(thematic_break, ast);
+        loop$attrs = $dict.new$();
+      }
+    } else if (in$2.atLeastLength(1) && in$2.head === "*") {
+      let in2 = in$2.tail;
+      let $ = parse_thematic_break(1, in2);
+      if ($ instanceof None) {
+        let $1 = parse_paragraph(in$2, attrs);
+        let paragraph = $1[0];
+        let in$3 = $1[1];
+        loop$in = in$3;
+        loop$refs = refs;
+        loop$ast = listPrepend(paragraph, ast);
+        loop$attrs = $dict.new$();
+      } else {
+        let thematic_break = $[0][0];
+        let in$3 = $[0][1];
+        loop$in = in$3;
+        loop$refs = refs;
+        loop$ast = listPrepend(thematic_break, ast);
         loop$attrs = $dict.new$();
       }
     } else {

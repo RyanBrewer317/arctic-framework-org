@@ -1,7 +1,7 @@
 -module(lustre@attribute).
 -compile([no_auto_import, nowarn_unused_vars, nowarn_unused_function, nowarn_nomatch]).
 
--export([attribute/2, property/2, on/2, map/2, style/1, class/1, none/0, classes/1, id/1, role/1, title/1, type_/1, value/1, checked/1, placeholder/1, selected/1, accept/1, accept_charset/1, msg/1, autocomplete/1, autofocus/1, disabled/1, name/1, pattern/1, readonly/1, required/1, for/1, max/1, min/1, step/1, cols/1, rows/1, wrap/1, href/1, target/1, download/1, rel/1, src/1, height/1, width/1, alt/1, autoplay/1, controls/1, loop/1, action/1, enctype/1, method/1, novalidate/1, form_action/1, form_enctype/1, form_method/1, form_novalidate/1, form_target/1, open/1]).
+-export([attribute/2, property/2, on/2, map/2, style/1, class/1, none/0, classes/1, id/1, role/1, title/1, type_/1, value/1, checked/1, placeholder/1, selected/1, accept/1, accept_charset/1, msg/1, autocomplete/1, autofocus/1, disabled/1, name/1, pattern/1, readonly/1, required/1, for/1, max/1, min/1, step/1, cols/1, rows/1, wrap/1, href/1, target/1, download/1, rel/1, src/1, height/1, width/1, alt/1, content/1, autoplay/1, controls/1, loop/1, action/1, enctype/1, method/1, novalidate/1, form_action/1, form_enctype/1, form_method/1, form_novalidate/1, form_target/1, open/1, charset/1, http_equiv/1]).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 27).
 -spec attribute(binary(), binary()) -> lustre@internals@vdom:attribute(any()).
@@ -16,14 +16,14 @@ property(Name, Value) ->
 -file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 44).
 -spec on(
     binary(),
-    fun((gleam@dynamic:dynamic_()) -> {ok, OFF} |
+    fun((gleam@dynamic:dynamic_()) -> {ok, OYU} |
         {error, list(gleam@dynamic:decode_error())})
-) -> lustre@internals@vdom:attribute(OFF).
+) -> lustre@internals@vdom:attribute(OYU).
 on(Name, Handler) ->
     {event, <<"on"/utf8, Name/binary>>, Handler}.
 
 -file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 63).
--spec map(lustre@internals@vdom:attribute(OFK), fun((OFK) -> OFM)) -> lustre@internals@vdom:attribute(OFM).
+-spec map(lustre@internals@vdom:attribute(OYZ), fun((OYZ) -> OZB)) -> lustre@internals@vdom:attribute(OZB).
 map(Attr, F) ->
     case Attr of
         {attribute, Name, Value, As_property} ->
@@ -164,7 +164,7 @@ pattern(Regex) ->
 -file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 194).
 -spec readonly(boolean()) -> lustre@internals@vdom:attribute(any()).
 readonly(Is_readonly) ->
-    property(<<"readonly"/utf8>>, Is_readonly).
+    property(<<"readOnly"/utf8>>, Is_readonly).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 199).
 -spec required(boolean()) -> lustre@internals@vdom:attribute(any()).
@@ -231,82 +231,97 @@ rel(Relationship) ->
 src(Uri) ->
     attribute(<<"src"/utf8>>, Uri).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 272).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 278).
 -spec height(integer()) -> lustre@internals@vdom:attribute(any()).
 height(Val) ->
     property(<<"height"/utf8>>, Val).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 277).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 289).
 -spec width(integer()) -> lustre@internals@vdom:attribute(any()).
 width(Val) ->
     property(<<"width"/utf8>>, Val).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 282).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 294).
 -spec alt(binary()) -> lustre@internals@vdom:attribute(any()).
 alt(Text) ->
     attribute(<<"alt"/utf8>>, Text).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 289).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 299).
+-spec content(binary()) -> lustre@internals@vdom:attribute(any()).
+content(Text) ->
+    attribute(<<"content"/utf8>>, Text).
+
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 306).
 -spec autoplay(boolean()) -> lustre@internals@vdom:attribute(any()).
 autoplay(Should_autoplay) ->
     property(<<"autoplay"/utf8>>, Should_autoplay).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 294).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 311).
 -spec controls(boolean()) -> lustre@internals@vdom:attribute(any()).
 controls(Visible) ->
     property(<<"controls"/utf8>>, Visible).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 299).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 316).
 -spec loop(boolean()) -> lustre@internals@vdom:attribute(any()).
 loop(Should_loop) ->
     property(<<"loop"/utf8>>, Should_loop).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 306).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 323).
 -spec action(binary()) -> lustre@internals@vdom:attribute(any()).
 action(Url) ->
     attribute(<<"action"/utf8>>, Url).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 311).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 328).
 -spec enctype(binary()) -> lustre@internals@vdom:attribute(any()).
 enctype(Value) ->
     attribute(<<"enctype"/utf8>>, Value).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 316).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 333).
 -spec method(binary()) -> lustre@internals@vdom:attribute(any()).
 method(Method) ->
     attribute(<<"method"/utf8>>, Method).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 321).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 338).
 -spec novalidate(boolean()) -> lustre@internals@vdom:attribute(any()).
 novalidate(Value) ->
     property(<<"novalidate"/utf8>>, Value).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 326).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 343).
 -spec form_action(binary()) -> lustre@internals@vdom:attribute(any()).
 form_action(Action) ->
     attribute(<<"formaction"/utf8>>, Action).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 331).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 348).
 -spec form_enctype(binary()) -> lustre@internals@vdom:attribute(any()).
 form_enctype(Value) ->
     attribute(<<"formenctype"/utf8>>, Value).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 336).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 353).
 -spec form_method(binary()) -> lustre@internals@vdom:attribute(any()).
 form_method(Method) ->
     attribute(<<"formmethod"/utf8>>, Method).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 341).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 358).
 -spec form_novalidate(boolean()) -> lustre@internals@vdom:attribute(any()).
 form_novalidate(Value) ->
     property(<<"formnovalidate"/utf8>>, Value).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 346).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 363).
 -spec form_target(binary()) -> lustre@internals@vdom:attribute(any()).
 form_target(Target) ->
     attribute(<<"formtarget"/utf8>>, Target).
 
--file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 353).
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 370).
 -spec open(boolean()) -> lustre@internals@vdom:attribute(any()).
 open(Is_open) ->
     property(<<"open"/utf8>>, Is_open).
+
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 377).
+-spec charset(binary()) -> lustre@internals@vdom:attribute(any()).
+charset(Name) ->
+    attribute(<<"charset"/utf8>>, Name).
+
+-file("/home/runner/work/lustre/lustre/src/lustre/attribute.gleam", 382).
+-spec http_equiv(binary()) -> lustre@internals@vdom:attribute(any()).
+http_equiv(Name) ->
+    attribute(<<"http-equiv"/utf8>>, Name).

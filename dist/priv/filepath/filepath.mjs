@@ -22,7 +22,7 @@ function relative(loop$path) {
 function remove_trailing_slash(path) {
   let $ = $string.ends_with(path, "/");
   if ($) {
-    return $string.drop_right(path, 1);
+    return $string.drop_end(path, 1);
   } else {
     return path;
   }
@@ -61,6 +61,98 @@ export function split_unix(path) {
   return $list.filter(_pipe, (x) => { return x !== ""; });
 }
 
+function get_directory_name(loop$path, loop$acc, loop$segment) {
+  while (true) {
+    let path = loop$path;
+    let acc = loop$acc;
+    let segment = loop$segment;
+    if (path.atLeastLength(1) && path.head === "/") {
+      let rest = path.tail;
+      loop$path = rest;
+      loop$acc = acc + segment;
+      loop$segment = "/";
+    } else if (path.atLeastLength(1)) {
+      let first = path.head;
+      let rest = path.tail;
+      loop$path = rest;
+      loop$acc = acc;
+      loop$segment = segment + first;
+    } else {
+      return acc;
+    }
+  }
+}
+
+export function directory_name(path) {
+  let path$1 = remove_trailing_slash(path);
+  if (path$1.startsWith("/")) {
+    let rest = path$1.slice(1);
+    return get_directory_name($string.to_graphemes(rest), "/", "");
+  } else {
+    return get_directory_name($string.to_graphemes(path$1), "", "");
+  }
+}
+
+export function is_absolute(path) {
+  return $string.starts_with(path, "/");
+}
+
+function expand_segments(loop$path, loop$base) {
+  while (true) {
+    let path = loop$path;
+    let base = loop$base;
+    if (base.hasLength(1) &&
+    base.head === "" &&
+    path.atLeastLength(1) &&
+    path.head === "..") {
+      return new Error(undefined);
+    } else if (base.hasLength(0) && path.atLeastLength(1) && path.head === "..") {
+      return new Error(undefined);
+    } else if (base.atLeastLength(1) &&
+    path.atLeastLength(1) &&
+    path.head === "..") {
+      let base$1 = base.tail;
+      let path$1 = path.tail;
+      loop$path = path$1;
+      loop$base = base$1;
+    } else if (path.atLeastLength(1) && path.head === ".") {
+      let path$1 = path.tail;
+      loop$path = path$1;
+      loop$base = base;
+    } else if (path.atLeastLength(1)) {
+      let s = path.head;
+      let path$1 = path.tail;
+      loop$path = path$1;
+      loop$base = listPrepend(s, base);
+    } else {
+      return new Ok($string.join($list.reverse(base), "/"));
+    }
+  }
+}
+
+function root_slash_to_empty(segments) {
+  if (segments.atLeastLength(1) && segments.head === "/") {
+    let rest = segments.tail;
+    return listPrepend("", rest);
+  } else {
+    return segments;
+  }
+}
+
+const codepoint_slash = 47;
+
+const codepoint_backslash = 92;
+
+const codepoint_colon = 58;
+
+const codepoint_a = 65;
+
+const codepoint_z = 90;
+
+const codepoint_a_up = 97;
+
+const codepoint_z_up = 122;
+
 function pop_windows_drive_specifier(path) {
   let start = $string.slice(path, 0, 3);
   let codepoints = $string.to_utf_codepoints(start);
@@ -72,7 +164,7 @@ function pop_windows_drive_specifier(path) {
     let slash = $.tail.tail.head;
     let drive_letter = $string.slice(path, 0, 1);
     let drive$1 = $string.lowercase(drive_letter) + ":/";
-    let path$1 = $string.drop_left(path, 3);
+    let path$1 = $string.drop_start(path, 3);
     return [new Some(drive$1), path$1];
   } else {
     return [new None(), path];
@@ -151,87 +243,9 @@ export function strip_extension(path) {
   let $ = extension(path);
   if ($.isOk()) {
     let extension$1 = $[0];
-    return $string.drop_right(path, $string.length(extension$1) + 1);
+    return $string.drop_end(path, $string.length(extension$1) + 1);
   } else {
     return path;
-  }
-}
-
-function get_directory_name(loop$path, loop$acc, loop$segment) {
-  while (true) {
-    let path = loop$path;
-    let acc = loop$acc;
-    let segment = loop$segment;
-    if (path.atLeastLength(1) && path.head === "/") {
-      let rest = path.tail;
-      loop$path = rest;
-      loop$acc = acc + segment;
-      loop$segment = "/";
-    } else if (path.atLeastLength(1)) {
-      let first = path.head;
-      let rest = path.tail;
-      loop$path = rest;
-      loop$acc = acc;
-      loop$segment = segment + first;
-    } else {
-      return acc;
-    }
-  }
-}
-
-export function directory_name(path) {
-  let path$1 = remove_trailing_slash(path);
-  if (path$1.startsWith("/")) {
-    let rest = path$1.slice(1);
-    return get_directory_name($string.to_graphemes(rest), "/", "");
-  } else {
-    return get_directory_name($string.to_graphemes(path$1), "", "");
-  }
-}
-
-export function is_absolute(path) {
-  return $string.starts_with(path, "/");
-}
-
-function expand_segments(loop$path, loop$base) {
-  while (true) {
-    let path = loop$path;
-    let base = loop$base;
-    if (base.hasLength(1) &&
-    base.head === "" &&
-    path.atLeastLength(1) &&
-    path.head === "..") {
-      return new Error(undefined);
-    } else if (base.hasLength(0) && path.atLeastLength(1) && path.head === "..") {
-      return new Error(undefined);
-    } else if (base.atLeastLength(1) &&
-    path.atLeastLength(1) &&
-    path.head === "..") {
-      let base$1 = base.tail;
-      let path$1 = path.tail;
-      loop$path = path$1;
-      loop$base = base$1;
-    } else if (path.atLeastLength(1) && path.head === ".") {
-      let path$1 = path.tail;
-      loop$path = path$1;
-      loop$base = base;
-    } else if (path.atLeastLength(1)) {
-      let s = path.head;
-      let path$1 = path.tail;
-      loop$path = path$1;
-      loop$base = listPrepend(s, base);
-    } else {
-      return new Ok($string.join($list.reverse(base), "/"));
-    }
-  }
-}
-
-function root_slash_to_empty(segments) {
-  if (segments.atLeastLength(1) && segments.head === "/") {
-    let rest = segments.tail;
-    return listPrepend("", rest);
-  } else {
-    return segments;
   }
 }
 

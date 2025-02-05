@@ -1,16 +1,17 @@
 import { Ok, Error, toList, prepend as listPrepend, CustomType as $CustomType } from "../gleam.mjs";
-import * as $bit_array from "../gleam/bit_array.mjs";
+import * as $bit_array_mod from "../gleam/bit_array.mjs";
 import * as $dict from "../gleam/dict.mjs";
-import * as $int from "../gleam/int.mjs";
-import * as $list from "../gleam/list.mjs";
+import * as $int_mod from "../gleam/int.mjs";
+import * as $list_mod from "../gleam/list.mjs";
 import * as $option from "../gleam/option.mjs";
 import { Some } from "../gleam/option.mjs";
-import * as $result from "../gleam/result.mjs";
-import * as $string_builder from "../gleam/string_builder.mjs";
+import * as $result_mod from "../gleam/result.mjs";
+import * as $string_tree from "../gleam/string_tree.mjs";
 import {
+  classify_dynamic as classify,
   identity as from,
   decode_bit_array,
-  classify_dynamic as do_classify,
+  decode_string,
   decode_int,
   decode_float,
   decode_bool,
@@ -26,11 +27,10 @@ import {
   decode_tuple6,
   tuple_get,
   length as tuple_size,
-  decode_map,
-  decode_string,
+  decode_map as decode_dict,
 } from "../gleam_stdlib.mjs";
 
-export { from };
+export { classify, from };
 
 export class DecodeError extends $CustomType {
   constructor(expected, found, path) {
@@ -49,12 +49,19 @@ export function bit_array(data) {
   return decode_bit_array(data);
 }
 
+function map_errors(result, f) {
+  return $result_mod.map_error(
+    result,
+    (_capture) => { return $list_mod.map(_capture, f); },
+  );
+}
+
 function put_expected(error, expected) {
   return error.withFields({ expected: expected });
 }
 
-export function classify(data) {
-  return do_classify(data);
+export function string(data) {
+  return decode_string(data);
 }
 
 export function int(data) {
@@ -88,18 +95,18 @@ function at_least_decode_tuple_error(size, data) {
   let error = (() => {
     let _pipe = toList([
       "Tuple of at least ",
-      $int.to_string(size),
+      $int_mod.to_string(size),
       " element",
       s,
     ]);
-    let _pipe$1 = $string_builder.from_strings(_pipe);
-    let _pipe$2 = $string_builder.to_string(_pipe$1);
+    let _pipe$1 = $string_tree.from_strings(_pipe);
+    let _pipe$2 = $string_tree.to_string(_pipe$1);
     return new DecodeError(_pipe$2, classify(data), toList([]));
   })();
   return new Error(toList([error]));
 }
 
-export function any(decoders) {
+function do_any(decoders) {
   return (data) => {
     if (decoders.hasLength(0)) {
       return new Error(
@@ -113,38 +120,19 @@ export function any(decoders) {
         let decoded = $[0];
         return new Ok(decoded);
       } else {
-        return any(decoders$1)(data);
+        return do_any(decoders$1)(data);
       }
-    }
-  };
-}
-
-function all_errors(result) {
-  if (result.isOk()) {
-    return toList([]);
-  } else {
-    let errors = result[0];
-    return errors;
-  }
-}
-
-export function decode1(constructor, t1) {
-  return (value) => {
-    let $ = t1(value);
-    if ($.isOk()) {
-      let a = $[0];
-      return new Ok(constructor(a));
-    } else {
-      let a = $;
-      return new Error(all_errors(a));
     }
   };
 }
 
 function push_path(error, name) {
   let name$1 = from(name);
-  let decoder = any(
-    toList([string, (x) => { return $result.map(int(x), $int.to_string); }]),
+  let decoder = do_any(
+    toList([
+      decode_string,
+      (x) => { return $result_mod.map(decode_int(x), $int_mod.to_string); },
+    ]),
   );
   let name$2 = (() => {
     let $ = decoder(name$1);
@@ -153,8 +141,8 @@ function push_path(error, name) {
       return name$2;
     } else {
       let _pipe = toList(["<", classify(name$1), ">"]);
-      let _pipe$1 = $string_builder.from_strings(_pipe);
-      return $string_builder.to_string(_pipe$1);
+      let _pipe$1 = $string_tree.from_strings(_pipe);
+      return $string_tree.to_string(_pipe$1);
     }
   })();
   return error.withFields({ path: listPrepend(name$2, error.path) });
@@ -162,12 +150,12 @@ function push_path(error, name) {
 
 export function result(decode_ok, decode_error) {
   return (value) => {
-    return $result.try$(
+    return $result_mod.try$(
       decode_result(value),
       (inner_result) => {
         if (inner_result.isOk()) {
           let raw = inner_result[0];
-          return $result.try$(
+          return $result_mod.try$(
             (() => {
               let _pipe = decode_ok(raw);
               return map_errors(
@@ -179,7 +167,7 @@ export function result(decode_ok, decode_error) {
           );
         } else {
           let raw = inner_result[0];
-          return $result.try$(
+          return $result_mod.try$(
             (() => {
               let _pipe = decode_error(raw);
               return map_errors(
@@ -197,11 +185,11 @@ export function result(decode_ok, decode_error) {
 
 export function list(decoder_type) {
   return (dynamic) => {
-    return $result.try$(
-      shallow_list(dynamic),
+    return $result_mod.try$(
+      decode_list(dynamic),
       (list) => {
         let _pipe = list;
-        let _pipe$1 = $list.try_map(_pipe, decoder_type);
+        let _pipe$1 = $list_mod.try_map(_pipe, decoder_type);
         return map_errors(
           _pipe$1,
           (_capture) => { return push_path(_capture, "*"); },
@@ -211,26 +199,15 @@ export function list(decoder_type) {
   };
 }
 
-function map_errors(result, f) {
-  return $result.map_error(
-    result,
-    (_capture) => { return $list.map(_capture, f); },
-  );
-}
-
-export function string(data) {
-  return decode_string(data);
-}
-
 export function field(name, inner_type) {
   return (value) => {
     let missing_field_error = new DecodeError("field", "nothing", toList([]));
-    return $result.try$(
+    return $result_mod.try$(
       decode_field(value, name),
       (maybe_inner) => {
         let _pipe = maybe_inner;
         let _pipe$1 = $option.to_result(_pipe, toList([missing_field_error]));
-        let _pipe$2 = $result.try$(_pipe$1, inner_type);
+        let _pipe$2 = $result_mod.try$(_pipe$1, inner_type);
         return map_errors(
           _pipe$2,
           (_capture) => { return push_path(_capture, name); },
@@ -242,7 +219,7 @@ export function field(name, inner_type) {
 
 export function optional_field(name, inner_type) {
   return (value) => {
-    return $result.try$(
+    return $result_mod.try$(
       decode_field(value, name),
       (maybe_inner) => {
         if (maybe_inner instanceof $option.None) {
@@ -250,7 +227,10 @@ export function optional_field(name, inner_type) {
         } else {
           let dynamic_inner = maybe_inner[0];
           let _pipe = inner_type(dynamic_inner);
-          let _pipe$1 = $result.map(_pipe, (var0) => { return new Some(var0); });
+          let _pipe$1 = $result_mod.map(
+            _pipe,
+            (var0) => { return new Some(var0); },
+          );
           return map_errors(
             _pipe$1,
             (_capture) => { return push_path(_capture, name); },
@@ -263,11 +243,11 @@ export function optional_field(name, inner_type) {
 
 export function element(index, inner_type) {
   return (data) => {
-    return $result.try$(
+    return $result_mod.try$(
       decode_tuple(data),
       (tuple) => {
         let size = tuple_size(tuple);
-        return $result.try$(
+        return $result_mod.try$(
           (() => {
             let $ = index >= 0;
             if ($) {
@@ -278,12 +258,12 @@ export function element(index, inner_type) {
                 return at_least_decode_tuple_error(index + 1, data);
               }
             } else {
-              let $1 = $int.absolute_value(index) <= size;
+              let $1 = $int_mod.absolute_value(index) <= size;
               if ($1) {
                 return tuple_get(tuple, size + index);
               } else {
                 return at_least_decode_tuple_error(
-                  $int.absolute_value(index),
+                  $int_mod.absolute_value(index),
                   data,
                 );
               }
@@ -307,7 +287,7 @@ function tuple_errors(result, name) {
     return toList([]);
   } else {
     let errors = result[0];
-    return $list.map(
+    return $list_mod.map(
       errors,
       (_capture) => { return push_path(_capture, name); },
     );
@@ -316,7 +296,7 @@ function tuple_errors(result, name) {
 
 export function tuple2(decode1, decode2) {
   return (value) => {
-    return $result.try$(
+    return $result_mod.try$(
       decode_tuple2(value),
       (_use0) => {
         let a = _use0[0];
@@ -331,7 +311,7 @@ export function tuple2(decode1, decode2) {
           let a$1 = $;
           let b$1 = $1;
           let _pipe = tuple_errors(a$1, "0");
-          let _pipe$1 = $list.append(_pipe, tuple_errors(b$1, "1"));
+          let _pipe$1 = $list_mod.append(_pipe, tuple_errors(b$1, "1"));
           return new Error(_pipe$1);
         }
       },
@@ -341,7 +321,7 @@ export function tuple2(decode1, decode2) {
 
 export function tuple3(decode1, decode2, decode3) {
   return (value) => {
-    return $result.try$(
+    return $result_mod.try$(
       decode_tuple3(value),
       (_use0) => {
         let a = _use0[0];
@@ -360,8 +340,8 @@ export function tuple3(decode1, decode2, decode3) {
           let b$1 = $1;
           let c$1 = $2;
           let _pipe = tuple_errors(a$1, "0");
-          let _pipe$1 = $list.append(_pipe, tuple_errors(b$1, "1"));
-          let _pipe$2 = $list.append(_pipe$1, tuple_errors(c$1, "2"));
+          let _pipe$1 = $list_mod.append(_pipe, tuple_errors(b$1, "1"));
+          let _pipe$2 = $list_mod.append(_pipe$1, tuple_errors(c$1, "2"));
           return new Error(_pipe$2);
         }
       },
@@ -371,7 +351,7 @@ export function tuple3(decode1, decode2, decode3) {
 
 export function tuple4(decode1, decode2, decode3, decode4) {
   return (value) => {
-    return $result.try$(
+    return $result_mod.try$(
       decode_tuple4(value),
       (_use0) => {
         let a = _use0[0];
@@ -394,9 +374,9 @@ export function tuple4(decode1, decode2, decode3, decode4) {
           let c$1 = $2;
           let d$1 = $3;
           let _pipe = tuple_errors(a$1, "0");
-          let _pipe$1 = $list.append(_pipe, tuple_errors(b$1, "1"));
-          let _pipe$2 = $list.append(_pipe$1, tuple_errors(c$1, "2"));
-          let _pipe$3 = $list.append(_pipe$2, tuple_errors(d$1, "3"));
+          let _pipe$1 = $list_mod.append(_pipe, tuple_errors(b$1, "1"));
+          let _pipe$2 = $list_mod.append(_pipe$1, tuple_errors(c$1, "2"));
+          let _pipe$3 = $list_mod.append(_pipe$2, tuple_errors(d$1, "3"));
           return new Error(_pipe$3);
         }
       },
@@ -406,7 +386,7 @@ export function tuple4(decode1, decode2, decode3, decode4) {
 
 export function tuple5(decode1, decode2, decode3, decode4, decode5) {
   return (value) => {
-    return $result.try$(
+    return $result_mod.try$(
       decode_tuple5(value),
       (_use0) => {
         let a = _use0[0];
@@ -433,10 +413,10 @@ export function tuple5(decode1, decode2, decode3, decode4, decode5) {
           let d$1 = $3;
           let e$1 = $4;
           let _pipe = tuple_errors(a$1, "0");
-          let _pipe$1 = $list.append(_pipe, tuple_errors(b$1, "1"));
-          let _pipe$2 = $list.append(_pipe$1, tuple_errors(c$1, "2"));
-          let _pipe$3 = $list.append(_pipe$2, tuple_errors(d$1, "3"));
-          let _pipe$4 = $list.append(_pipe$3, tuple_errors(e$1, "4"));
+          let _pipe$1 = $list_mod.append(_pipe, tuple_errors(b$1, "1"));
+          let _pipe$2 = $list_mod.append(_pipe$1, tuple_errors(c$1, "2"));
+          let _pipe$3 = $list_mod.append(_pipe$2, tuple_errors(d$1, "3"));
+          let _pipe$4 = $list_mod.append(_pipe$3, tuple_errors(e$1, "4"));
           return new Error(_pipe$4);
         }
       },
@@ -446,7 +426,7 @@ export function tuple5(decode1, decode2, decode3, decode4, decode5) {
 
 export function tuple6(decode1, decode2, decode3, decode4, decode5, decode6) {
   return (value) => {
-    return $result.try$(
+    return $result_mod.try$(
       decode_tuple6(value),
       (_use0) => {
         let a = _use0[0];
@@ -482,11 +462,11 @@ export function tuple6(decode1, decode2, decode3, decode4, decode5, decode6) {
           let e$1 = $4;
           let f$1 = $5;
           let _pipe = tuple_errors(a$1, "0");
-          let _pipe$1 = $list.append(_pipe, tuple_errors(b$1, "1"));
-          let _pipe$2 = $list.append(_pipe$1, tuple_errors(c$1, "2"));
-          let _pipe$3 = $list.append(_pipe$2, tuple_errors(d$1, "3"));
-          let _pipe$4 = $list.append(_pipe$3, tuple_errors(e$1, "4"));
-          let _pipe$5 = $list.append(_pipe$4, tuple_errors(f$1, "5"));
+          let _pipe$1 = $list_mod.append(_pipe, tuple_errors(b$1, "1"));
+          let _pipe$2 = $list_mod.append(_pipe$1, tuple_errors(c$1, "2"));
+          let _pipe$3 = $list_mod.append(_pipe$2, tuple_errors(d$1, "3"));
+          let _pipe$4 = $list_mod.append(_pipe$3, tuple_errors(e$1, "4"));
+          let _pipe$5 = $list_mod.append(_pipe$4, tuple_errors(f$1, "5"));
           return new Error(_pipe$5);
         }
       },
@@ -496,19 +476,19 @@ export function tuple6(decode1, decode2, decode3, decode4, decode5, decode6) {
 
 export function dict(key_type, value_type) {
   return (value) => {
-    return $result.try$(
-      decode_map(value),
-      (map) => {
-        return $result.try$(
+    return $result_mod.try$(
+      decode_dict(value),
+      (dict) => {
+        return $result_mod.try$(
           (() => {
-            let _pipe = map;
+            let _pipe = dict;
             let _pipe$1 = $dict.to_list(_pipe);
-            return $list.try_map(
+            return $list_mod.try_map(
               _pipe$1,
               (pair) => {
                 let k = pair[0];
                 let v = pair[1];
-                return $result.try$(
+                return $result_mod.try$(
                   (() => {
                     let _pipe$2 = key_type(k);
                     return map_errors(
@@ -517,7 +497,7 @@ export function dict(key_type, value_type) {
                     );
                   })(),
                   (k) => {
-                    return $result.try$(
+                    return $result_mod.try$(
                       (() => {
                         let _pipe$2 = value_type(v);
                         return map_errors(
@@ -539,6 +519,32 @@ export function dict(key_type, value_type) {
   };
 }
 
+export function any(decoders) {
+  return do_any(decoders);
+}
+
+function all_errors(result) {
+  if (result.isOk()) {
+    return toList([]);
+  } else {
+    let errors = result[0];
+    return errors;
+  }
+}
+
+export function decode1(constructor, t1) {
+  return (value) => {
+    let $ = t1(value);
+    if ($.isOk()) {
+      let a = $[0];
+      return new Ok(constructor(a));
+    } else {
+      let a = $;
+      return new Error(all_errors(a));
+    }
+  };
+}
+
 export function decode2(constructor, t1, t2) {
   return (value) => {
     let $ = t1(value);
@@ -550,7 +556,9 @@ export function decode2(constructor, t1, t2) {
     } else {
       let a = $;
       let b = $1;
-      return new Error($list.concat(toList([all_errors(a), all_errors(b)])));
+      return new Error(
+        $list_mod.flatten(toList([all_errors(a), all_errors(b)])),
+      );
     }
   };
 }
@@ -570,7 +578,7 @@ export function decode3(constructor, t1, t2, t3) {
       let b = $1;
       let c = $2;
       return new Error(
-        $list.concat(toList([all_errors(a), all_errors(b), all_errors(c)])),
+        $list_mod.flatten(toList([all_errors(a), all_errors(b), all_errors(c)])),
       );
     }
   };
@@ -594,7 +602,7 @@ export function decode4(constructor, t1, t2, t3, t4) {
       let c = $2;
       let d = $3;
       return new Error(
-        $list.concat(
+        $list_mod.flatten(
           toList([all_errors(a), all_errors(b), all_errors(c), all_errors(d)]),
         ),
       );
@@ -623,7 +631,7 @@ export function decode5(constructor, t1, t2, t3, t4, t5) {
       let d = $3;
       let e = $4;
       return new Error(
-        $list.concat(
+        $list_mod.flatten(
           toList([
             all_errors(a),
             all_errors(b),
@@ -666,7 +674,7 @@ export function decode6(constructor, t1, t2, t3, t4, t5, t6) {
       let e = $4;
       let f = $5;
       return new Error(
-        $list.concat(
+        $list_mod.flatten(
           toList([
             all_errors(a),
             all_errors(b),
@@ -714,7 +722,7 @@ export function decode7(constructor, t1, t2, t3, t4, t5, t6, t7) {
       let f = $5;
       let g = $6;
       return new Error(
-        $list.concat(
+        $list_mod.flatten(
           toList([
             all_errors(a),
             all_errors(b),
@@ -767,7 +775,7 @@ export function decode8(constructor, t1, t2, t3, t4, t5, t6, t7, t8) {
       let g = $6;
       let h = $7;
       return new Error(
-        $list.concat(
+        $list_mod.flatten(
           toList([
             all_errors(a),
             all_errors(b),
@@ -825,7 +833,7 @@ export function decode9(constructor, t1, t2, t3, t4, t5, t6, t7, t8, t9) {
       let h = $7;
       let i = $8;
       return new Error(
-        $list.concat(
+        $list_mod.flatten(
           toList([
             all_errors(a),
             all_errors(b),

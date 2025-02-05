@@ -4,12 +4,12 @@
 -export([application/3, element/1, simple/3, component/4, start_actor/2, start_server_component/2, register/2, dispatch/1, shutdown/0, is_browser/0, start/3, is_registered/1]).
 -export_type([app/3, client_spa/0, server_component/0, error/0]).
 
--opaque app(QEK, QEL, QEM) :: {app,
-        fun((QEK) -> {QEL, lustre@effect:effect(QEM)}),
-        fun((QEL, QEM) -> {QEL, lustre@effect:effect(QEM)}),
-        fun((QEL) -> lustre@internals@vdom:element(QEM)),
+-opaque app(QXF, QXG, QXH) :: {app,
+        fun((QXF) -> {QXG, lustre@effect:effect(QXH)}),
+        fun((QXG, QXH) -> {QXG, lustre@effect:effect(QXH)}),
+        fun((QXG) -> lustre@internals@vdom:element(QXH)),
         gleam@option:option(gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok,
-                QEM} |
+                QXH} |
             {error, list(gleam@dynamic:decode_error())})))}.
 
 -type client_spa() :: any().
@@ -25,15 +25,15 @@
 
 -file("/home/runner/work/lustre/lustre/src/lustre.gleam", 328).
 -spec application(
-    fun((QFF) -> {QFG, lustre@effect:effect(QFH)}),
-    fun((QFG, QFH) -> {QFG, lustre@effect:effect(QFH)}),
-    fun((QFG) -> lustre@internals@vdom:element(QFH))
-) -> app(QFF, QFG, QFH).
+    fun((QYA) -> {QYB, lustre@effect:effect(QYC)}),
+    fun((QYB, QYC) -> {QYB, lustre@effect:effect(QYC)}),
+    fun((QYB) -> lustre@internals@vdom:element(QYC))
+) -> app(QYA, QYB, QYC).
 application(Init, Update, View) ->
     {app, Init, Update, View, none}.
 
 -file("/home/runner/work/lustre/lustre/src/lustre.gleam", 293).
--spec element(lustre@internals@vdom:element(QET)) -> app(nil, nil, QET).
+-spec element(lustre@internals@vdom:element(QXO)) -> app(nil, nil, QXO).
 element(Html) ->
     Init = fun(_) -> {nil, lustre@effect:none()} end,
     Update = fun(_, _) -> {nil, lustre@effect:none()} end,
@@ -42,10 +42,10 @@ element(Html) ->
 
 -file("/home/runner/work/lustre/lustre/src/lustre.gleam", 309).
 -spec simple(
-    fun((QEY) -> QEZ),
-    fun((QEZ, QFA) -> QEZ),
-    fun((QEZ) -> lustre@internals@vdom:element(QFA))
-) -> app(QEY, QEZ, QFA).
+    fun((QXT) -> QXU),
+    fun((QXU, QXV) -> QXU),
+    fun((QXU) -> lustre@internals@vdom:element(QXV))
+) -> app(QXT, QXU, QXV).
 simple(Init, Update, View) ->
     Init@1 = fun(Flags) -> {Init(Flags), lustre@effect:none()} end,
     Update@1 = fun(Model, Msg) -> {Update(Model, Msg), lustre@effect:none()} end,
@@ -53,25 +53,25 @@ simple(Init, Update, View) ->
 
 -file("/home/runner/work/lustre/lustre/src/lustre.gleam", 354).
 -spec component(
-    fun((QFO) -> {QFP, lustre@effect:effect(QFQ)}),
-    fun((QFP, QFQ) -> {QFP, lustre@effect:effect(QFQ)}),
-    fun((QFP) -> lustre@internals@vdom:element(QFQ)),
-    gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, QFQ} |
+    fun((QYJ) -> {QYK, lustre@effect:effect(QYL)}),
+    fun((QYK, QYL) -> {QYK, lustre@effect:effect(QYL)}),
+    fun((QYK) -> lustre@internals@vdom:element(QYL)),
+    gleam@dict:dict(binary(), fun((gleam@dynamic:dynamic_()) -> {ok, QYL} |
         {error, list(gleam@dynamic:decode_error())}))
-) -> app(QFO, QFP, QFQ).
+) -> app(QYJ, QYK, QYL).
 component(Init, Update, View, On_attribute_change) ->
     {app, Init, Update, View, {some, On_attribute_change}}.
 
 -file("/home/runner/work/lustre/lustre/src/lustre.gleam", 387).
--spec do_start(app(QGK, any(), QGM), binary(), QGK) -> {ok,
-        fun((lustre@internals@runtime:action(QGM, client_spa())) -> nil)} |
+-spec do_start(app(QZF, any(), QZH), binary(), QZF) -> {ok,
+        fun((lustre@internals@runtime:action(QZH, client_spa())) -> nil)} |
     {error, error()}.
 do_start(_, _, _) ->
     {error, not_a_browser}.
 
 -file("/home/runner/work/lustre/lustre/src/lustre.gleam", 444).
--spec do_start_actor(app(QHP, any(), QHR), QHP) -> {ok,
-        gleam@erlang@process:subject(lustre@internals@runtime:action(QHR, server_component()))} |
+-spec do_start_actor(app(RAK, any(), RAM), RAK) -> {ok,
+        gleam@erlang@process:subject(lustre@internals@runtime:action(RAM, server_component()))} |
     {error, error()}.
 do_start_actor(App, Flags) ->
     On_attribute_change = gleam@option:unwrap(
@@ -88,15 +88,15 @@ do_start_actor(App, Flags) ->
     gleam@result:map_error(_pipe@1, fun(Field@0) -> {actor_error, Field@0} end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre.gleam", 431).
--spec start_actor(app(QHE, any(), QHG), QHE) -> {ok,
-        gleam@erlang@process:subject(lustre@internals@runtime:action(QHG, server_component()))} |
+-spec start_actor(app(QZZ, any(), RAB), QZZ) -> {ok,
+        gleam@erlang@process:subject(lustre@internals@runtime:action(RAB, server_component()))} |
     {error, error()}.
 start_actor(App, Flags) ->
     do_start_actor(App, Flags).
 
 -file("/home/runner/work/lustre/lustre/src/lustre.gleam", 413).
--spec start_server_component(app(QGU, any(), QGW), QGU) -> {ok,
-        fun((lustre@internals@runtime:action(QGW, server_component())) -> nil)} |
+-spec start_server_component(app(QZP, any(), QZR), QZP) -> {ok,
+        fun((lustre@internals@runtime:action(QZR, server_component())) -> nil)} |
     {error, error()}.
 start_server_component(App, Flags) ->
     gleam@result:map(
@@ -112,7 +112,7 @@ register(_, _) ->
     {error, not_a_browser}.
 
 -file("/home/runner/work/lustre/lustre/src/lustre.gleam", 490).
--spec dispatch(QIH) -> lustre@internals@runtime:action(QIH, any()).
+-spec dispatch(RBC) -> lustre@internals@runtime:action(RBC, any()).
 dispatch(Msg) ->
     {dispatch, Msg}.
 
@@ -127,8 +127,8 @@ is_browser() ->
     false.
 
 -file("/home/runner/work/lustre/lustre/src/lustre.gleam", 377).
--spec start(app(QGA, any(), QGC), binary(), QGA) -> {ok,
-        fun((lustre@internals@runtime:action(QGC, client_spa())) -> nil)} |
+-spec start(app(QYV, any(), QYX), binary(), QYV) -> {ok,
+        fun((lustre@internals@runtime:action(QYX, client_spa())) -> nil)} |
     {error, error()}.
 start(App, Selector, Flags) ->
     gleam@bool:guard(

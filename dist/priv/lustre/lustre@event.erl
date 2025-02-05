@@ -11,49 +11,49 @@ emit(Event, Data) ->
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 36).
 -spec on(
     binary(),
-    fun((gleam@dynamic:dynamic_()) -> {ok, SHG} |
+    fun((gleam@dynamic:dynamic_()) -> {ok, TAB} |
         {error, list(gleam@dynamic:decode_error())})
-) -> lustre@internals@vdom:attribute(SHG).
+) -> lustre@internals@vdom:attribute(TAB).
 on(Name, Handler) ->
     lustre@attribute:on(Name, Handler).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 43).
--spec on_click(SHJ) -> lustre@internals@vdom:attribute(SHJ).
+-spec on_click(TAE) -> lustre@internals@vdom:attribute(TAE).
 on_click(Msg) ->
     on(<<"click"/utf8>>, fun(_) -> {ok, Msg} end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 49).
--spec on_mouse_down(SHL) -> lustre@internals@vdom:attribute(SHL).
+-spec on_mouse_down(TAG) -> lustre@internals@vdom:attribute(TAG).
 on_mouse_down(Msg) ->
     on(<<"mousedown"/utf8>>, fun(_) -> {ok, Msg} end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 55).
--spec on_mouse_up(SHN) -> lustre@internals@vdom:attribute(SHN).
+-spec on_mouse_up(TAI) -> lustre@internals@vdom:attribute(TAI).
 on_mouse_up(Msg) ->
     on(<<"mouseup"/utf8>>, fun(_) -> {ok, Msg} end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 61).
--spec on_mouse_enter(SHP) -> lustre@internals@vdom:attribute(SHP).
+-spec on_mouse_enter(TAK) -> lustre@internals@vdom:attribute(TAK).
 on_mouse_enter(Msg) ->
     on(<<"mouseenter"/utf8>>, fun(_) -> {ok, Msg} end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 67).
--spec on_mouse_leave(SHR) -> lustre@internals@vdom:attribute(SHR).
+-spec on_mouse_leave(TAM) -> lustre@internals@vdom:attribute(TAM).
 on_mouse_leave(Msg) ->
     on(<<"mouseleave"/utf8>>, fun(_) -> {ok, Msg} end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 73).
--spec on_mouse_over(SHT) -> lustre@internals@vdom:attribute(SHT).
+-spec on_mouse_over(TAO) -> lustre@internals@vdom:attribute(TAO).
 on_mouse_over(Msg) ->
     on(<<"mouseover"/utf8>>, fun(_) -> {ok, Msg} end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 79).
--spec on_mouse_out(SHV) -> lustre@internals@vdom:attribute(SHV).
+-spec on_mouse_out(TAQ) -> lustre@internals@vdom:attribute(TAQ).
 on_mouse_out(Msg) ->
     on(<<"mouseout"/utf8>>, fun(_) -> {ok, Msg} end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 89).
--spec on_keypress(fun((binary()) -> SHX)) -> lustre@internals@vdom:attribute(SHX).
+-spec on_keypress(fun((binary()) -> TAS)) -> lustre@internals@vdom:attribute(TAS).
 on_keypress(Msg) ->
     on(<<"keypress"/utf8>>, fun(Event) -> _pipe = Event,
             _pipe@1 = (gleam@dynamic:field(
@@ -63,7 +63,7 @@ on_keypress(Msg) ->
             gleam@result:map(_pipe@1, Msg) end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 100).
--spec on_keydown(fun((binary()) -> SHZ)) -> lustre@internals@vdom:attribute(SHZ).
+-spec on_keydown(fun((binary()) -> TAU)) -> lustre@internals@vdom:attribute(TAU).
 on_keydown(Msg) ->
     on(<<"keydown"/utf8>>, fun(Event) -> _pipe = Event,
             _pipe@1 = (gleam@dynamic:field(
@@ -73,7 +73,7 @@ on_keydown(Msg) ->
             gleam@result:map(_pipe@1, Msg) end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 111).
--spec on_keyup(fun((binary()) -> SIB)) -> lustre@internals@vdom:attribute(SIB).
+-spec on_keyup(fun((binary()) -> TAW)) -> lustre@internals@vdom:attribute(TAW).
 on_keyup(Msg) ->
     on(<<"keyup"/utf8>>, fun(Event) -> _pipe = Event,
             _pipe@1 = (gleam@dynamic:field(
@@ -83,12 +83,12 @@ on_keyup(Msg) ->
             gleam@result:map(_pipe@1, Msg) end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 149).
--spec on_focus(SIJ) -> lustre@internals@vdom:attribute(SIJ).
+-spec on_focus(TBE) -> lustre@internals@vdom:attribute(TBE).
 on_focus(Msg) ->
     on(<<"focus"/utf8>>, fun(_) -> {ok, Msg} end).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 154).
--spec on_blur(SIL) -> lustre@internals@vdom:attribute(SIL).
+-spec on_blur(TBG) -> lustre@internals@vdom:attribute(TBG).
 on_blur(Msg) ->
     on(<<"blur"/utf8>>, fun(_) -> {ok, Msg} end).
 
@@ -103,7 +103,7 @@ value(Event) ->
     ))(_pipe).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 122).
--spec on_input(fun((binary()) -> SID)) -> lustre@internals@vdom:attribute(SID).
+-spec on_input(fun((binary()) -> TAY)) -> lustre@internals@vdom:attribute(TAY).
 on_input(Msg) ->
     on(<<"input"/utf8>>, fun(Event) -> _pipe = value(Event),
             gleam@result:map(_pipe, Msg) end).
@@ -119,7 +119,7 @@ checked(Event) ->
     ))(_pipe).
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 129).
--spec on_check(fun((boolean()) -> SIF)) -> lustre@internals@vdom:attribute(SIF).
+-spec on_check(fun((boolean()) -> TBA)) -> lustre@internals@vdom:attribute(TBA).
 on_check(Msg) ->
     on(<<"change"/utf8>>, fun(Event) -> _pipe = checked(Event),
             gleam@result:map(_pipe, Msg) end).
@@ -149,7 +149,7 @@ prevent_default(_) ->
     nil.
 
 -file("/home/runner/work/lustre/lustre/src/lustre/event.gleam", 140).
--spec on_submit(SIH) -> lustre@internals@vdom:attribute(SIH).
+-spec on_submit(TBC) -> lustre@internals@vdom:attribute(TBC).
 on_submit(Msg) ->
     on(
         <<"submit"/utf8>>,

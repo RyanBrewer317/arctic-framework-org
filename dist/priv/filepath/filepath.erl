@@ -1,8 +1,9 @@
 -module(filepath).
 -compile([no_auto_import, nowarn_unused_vars, nowarn_unused_function, nowarn_nomatch]).
 
--export([join/2, split_unix/1, split_windows/1, split/1, base_name/1, extension/1, strip_extension/1, directory_name/1, is_absolute/1, expand/1]).
+-export([join/2, split_unix/1, directory_name/1, is_absolute/1, split_windows/1, split/1, base_name/1, extension/1, strip_extension/1, expand/1]).
 
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 48).
 -spec relative(binary()) -> binary().
 relative(Path) ->
     case Path of
@@ -13,16 +14,18 @@ relative(Path) ->
             Path
     end.
 
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 55).
 -spec remove_trailing_slash(binary()) -> binary().
 remove_trailing_slash(Path) ->
     case gleam@string:ends_with(Path, <<"/"/utf8>>) of
         true ->
-            gleam@string:drop_right(Path, 1);
+            gleam@string:drop_end(Path, 1);
 
         false ->
             Path
     end.
 
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 35).
 -spec join(binary(), binary()) -> binary().
 join(Left, Right) ->
     _pipe@2 = case {Left, Right} of
@@ -42,6 +45,7 @@ join(Left, Right) ->
     end,
     remove_trailing_slash(_pipe@2).
 
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 96).
 -spec split_unix(binary()) -> list(binary()).
 split_unix(Path) ->
     _pipe = case gleam@string:split(Path, <<"/"/utf8>>) of
@@ -56,6 +60,85 @@ split_unix(Path) ->
     end,
     gleam@list:filter(_pipe, fun(X) -> X /= <<""/utf8>> end).
 
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 261).
+-spec get_directory_name(list(binary()), binary(), binary()) -> binary().
+get_directory_name(Path, Acc, Segment) ->
+    case Path of
+        [<<"/"/utf8>> | Rest] ->
+            get_directory_name(
+                Rest,
+                <<Acc/binary, Segment/binary>>,
+                <<"/"/utf8>>
+            );
+
+        [First | Rest@1] ->
+            get_directory_name(Rest@1, Acc, <<Segment/binary, First/binary>>);
+
+        [] ->
+            Acc
+    end.
+
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 253).
+-spec directory_name(binary()) -> binary().
+directory_name(Path) ->
+    Path@1 = remove_trailing_slash(Path),
+    case Path@1 of
+        <<"/"/utf8, Rest/binary>> ->
+            get_directory_name(
+                gleam@string:to_graphemes(Rest),
+                <<"/"/utf8>>,
+                <<""/utf8>>
+            );
+
+        _ ->
+            get_directory_name(
+                gleam@string:to_graphemes(Path@1),
+                <<""/utf8>>,
+                <<""/utf8>>
+            )
+    end.
+
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 288).
+-spec is_absolute(binary()) -> boolean().
+is_absolute(Path) ->
+    gleam@string:starts_with(Path, <<"/"/utf8>>).
+
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 332).
+-spec expand_segments(list(binary()), list(binary())) -> {ok, binary()} |
+    {error, nil}.
+expand_segments(Path, Base) ->
+    case {Base, Path} of
+        {[<<""/utf8>>], [<<".."/utf8>> | _]} ->
+            {error, nil};
+
+        {[], [<<".."/utf8>> | _]} ->
+            {error, nil};
+
+        {[_ | Base@1], [<<".."/utf8>> | Path@1]} ->
+            expand_segments(Path@1, Base@1);
+
+        {_, [<<"."/utf8>> | Path@2]} ->
+            expand_segments(Path@2, Base);
+
+        {_, [S | Path@3]} ->
+            expand_segments(Path@3, [S | Base]);
+
+        {_, []} ->
+            {ok, gleam@string:join(lists:reverse(Base), <<"/"/utf8>>)}
+    end.
+
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 357).
+-spec root_slash_to_empty(list(binary())) -> list(binary()).
+root_slash_to_empty(Segments) ->
+    case Segments of
+        [<<"/"/utf8>> | Rest] ->
+            [<<""/utf8>> | Rest];
+
+        _ ->
+            Segments
+    end.
+
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 152).
 -spec pop_windows_drive_specifier(binary()) -> {gleam@option:option(binary()),
     binary()}.
 pop_windows_drive_specifier(Path) ->
@@ -66,13 +149,14 @@ pop_windows_drive_specifier(Path) ->
             Drive_letter = gleam@string:slice(Path, 0, 1),
             Drive@1 = <<(gleam@string:lowercase(Drive_letter))/binary,
                 ":/"/utf8>>,
-            Path@1 = gleam@string:drop_left(Path, 3),
+            Path@1 = gleam@string:drop_start(Path, 3),
             {{some, Drive@1}, Path@1};
 
         _ ->
             {none, Path}
     end.
 
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 119).
 -spec split_windows(binary()) -> list(binary()).
 split_windows(Path) ->
     {Drive, Path@1} = pop_windows_drive_specifier(Path),
@@ -101,6 +185,7 @@ split_windows(Path) ->
             Rest@1
     end.
 
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 76).
 -spec split(binary()) -> list(binary()).
 split(Path) ->
     case filepath_ffi:is_windows() of
@@ -111,6 +196,7 @@ split(Path) ->
             split_unix(Path)
     end.
 
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 234).
 -spec base_name(binary()) -> binary().
 base_name(Path) ->
     gleam@bool:guard(Path =:= <<"/"/utf8>>, <<""/utf8>>, fun() -> _pipe = Path,
@@ -118,6 +204,7 @@ base_name(Path) ->
             _pipe@2 = gleam@list:last(_pipe@1),
             gleam@result:unwrap(_pipe@2, <<""/utf8>>) end).
 
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 184).
 -spec extension(binary()) -> {ok, binary()} | {error, nil}.
 extension(Path) ->
     File = base_name(Path),
@@ -135,89 +222,18 @@ extension(Path) ->
             {error, nil}
     end.
 
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 213).
 -spec strip_extension(binary()) -> binary().
 strip_extension(Path) ->
     case extension(Path) of
         {ok, Extension} ->
-            gleam@string:drop_right(Path, gleam@string:length(Extension) + 1);
+            gleam@string:drop_end(Path, gleam@string:length(Extension) + 1);
 
         {error, nil} ->
             Path
     end.
 
--spec get_directory_name(list(binary()), binary(), binary()) -> binary().
-get_directory_name(Path, Acc, Segment) ->
-    case Path of
-        [<<"/"/utf8>> | Rest] ->
-            get_directory_name(
-                Rest,
-                <<Acc/binary, Segment/binary>>,
-                <<"/"/utf8>>
-            );
-
-        [First | Rest@1] ->
-            get_directory_name(Rest@1, Acc, <<Segment/binary, First/binary>>);
-
-        [] ->
-            Acc
-    end.
-
--spec directory_name(binary()) -> binary().
-directory_name(Path) ->
-    Path@1 = remove_trailing_slash(Path),
-    case Path@1 of
-        <<"/"/utf8, Rest/binary>> ->
-            get_directory_name(
-                gleam@string:to_graphemes(Rest),
-                <<"/"/utf8>>,
-                <<""/utf8>>
-            );
-
-        _ ->
-            get_directory_name(
-                gleam@string:to_graphemes(Path@1),
-                <<""/utf8>>,
-                <<""/utf8>>
-            )
-    end.
-
--spec is_absolute(binary()) -> boolean().
-is_absolute(Path) ->
-    gleam@string:starts_with(Path, <<"/"/utf8>>).
-
--spec expand_segments(list(binary()), list(binary())) -> {ok, binary()} |
-    {error, nil}.
-expand_segments(Path, Base) ->
-    case {Base, Path} of
-        {[<<""/utf8>>], [<<".."/utf8>> | _]} ->
-            {error, nil};
-
-        {[], [<<".."/utf8>> | _]} ->
-            {error, nil};
-
-        {[_ | Base@1], [<<".."/utf8>> | Path@1]} ->
-            expand_segments(Path@1, Base@1);
-
-        {_, [<<"."/utf8>> | Path@2]} ->
-            expand_segments(Path@2, Base);
-
-        {_, [S | Path@3]} ->
-            expand_segments(Path@3, [S | Base]);
-
-        {_, []} ->
-            {ok, gleam@string:join(gleam@list:reverse(Base), <<"/"/utf8>>)}
-    end.
-
--spec root_slash_to_empty(list(binary())) -> list(binary()).
-root_slash_to_empty(Segments) ->
-    case Segments of
-        [<<"/"/utf8>> | Rest] ->
-            [<<""/utf8>> | Rest];
-
-        _ ->
-            Segments
-    end.
-
+-file("/Users/louis/src/gleam/filepath/src/filepath.gleam", 318).
 -spec expand(binary()) -> {ok, binary()} | {error, nil}.
 expand(Path) ->
     Is_absolute = is_absolute(Path),

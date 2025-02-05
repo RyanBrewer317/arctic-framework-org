@@ -4,13 +4,13 @@
 -export([new/1, add_static_dir/2, use_index_routes/1, add_static_route/3, add_static_xml/3, add_dynamic_route/4, add_static_asset/3, build/1]).
 -export_type([config/3, no_static_routes/0, no_static_dir/0, has_static_routes/0, has_static_dir/0, use_direct_routes/0, use_index_routes/0, route/0, build_error/0]).
 
--opaque config(PLC, PLD, PLE) :: {config,
+-opaque config(POX, POY, POZ) :: {config,
         binary(),
         gleam@option:option(binary()),
         gleam@dict:dict(binary(), binary()),
         list(route()),
         boolean()} |
-    {gleam_phantom, PLC, PLD, PLE}.
+    {gleam_phantom, POX, POY, POZ}.
 
 -type no_static_routes() :: any().
 
@@ -38,21 +38,21 @@
 
 -spec new(binary()) -> config(no_static_routes(), no_static_dir(), use_direct_routes()).
 new(Out_dir) ->
-    {config, Out_dir, none, gleam@dict:new(), [], false}.
+    {config, Out_dir, none, maps:new(), [], false}.
 
--spec add_static_dir(config(PNI, no_static_dir(), PNJ), binary()) -> config(PNI, has_static_dir(), PNJ).
+-spec add_static_dir(config(PRD, no_static_dir(), PRE), binary()) -> config(PRD, has_static_dir(), PRE).
 add_static_dir(Config, Path) ->
     {config, Out_dir, _, Static_assets, Routes, Use_index_routes} = Config,
     {config, Out_dir, {some, Path}, Static_assets, Routes, Use_index_routes}.
 
--spec use_index_routes(config(PNZ, POA, any())) -> config(PNZ, POA, use_index_routes()).
+-spec use_index_routes(config(PRU, PRV, any())) -> config(PRU, PRV, use_index_routes()).
 use_index_routes(Config) ->
     {config, Out_dir, Static_dir, Static_assets, Routes, _} = Config,
     {config, Out_dir, Static_dir, Static_assets, Routes, true}.
 
 -spec routify(binary()) -> binary().
 routify(Path) ->
-    _assert_subject = gleam@regex:from_string(<<"\\s+"/utf8>>),
+    _assert_subject = gleam@regexp:from_string(<<"\\s+"/utf8>>),
     {ok, Whitespace} = case _assert_subject of
         {ok, _} -> _assert_subject;
         _assert_fail ->
@@ -63,15 +63,15 @@ routify(Path) ->
                         function => <<"routify"/utf8>>,
                         line => 459})
     end,
-    _pipe = gleam@regex:split(Whitespace, Path),
+    _pipe = gleam@regexp:split(Whitespace, Path),
     _pipe@1 = gleam@string:join(_pipe, <<"-"/utf8>>),
-    gleam@string:lowercase(_pipe@1).
+    string:lowercase(_pipe@1).
 
 -spec add_static_route(
-    config(any(), PLZ, PMA),
+    config(any(), PPU, PPV),
     binary(),
     lustre@internals@vdom:element(any())
-) -> config(has_static_routes(), PLZ, PMA).
+) -> config(has_static_routes(), PPU, PPV).
 add_static_route(Config, Path, Page) ->
     {config, Out_dir, Static_dir, Static_assets, Routes, Use_index_routes} = Config,
     Route = {static, routify(Path), lustre@element:map(Page, fun(_) -> nil end)},
@@ -83,10 +83,10 @@ add_static_route(Config, Path, Page) ->
         Use_index_routes}.
 
 -spec add_static_xml(
-    config(PMJ, PMK, PML),
+    config(PQE, PQF, PQG),
     binary(),
     lustre@internals@vdom:element(any())
-) -> config(PMJ, PMK, PML).
+) -> config(PQE, PQF, PQG).
 add_static_xml(Config, Path, Page) ->
     {config, Out_dir, Static_dir, Static_assets, Routes, Use_index_routes} = Config,
     Route = {xml, routify(Path), lustre@element:map(Page, fun(_) -> nil end)},
@@ -98,11 +98,11 @@ add_static_xml(Config, Path, Page) ->
         Use_index_routes}.
 
 -spec add_dynamic_route(
-    config(PMU, PMV, PMW),
+    config(PQP, PQQ, PQR),
     binary(),
-    gleam@dict:dict(binary(), PNA),
-    fun((PNA) -> lustre@internals@vdom:element(any()))
-) -> config(PMU, PMV, PMW).
+    gleam@dict:dict(binary(), PQV),
+    fun((PQV) -> lustre@internals@vdom:element(any()))
+) -> config(PQP, PQQ, PQR).
 add_dynamic_route(Config, Path, Data, Page) ->
     Route = begin
         Path@1 = routify(Path),
@@ -116,7 +116,7 @@ add_dynamic_route(Config, Path, Data, Page) ->
     end,
     erlang:setelement(5, Config, [Route | erlang:element(5, Config)]).
 
--spec add_static_asset(config(PNQ, PNR, PNS), binary(), binary()) -> config(PNQ, PNR, PNS).
+-spec add_static_asset(config(PRL, PRM, PRN), binary(), binary()) -> config(PRL, PRM, PRN).
 add_static_asset(Config, Path, Content) ->
     Static_assets = gleam@dict:insert(
         erlang:element(4, Config),
@@ -127,9 +127,9 @@ add_static_asset(Config, Path, Content) ->
 
 -spec trim_slash(binary()) -> binary().
 trim_slash(Path) ->
-    case gleam@string:ends_with(Path, <<"/"/utf8>>) of
+    case gleam_stdlib:string_ends_with(Path, <<"/"/utf8>>) of
         true ->
-            gleam@string:drop_right(Path, 1);
+            gleam@string:drop_end(Path, 1);
 
         false ->
             Path
@@ -137,7 +137,7 @@ trim_slash(Path) ->
 
 -spec last_segment(binary()) -> {binary(), binary()}.
 last_segment(Path) ->
-    _assert_subject = gleam@regex:from_string(<<"(.*/)+?(.+)"/utf8>>),
+    _assert_subject = gleam@regexp:from_string(<<"(.*/)+?(.+)"/utf8>>),
     {ok, Segments} = case _assert_subject of
         {ok, _} -> _assert_subject;
         _assert_fail ->
@@ -148,7 +148,7 @@ last_segment(Path) ->
                         function => <<"last_segment"/utf8>>,
                         line => 474})
     end,
-    _assert_subject@1 = gleam@regex:scan(Segments, Path),
+    _assert_subject@1 = gleam@regexp:scan(Segments, Path),
     [{match, _, [{some, Leading}, {some, Last}]}] = case _assert_subject@1 of
         [{match, _, [{some, _}, {some, _}]}] -> _assert_subject@1;
         _assert_fail@1 ->

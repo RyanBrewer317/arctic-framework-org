@@ -383,43 +383,88 @@ process(Collections, Cache) ->
     fun((lustre@internals@vdom:element(nil)) -> lustre@internals@vdom:element(nil)),
     lustre@internals@vdom:element(nil)
 ) -> lustre@internals@vdom:element(nil).
-spa(Frame, Home) ->
+spa(Frame, Html) ->
     Frame(
         lustre@element@html:'div'(
             [],
-            [lustre@element@html:'div'(
+            [lustre@element@html:script(
+                    [],
+                    <<"
+var _ARCTIC_C;
+if (typeof HTMLDocument === 'undefined') HTMLDocument = Document;
+let arctic_dom_content_loaded_listeners = [];
+HTMLDocument.prototype.arctic_addEventListener = HTMLDocument.prototype.addEventListener;
+HTMLDocument.prototype.addEventListener = function(type, listener, options) {
+  if (type === 'DOMContentLoaded') {
+    arctic_dom_content_loaded_listeners.push(listener);
+    document.arctic_addEventListener(type, listener, options);
+  } else document.arctic_addEventListener(type, listener, options);
+}
+       "/utf8>>
+                ),
+                lustre@element@html:'div'(
                     [lustre@attribute:id(<<"arctic-app"/utf8>>)],
-                    [Home]
+                    [Html]
                 ),
                 lustre@element@html:script(
                     [],
                     <<"
-if (window.location.pathname !== '/') {
-  go_to(new URL(window.location.href), true, true);
-}
-// SPA algorithm stolen from Hayleigh Thompson's wonderful Modem library
+// SPA algorithm partially inspired by Hayleigh Thompson's wonderful Modem library
 async function go_to(url, loader, back) {
-  if (url.pathname === window.location.pathname) {
+  if (!back && url.pathname === window.location.pathname) {
     if (url.hash) document.getElementById(url.hash.slice(1))?.scrollIntoView();
-    else document.body.scrollIntoView();
+    else window.scrollTo(0, 0);
     return;
   }
+  document.dispatchEvent(new Event('beforeunload'));
+  document.dispatchEvent(new Event('unload'));
+  for (let i = 0; i < arctic_dom_content_loaded_listeners.length; i++)
+    document.removeEventListener('DOMContentLoaded', arctic_dom_content_loaded_listeners[i]);
+  arctic_dom_content_loaded_listeners = [];
   const $app = document.getElementById('arctic-app');
   if (loader) $app.innerHTML = '<div id=\"arctic-loader\"></div>';
   if (!back) window.history.pushState({}, '', url.href);
-  window.requestAnimationFrame(() => {
-    // scroll in #-link elements, as the browser would if we didn't preventDefault
-    if (url.hash) {
-      document.getElementById(url.hash.slice(1))?.scrollIntoView();
-    }
-  });
   // handle new path
-  console.log(url.pathname);
   const response = await fetch('/__pages/' + url.pathname + '/index.html');
   if (!response.ok) response = await fetch('/__pages/404.html');
   if (!response.ok) return;
   const html = await response.text();
-  $app.innerHTML = html;
+  $app.innerHTML = '<script>_ARCTIC_C=0;</'+'script>'+html;
+  // re-create script elements, so their javascript runs
+  const scripts = $app.querySelectorAll('script');
+  const num_scripts = scripts.length;
+  for (let i = 0; i < num_scripts; i++) {
+    const script = scripts[i];
+    const n = document.createElement('script');
+    // scripts load nondeterministically, so we figure out when they've all finished via the _ARCTIC_C barrier
+    if (script.innerHTML === '') {
+      // external scripts don't run their inline js, so they need an onload listener
+      n.onload = () => {
+        if (++_ARCTIC_C >= num_scripts)
+          document.dispatchEvent(new Event('DOMContentLoaded'));
+      };
+    } else {
+      // inline scripts might not trigger onload, so they get js appended to the end instead
+      const t = document.createTextNode(
+        script.innerHTML +
+        ';if(++_ARCTIC_C>=' + num_scripts +
+        ')document.dispatchEvent(new Event(\\'DOMContentLoaded\\'));'
+      );
+      n.appendChild(t);
+    }
+    // attributes at the end because 'src' needs to load after onload is listening
+    for (let j = 0; j < script.attributes.length; j++) {
+      const attr = script.attributes[j];
+      n.setAttribute(attr.name, attr.value);
+    }
+    script.parentNode.replaceChild(n, script);
+  }
+  window.requestAnimationFrame(() => {
+    if (url.hash)
+      document.getElementById(url.hash.slice(1))?.scrollIntoView();
+    else
+      window.scrollTo(0, 0);
+  });
 }
 document.addEventListener('click', async function(e) {
   const a = find_a(e.target);
@@ -443,11 +488,40 @@ function find_a(target) {
   if (!target || target.tagName === 'BODY') return null;
   if (target.tagName === 'A') return target;
   return find_a(target.parentElement);
-}
-  "/utf8>>
+}"/utf8>>
                 )]
         )
     ).
+
+-spec add_route(
+    lustre@ssg:config(any(), UGV, UGW),
+    arctic:config(),
+    binary(),
+    lustre@internals@vdom:element(nil)
+) -> lustre@ssg:config(lustre@ssg:has_static_routes(), UGV, UGW).
+add_route(Ssg_config, Config, Path, Content) ->
+    case erlang:element(5, Config) of
+        {some, Frame} ->
+            _pipe = Ssg_config,
+            _pipe@1 = lustre@ssg:add_static_route(
+                _pipe,
+                <<"/__pages/"/utf8, Path/binary>>,
+                Content
+            ),
+            lustre@ssg:add_static_route(
+                _pipe@1,
+                <<"/"/utf8, Path/binary>>,
+                spa(Frame, Content)
+            );
+
+        none ->
+            _pipe@2 = Ssg_config,
+            lustre@ssg:add_static_route(
+                _pipe@2,
+                <<"/"/utf8, Path/binary>>,
+                Content
+            )
+    end.
 
 -spec make_ssg_config(
     list(arctic:processed_collection()),
@@ -458,94 +532,70 @@ function find_a(target) {
 ) -> {ok, nil} | {error, snag:snag()}.
 make_ssg_config(Processed_collections, Config, K) ->
     Home = (erlang:element(2, Config))(Processed_collections),
-    Dir = case erlang:element(5, Config) of
-        {some, _} ->
-            <<"/__pages/"/utf8>>;
-
-        none ->
-            <<"/"/utf8>>
-    end,
     gleam@result:'try'(
         begin
             _pipe = lustre@ssg:new(<<"arctic_build"/utf8>>),
             _pipe@1 = lustre@ssg:use_index_routes(_pipe),
-            _pipe@2 = lustre@ssg:add_static_route(_pipe@1, Dir, Home),
-            _pipe@3 = (fun(Ssg_config) -> case erlang:element(5, Config) of
-                    {some, Frame} ->
-                        lustre@ssg:add_static_route(
-                            Ssg_config,
-                            <<"/"/utf8>>,
-                            spa(Frame, Home)
-                        );
-
-                    none ->
-                        Ssg_config
-                end end)(_pipe@2),
+            _pipe@2 = add_route(_pipe@1, Config, <<""/utf8>>, Home),
             _pipe@4 = gleam@list:fold(
                 erlang:element(3, Config),
-                _pipe@3,
-                fun(Ssg_config@1, Page) ->
-                    lustre@ssg:add_static_route(
-                        Ssg_config@1,
-                        <<Dir/binary, (erlang:element(2, Page))/binary>>,
+                _pipe@2,
+                fun(Ssg_config, Page) -> _pipe@3 = Ssg_config,
+                    add_route(
+                        _pipe@3,
+                        Config,
+                        erlang:element(2, Page),
                         erlang:element(3, Page)
-                    )
-                end
+                    ) end
             ),
             gleam@list:try_fold(
                 Processed_collections,
                 _pipe@4,
-                fun(Ssg_config@2, Processed) ->
+                fun(Ssg_config@1, Processed) ->
                     Ssg_config2 = case erlang:element(
                         4,
                         erlang:element(2, Processed)
                     ) of
                         {some, Render} ->
-                            lustre@ssg:add_static_route(
-                                Ssg_config@2,
-                                <<Dir/binary,
-                                    (erlang:element(
-                                        2,
-                                        erlang:element(2, Processed)
-                                    ))/binary>>,
+                            add_route(
+                                Ssg_config@1,
+                                Config,
+                                erlang:element(2, erlang:element(2, Processed)),
                                 Render(erlang:element(3, Processed))
                             );
 
                         none ->
-                            Ssg_config@2
+                            Ssg_config@1
                     end,
                     Ssg_config3 = gleam@list:fold(
                         erlang:element(8, erlang:element(2, Processed)),
                         Ssg_config2,
                         fun(S, Rp) ->
-                            lustre@ssg:add_static_route(
+                            add_route(
                                 S,
-                                <<<<<<Dir/binary,
-                                            (erlang:element(
-                                                2,
-                                                erlang:element(2, Processed)
-                                            ))/binary>>/binary,
+                                Config,
+                                <<<<(erlang:element(
+                                            2,
+                                            erlang:element(2, Processed)
+                                        ))/binary,
                                         "/"/utf8>>/binary,
                                     (erlang:element(2, Rp))/binary>>,
                                 erlang:element(3, Rp)
                             )
                         end
                     ),
-                    _pipe@5 = gleam@list:fold(
+                    _pipe@7 = gleam@list:fold(
                         erlang:element(3, Processed),
                         Ssg_config3,
                         fun(S@1, P) -> case P of
                                 {new_page, New_page} ->
-                                    lustre@ssg:add_static_route(
+                                    add_route(
                                         S@1,
-                                        <<<<<<Dir/binary,
-                                                    (erlang:element(
-                                                        2,
-                                                        erlang:element(
-                                                            2,
-                                                            Processed
-                                                        )
-                                                    ))/binary>>/binary,
+                                        Config,
+                                        <<<<(erlang:element(
+                                                    2,
+                                                    erlang:element(2, Processed)
+                                                ))/binary,
                                                 "/"/utf8>>/binary,
                                             (erlang:element(2, New_page))/binary>>,
                                         (erlang:element(
@@ -568,11 +618,10 @@ make_ssg_config(Processed_collections, Config, K) ->
                                                         value => _assert_fail,
                                                         module => <<"arctic/build"/utf8>>,
                                                         function => <<"make_ssg_config"/utf8>>,
-                                                        line => 365}
+                                                        line => 403}
                                                 )
                                     end,
-                                    Cached_path = <<<<<<"arctic_build"/utf8,
-                                                Dir/binary>>/binary,
+                                    Cached_path = <<<<"arctic_build/"/utf8,
                                             Start/binary>>/binary,
                                         "/index.html"/utf8>>,
                                     Res = simplifile:read(Cached_path),
@@ -585,21 +634,59 @@ make_ssg_config(Processed_collections, Config, K) ->
                                                     message => Cached_path,
                                                     module => <<"arctic/build"/utf8>>,
                                                     function => <<"make_ssg_config"/utf8>>,
-                                                    line => 370})
+                                                    line => 408})
                                     end,
-                                    lustre@ssg:add_static_asset(
-                                        S@1,
-                                        <<<<Dir/binary, Start/binary>>/binary,
-                                            "/index.html"/utf8>>,
-                                        Content
-                                    )
+                                    case erlang:element(5, Config) of
+                                        {some, _} ->
+                                            Spa_content_path = <<<<"arctic_build/__pages/"/utf8,
+                                                    Start/binary>>/binary,
+                                                "/index.html"/utf8>>,
+                                            Res@1 = simplifile:read(
+                                                Spa_content_path
+                                            ),
+                                            Spa_content = case Res@1 of
+                                                {ok, C@1} ->
+                                                    C@1;
+
+                                                {error, _} ->
+                                                    erlang:error(
+                                                        #{gleam_error => panic,
+                                                            message => Cached_path,
+                                                            module => <<"arctic/build"/utf8>>,
+                                                            function => <<"make_ssg_config"/utf8>>,
+                                                            line => 420}
+                                                    )
+                                            end,
+                                            _pipe@5 = S@1,
+                                            _pipe@6 = lustre@ssg:add_static_asset(
+                                                _pipe@5,
+                                                <<<<"/__pages/"/utf8,
+                                                        Start/binary>>/binary,
+                                                    "/index.html"/utf8>>,
+                                                Spa_content
+                                            ),
+                                            lustre@ssg:add_static_asset(
+                                                _pipe@6,
+                                                <<<<"/"/utf8, Start/binary>>/binary,
+                                                    "/index.html"/utf8>>,
+                                                Content
+                                            );
+
+                                        none ->
+                                            lustre@ssg:add_static_asset(
+                                                S@1,
+                                                <<<<"/"/utf8, Start/binary>>/binary,
+                                                    "/index.html"/utf8>>,
+                                                Content
+                                            )
+                                    end
                             end end
                     ),
-                    {ok, _pipe@5}
+                    {ok, _pipe@7}
                 end
             )
         end,
-        fun(Ssg_config@3) -> K(Ssg_config@3) end
+        fun(Ssg_config@2) -> K(Ssg_config@2) end
     ).
 
 -spec ssg_build(
@@ -697,8 +784,8 @@ add_public(K) ->
     ).
 
 -spec option_to_result_nil(
-    gleam@option:option(TYX),
-    fun((TYX) -> {ok, nil} | {error, snag:snag()})
+    gleam@option:option(TZA),
+    fun((TZA) -> {ok, nil} | {error, snag:snag()})
 ) -> {ok, nil} | {error, snag:snag()}.
 option_to_result_nil(Opt, F) ->
     case Opt of
@@ -773,21 +860,13 @@ add_feed(Processed_collections, K) ->
 ) -> {ok, nil} | {error, snag:snag()}.
 add_vite_config(Config, Processed_collections, K) ->
     Home_page = <<"\"main\": \"arctic_build/index.html\""/utf8>>,
-    Dir = case erlang:element(5, Config) of
-        {some, _} ->
-            <<"/__pages/"/utf8>>;
-
-        none ->
-            <<"/"/utf8>>
-    end,
     Main_pages = gleam@list:fold(
         erlang:element(3, Config),
         <<""/utf8>>,
         fun(Js, Page) ->
-            <<<<<<<<<<<<Js/binary, "\""/utf8>>/binary,
-                                (erlang:element(2, Page))/binary>>/binary,
-                            "\": \"arctic_build"/utf8>>/binary,
-                        Dir/binary>>/binary,
+            <<<<<<<<<<Js/binary, "\""/utf8>>/binary,
+                            (erlang:element(2, Page))/binary>>/binary,
+                        "\": \"arctic_build/"/utf8>>/binary,
                     (erlang:element(2, Page))/binary>>/binary,
                 "/index.html\", "/utf8>>
         end
@@ -800,18 +879,17 @@ add_vite_config(Config, Processed_collections, K) ->
                 erlang:element(3, Processed),
                 Js@1,
                 fun(Js@2, Page@1) ->
-                    <<<<<<<<<<<<<<<<<<<<Js@2/binary, "\""/utf8>>/binary,
-                                                        (erlang:element(
+                    <<<<<<<<<<<<<<<<<<Js@2/binary, "\""/utf8>>/binary,
+                                                    (erlang:element(
+                                                        2,
+                                                        erlang:element(
                                                             2,
-                                                            erlang:element(
-                                                                2,
-                                                                Processed
-                                                            )
-                                                        ))/binary>>/binary,
-                                                    "/"/utf8>>/binary,
-                                                (get_id(Page@1))/binary>>/binary,
-                                            "\": \"arctic_build"/utf8>>/binary,
-                                        Dir/binary>>/binary,
+                                                            Processed
+                                                        )
+                                                    ))/binary>>/binary,
+                                                "/"/utf8>>/binary,
+                                            (get_id(Page@1))/binary>>/binary,
+                                        "\": \"arctic_build/"/utf8>>/binary,
                                     (erlang:element(
                                         2,
                                         erlang:element(2, Processed)
