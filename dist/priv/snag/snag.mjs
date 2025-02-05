@@ -1,7 +1,7 @@
 import * as $int from "../gleam_stdlib/gleam/int.mjs";
 import * as $list from "../gleam_stdlib/gleam/list.mjs";
 import * as $string from "../gleam_stdlib/gleam/string.mjs";
-import * as $string_builder from "../gleam_stdlib/gleam/string_builder.mjs";
+import * as $string_tree from "../gleam_stdlib/gleam/string_tree.mjs";
 import * as $gleam from "./gleam.mjs";
 import { Error, toList, prepend as listPrepend, CustomType as $CustomType } from "./gleam.mjs";
 
@@ -44,14 +44,12 @@ function pretty_print_cause(cause) {
       );
     },
   );
-  return $string_builder.from_strings(_pipe$1);
+  return $string_tree.from_strings(_pipe$1);
 }
 
 export function pretty_print(snag) {
-  let builder = $string_builder.from_strings(
-    toList(["error: ", snag.issue, "\n"]),
-  );
-  return $string_builder.to_string(
+  let builder = $string_tree.from_strings(toList(["error: ", snag.issue, "\n"]));
+  return $string_tree.to_string(
     (() => {
       let $ = snag.cause;
       if ($.hasLength(0)) {
@@ -59,11 +57,8 @@ export function pretty_print(snag) {
       } else {
         let cause = $;
         let _pipe = builder;
-        let _pipe$1 = $string_builder.append(_pipe, "\ncause:\n");
-        return $string_builder.append_builder(
-          _pipe$1,
-          pretty_print_cause(cause),
-        );
+        let _pipe$1 = $string_tree.append(_pipe, "\ncause:\n");
+        return $string_tree.append_tree(_pipe$1, pretty_print_cause(cause));
       }
     })(),
   );
