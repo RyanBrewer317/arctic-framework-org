@@ -10,44 +10,14 @@ HTMLDocument.prototype.addEventListener = function(type, listener, options) {
     document.arctic_addEventListener(type, listener, options);
   } else document.arctic_addEventListener(type, listener, options);
 }
-       </script><div id="arctic-app"><html><head></head><body><nav id="nav"><div id="nav-dropdown" onclick="document.getElementById(&#39;nav&#39;).classList.toggle(&#39;dropdown&#39;);">☰</div><a href="/" id="nav-home">Arctic</a><a href="/guides/quickstart" id="nav-guides">Guides</a><a href="/demos" id="nav-demos">Demos</a><a href="https://hexdocs.pm/arctic/" id="nav-docs">Docs</a></nav><h1><span>Arctic
+       </script><div id="arctic-app"><div><nav id="nav"><div id="nav-dropdown" onclick="document.getElementById(&#39;nav&#39;).classList.toggle(&#39;dropdown&#39;);">☰</div><a href="/" id="nav-home">Arctic</a><a href="/guides/quickstart" id="nav-guides">Guides</a><a href="/demos" id="nav-demos">Demos</a><a href="https://hexdocs.pm/arctic/" id="nav-docs">Docs</a></nav><h1><span>Demos
 </span></h1><div class="img-container"><div><img src="/banner.jpg" alt="An icy horizon in the Arctic.
-" async="true"></div></div><h3><span>Performance on Ice
-</span></h3><p><span>Arctic is a friendly web framework for the <a href="https://gleam.run"><span>Gleam</span></a> programming language.
-Author content in the language you want, generate HTML at build time,
-and serve a high-performance experience on the rocks.
-</span></p><p><span>By default, Arctic will produce SPAs that fetch and render statically-hosted HTML pages.
-This offers fast initial load times and responsive navigation through a site,
-and does not compromise SEO.
-All of this is handled automatically by the framework.
-</span></p><p><span>Arctic websites use content-to-HTML compilers that
-are easy to extend and can helpfully validate content.
-To get a sense of how this works, check out the <a href="/guides/quickstart"><span>quickstart</span></a>!
-Arctic uses caching to avoid re-compiling content that hasn&#39;t changed,
-which keeps build times extremely fast.
-</span></p><p><span>You could call it static, or you could even call it frozen.
-However, Arctic sites integrate well with your high-performance Gleam <a href="https://github.com/Pevensie"><span>backends</span></a>,
-or any other backend! It&#39;s just a way of organizing your client side code,
-which happens to not always require a server side codebase at all.
-And if you use a Gleam backend, you can reuse Lustre components across the stack!
-</span></p><h3><span>Ecosystem Integration
-</span></h3><p><span>Arctic automates and speeds up parts of your <a href="https://lustre.build/"><span>Lustre</span></a> workloads.
-Use your existing Lustre components,
-knowing that Arctic orchestrates them into a fast final product. 
-Proper support for client-side Lustre applications
-(as opposed to server-rendered Lustre components)
-is under active development, though there are tricks for doing it right now.
-In general you will find that Arctic does not prevent you from doing what you want,
-but simply makes certain things much easier.
-</span></p><p><span>Handle build-time validation with the <a href="https://hexdocs.pm/snag/"><span>Snag</span></a> library,
-for convenient and helpful error messages.
-Arctic&#39;s smart parsing will collect many such helpful errors, 
-instead of halting on the first one.
-</span></p><p><span>Arctic parsers are modular, 
-and broadly useful parser components can be found in the Gleam ecosystem.
-For example, <a href="https://github.com/RyanBrewer317/arctic_plugin_diagram"><span>here</span></a>
-is a parser component you can use for pretty SVG diagrams from TikZ-CD latex code!
-I personally use it <a href="https://ryanbrewer.dev/posts/getting-started-category-theory"><span>here</span></a>.</span></p></body></html></div><script>
+" async="true"></div></div><p><span>This website is made entirely with Arctic!
+You can find the source code <a href="https://github.com/RyanBrewer317/arctic-framework-org/"><span>here</span></a>.
+You can find the source code for this specific demos page <a href="https://github.com/RyanBrewer317/arctic-framework-org/blob/main/src/demos.gleam"><span>here</span></a>.
+</span></p><p><span><a href="https://ryanbrewer.dev"><span>ryanbrewer.dev</span></a> is another website built with Arctic, 
+with much more content and richer components.
+As I write this right now, though, it isn&#39;t using the latest version, so is a little slower.</span></p></div></div><script>
 // SPA algorithm partially inspired by Hayleigh Thompson's wonderful Modem library
 async function go_to(url, loader, back) {
   if (!back && url.pathname === window.location.pathname) {

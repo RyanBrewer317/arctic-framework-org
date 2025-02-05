@@ -1,5 +1,16 @@
 <!doctype html>
-<html><head><title>Arctic</title><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Arctic is a high-performance frontend framework for your Lustre workloads."><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>hljs.highlightAll();</script><link rel="stylesheet" href="/style.css"></head><body style="padding-top:40pt;"><div><div id="arctic-app"><html><head></head><body><nav id="nav"><div id="nav-dropdown" onclick="document.getElementById(&#39;nav&#39;).classList.toggle(&#39;dropdown&#39;);">☰</div><a href="/" id="nav-home">Arctic</a><a href="/guides/quickstart" id="nav-guides">Guides</a><a href="/demos" id="nav-demos">Demos</a><a href="https://hexdocs.pm/arctic/" id="nav-docs">Docs</a></nav><h1><span>Arctic
+<html><head><title>Arctic</title><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Arctic is a high-performance frontend framework for your Lustre workloads."><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script><script>hljs.highlightAll();</script><link rel="stylesheet" href="/style.css"></head><body style="padding-top:40pt;"><div><script>
+var _ARCTIC_C;
+if (typeof HTMLDocument === 'undefined') HTMLDocument = Document;
+let arctic_dom_content_loaded_listeners = [];
+HTMLDocument.prototype.arctic_addEventListener = HTMLDocument.prototype.addEventListener;
+HTMLDocument.prototype.addEventListener = function(type, listener, options) {
+  if (type === 'DOMContentLoaded') {
+    arctic_dom_content_loaded_listeners.push(listener);
+    document.arctic_addEventListener(type, listener, options);
+  } else document.arctic_addEventListener(type, listener, options);
+}
+       </script><div id="arctic-app"><html><head></head><body><nav id="nav"><div id="nav-dropdown" onclick="document.getElementById(&#39;nav&#39;).classList.toggle(&#39;dropdown&#39;);">☰</div><a href="/" id="nav-home">Arctic</a><a href="/guides/quickstart" id="nav-guides">Guides</a><a href="/demos" id="nav-demos">Demos</a><a href="https://hexdocs.pm/arctic/" id="nav-docs">Docs</a></nav><h1><span>Arctic
 </span></h1><div class="img-container"><div><img src="/banner.jpg" alt="An icy horizon in the Arctic.
 " async="true"></div></div><h3><span>Performance on Ice
 </span></h3><p><span>Arctic is a friendly web framework for the <a href="https://gleam.run"><span>Gleam</span></a> programming language.
@@ -37,32 +48,62 @@ and broadly useful parser components can be found in the Gleam ecosystem.
 For example, <a href="https://github.com/RyanBrewer317/arctic_plugin_diagram"><span>here</span></a>
 is a parser component you can use for pretty SVG diagrams from TikZ-CD latex code!
 I personally use it <a href="https://ryanbrewer.dev/posts/getting-started-category-theory"><span>here</span></a>.</span></p></body></html></div><script>
-if (window.location.pathname !== '/') {
-  go_to(new URL(window.location.href), true, true);
-}
-// SPA algorithm stolen from Hayleigh Thompson's wonderful Modem library
+// SPA algorithm partially inspired by Hayleigh Thompson's wonderful Modem library
 async function go_to(url, loader, back) {
-  if (url.pathname === window.location.pathname) {
+  if (!back && url.pathname === window.location.pathname) {
     if (url.hash) document.getElementById(url.hash.slice(1))?.scrollIntoView();
-    else document.body.scrollIntoView();
+    else window.scrollTo(0, 0);
     return;
   }
+  document.dispatchEvent(new Event('beforeunload'));
+  document.dispatchEvent(new Event('unload'));
+  for (let i = 0; i < arctic_dom_content_loaded_listeners.length; i++)
+    document.removeEventListener('DOMContentLoaded', arctic_dom_content_loaded_listeners[i]);
+  arctic_dom_content_loaded_listeners = [];
   const $app = document.getElementById('arctic-app');
   if (loader) $app.innerHTML = '<div id="arctic-loader"></div>';
   if (!back) window.history.pushState({}, '', url.href);
-  window.requestAnimationFrame(() => {
-    // scroll in #-link elements, as the browser would if we didn't preventDefault
-    if (url.hash) {
-      document.getElementById(url.hash.slice(1))?.scrollIntoView();
-    }
-  });
   // handle new path
-  console.log(url.pathname);
   const response = await fetch('/__pages/' + url.pathname + '/index.html');
   if (!response.ok) response = await fetch('/__pages/404.html');
   if (!response.ok) return;
   const html = await response.text();
-  $app.innerHTML = html;
+  $app.innerHTML = '<script>_ARCTIC_C=0;</'+'script>'+html;
+  // re-create script elements, so their javascript runs
+  const scripts = $app.querySelectorAll('script');
+  const num_scripts = scripts.length;
+  for (let i = 0; i < num_scripts; i++) {
+    const script = scripts[i];
+    const n = document.createElement('script');
+    // scripts load nondeterministically, so we figure out when they've all finished via the _ARCTIC_C barrier
+    if (script.innerHTML === '') {
+      // external scripts don't run their inline js, so they need an onload listener
+      n.onload = () => {
+        if (++_ARCTIC_C >= num_scripts)
+          document.dispatchEvent(new Event('DOMContentLoaded'));
+      };
+    } else {
+      // inline scripts might not trigger onload, so they get js appended to the end instead
+      const t = document.createTextNode(
+        script.innerHTML +
+        ';if(++_ARCTIC_C>=' + num_scripts +
+        ')document.dispatchEvent(new Event(\'DOMContentLoaded\'));'
+      );
+      n.appendChild(t);
+    }
+    // attributes at the end because 'src' needs to load after onload is listening
+    for (let j = 0; j < script.attributes.length; j++) {
+      const attr = script.attributes[j];
+      n.setAttribute(attr.name, attr.value);
+    }
+    script.parentNode.replaceChild(n, script);
+  }
+  window.requestAnimationFrame(() => {
+    if (url.hash)
+      document.getElementById(url.hash.slice(1))?.scrollIntoView();
+    else
+      window.scrollTo(0, 0);
+  });
 }
 document.addEventListener('click', async function(e) {
   const a = find_a(e.target);
@@ -86,5 +127,4 @@ function find_a(target) {
   if (!target || target.tagName === 'BODY') return null;
   if (target.tagName === 'A') return target;
   return find_a(target.parentElement);
-}
-  </script></div></body></html>
+}</script></div></body></html>
